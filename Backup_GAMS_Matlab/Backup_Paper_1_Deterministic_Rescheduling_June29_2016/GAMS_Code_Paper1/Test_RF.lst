@@ -1,0 +1,50 @@
+GAMS 24.4.6  r52609 Released Jun 26, 2015 WEX-WEI x86 64bit/MS Windows 11/22/15 17:11:29 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  FILE FileName99998 /Z_N3_MH12_RF0_DF6_DV1_DL6_DU1_S0_OPT0_MC1.gms/
+   2  PUT FileName99998;
+   3  PUT '$SETGLOBAL NetworkNumber          3'/;
+   4  PUT '$SETGLOBAL MH                     12'/;
+   5  PUT 'SCALAR re_freq                    /1/;'/;
+   6  PUT 'PARAMETER demand_cycletime        /6/;'/;
+   7  PUT 'PARAMETER demand_variation        /1/;'/;
+   8  PUT 'PARAMETER demand_magnitude        /6/;'/;
+   9  PUT 'PARAMETER lambda_Demand           /0/;'/;
+  10  PUT 'SCALAR surprise                   /0/; '/;
+  11  PUT 'SCALAR optcr_value                /0.1/;'/;
+  12  PUT 'PARAMETER SEED_VALUE              /1716/;'/;
+  13  PUT '$SETGLOBAL N_runs                 1'/;
+  14  PUT '$EvalGlobal H                     48+192'/;
+  15  PUT '$setglobal Results_FileName       Z_N3_MH12_RF0_DF6_DV1_DL6_DU1_S0_OP
+      T0_MC1'/;
+  16  PUT '$include ConfigurationFile.gms'/;
+
+
+COMPILATION TIME     =        0.000 SECONDS      2 MB  24.4.6 r52609 WEX-WEI
+GAMS 24.4.6  r52609 Released Jun 26, 2015 WEX-WEI x86 64bit/MS Windows 11/22/15 17:11:29 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+**** REPORT FILE SUMMARY
+
+FileName99998 C:\Users\Dhruv\Desktop\Work\Codes_OnlineMethods\November2015\GAMS_
+              Code_Paper1\Z_N3_MH12_RF0_DF6_DV1_DL6_DU1_S0_OPT0_MC1.gms
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.4.6 r52609 WEX-WEI
+
+
+USER: Maravelias Group, 5 User license               G140917:0440AO-GEN
+      University of Wisconsin, Chemical & Biological Engineering DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\Dhruv\Desktop\Work\Codes_OnlineMethods\November2015\GAMS_Cod
+           e_Paper1\Test_RF.gms
+Output     C:\Users\Dhruv\Desktop\Work\Codes_OnlineMethods\November2015\GAMS_Cod
+           e_Paper1\Test_RF.lst

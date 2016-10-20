@@ -1,0 +1,19 @@
+
+--- Job MakeBatchFiles.gms Start 10/05/16 17:02:36 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Medium MUD - 10 User License                   G160923:1323AO-GEN
+          University of Wisconsin - Madison, Department of Chemical &DC4923
+          License for teaching and research at degree granting institutions
+          License_Admin:_Ho_T._Jae_Lee,_hlee558@wisc.edu___________________
+--- Starting compilation
+--- MakeBatchFiles.gms(37) 2 Mb
+--- .study_HorizonEffect.gms(121) 3 Mb
+--- MakeBatchFiles.gms(179) 3 Mb
+--- Starting execution: elapsed 0:00:00.000
+--- MakeBatchFiles.gms(297) 4 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\MakeBatchFiles.gdx
+--- Putfile LinuxBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\LinuxBatchFile.bat
+--- Putfile WindowsBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\WindowsBatchFile.bat
+--- Putfile GamsFiles C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\MakeGMS.gms
+*** Status: Normal completion
+--- Job MakeBatchFiles.gms Stop 10/05/16 17:02:37 elapsed 0:00:00.453

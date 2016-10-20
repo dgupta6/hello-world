@@ -1,0 +1,4673 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   3  SCALAR re_freq                    /1/;
+   4  PARAMETER demand_cycletime        /1/;
+   5  PARAMETER demand_variation        /0/;
+   6  PARAMETER demand_magnitude        /0/;
+   7  PARAMETER lambda_Demand           /0.00/;
+   8  SCALAR surprise                   /0.00/;
+   9  SCALAR optcr_value                /0/;
+  10  PARAMETER SEED_VALUE              /1716/;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ConfigurationFile
+           .gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 2
+CONFIGURATION_FILE
+C o m p i l a t i o n
+
+
+  23   
+  24  *$SETGLOBAL OPTIMIZATION_DIRECTION  maximizing
+  25  *$SETGLOBAL MODEL_NAME MAX_PROFIT
+  26  *$SETGLOBAL InitialInventoryFlag 1
+  27   
+  28  *$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing
+  29  *$SETGLOBAL MODEL_NAME MIN_COST
+  30  *$SETGLOBAL InitialInventoryFlag 0
+  31  *******HORIZON********
+  32  *$SETGLOBAL H 192
+  34  *$SETGLOBAL MH 20
+  35  *SCALAR re_freq /1/;
+  36  *Used in chopping off initial transient in closed loop cost evaluation
+  37  *$SETGLOBAL Transient_H 48
+  38  *$SETGLOBAL Transient_H 0
+  39  *We do Closed_Loop_Upper # of calc and record closed loop solution only ti
+      ll there
+  40  *$SETGLOBAL Closed_Loop_Upper 168
+  41  *$SETGLOBAL Closed_Loop_Upper 192
+  42  *******HORIZON********
+  43   
+  44  *******NETWORK AND MODEL********
+  45  *$SETGLOBAL NetworkNumber 1
+  48  *******NETWORK AND MODEL********
+  49   
+  50  *******DEMAND LOAD********
+  51  *PARAMETER demand_cycletime /12/;
+  52  *PARAMETER demand_variation /3/;
+  53  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+  54  *******DEMAND LOAD********
+  55   
+  56  ******DISTURBANCES********************
+  57  *$SETGLOBAL Demand_Disturbance_flag 0
+  61  *Parameters for demand uncertainty
+  62  *What fraction ahead of rolling Horizon does demand forecast changes'
+  63  *SCALAR surprise /0.34/;
+  64  *Magnitude of Uncertainties
+  65  *PARAMETER lambda_Demand /0.2/;
+  66  *Yet to replace these names in ModelSolution9 file
+  67  *and these values are hardcoded right now (look into code again)
+  68  PARAMETER lambda_TaskDelay /0.2/;
+  69  PARAMETER lambda_UnitBreakdown /0.2/;
+  70  PARAMETER bringing_unit_back /2/;
+  71  PARAMETER lambda_Handling /0.2/;
+  72  ******DISTURBANCES********************
+  73   
+  74  *******OPTIMIZATION OPTIONS****
+  75  *SCALAR   optcr_value /0/;
+  76  SCALAR   timelimit /600/;
+  77  *******OPTIMIZATION OPTIONS****
+  78   
+  79  *******EVALUATION********
+  80  *$SETGLOBAL N_runs 1
+  81  *******EVALUATION********
+  82   
+  83  *******REPORTING********
+  86  *$SETGLOBAL Results_FileName Config_Results
+  87  *******REPORTING********
+  88   
+  89  *Run the closed loop and generate results
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+  91  *Change this to name of the instance
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 3
+MasterFile
+C o m p i l a t i o n
+
+
+  97  *$OFFLISTING
+  98   
+  99  execseed=SEED_VALUE;
+ 100  *parameter cc /0/;
+ 101   
+ 103  SCALAR KillLength /2/;
+ 104   
+ 105  SET run /run1*run1/;
+ 106   
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\NetworkN6.gms
+ 108  SETS     i tasks  /T1/
+ 109           s states /M1*M2/
+ 110           j units  /U1/
+ 111           u utilities /manpower/
+ 112   
+ 113  *         Ki(j,i) set of equipments(units) suitable for task i
+ 114  *         /(Reactor1).(TA,TB),Heater.Heating/
+ 115           Ij(i,j) set of equipments(units) suitable for task i
+ 116           /(T1).U1/
+ 117   
+ 118           FIS(s) States with Finite Intermediate Storage
+ 119           product_states(s) Product States/M2/
+ 120           feed_states(s) Feed States/M1/
+ 121   
+ 122           UtilInt Intervals for utility /Int1/
+ 123           UnitInt Intervals for unit-unavailability /Int1/
+ 124   
+ 125           Attributes/magnitude, starttime, price/
+ 126  ;
+ 127   
+ 128  Table UtilData(UtilInt,u,Attributes)
+ 129               manpower.starttime            manpower.magnitude      manpowe
+      r.price
+ 130  Int1                    0                         10                     0
+ 131  ;
+ 132   
+ 133  *Availability of unit  0=available, 1=not available
+ 134  Table UnitData(UnitInt,j,Attributes)
+ 135                U1.magnitude         U1.starttime
+ 136  Int1              0                     0
+ 137  ;
+ 138   
+ 139  Parameters rho(i,s) proportion of input of task i from states s
+ 140             /T1.M1 1/
+ 141             rhobar(i,s) proportion of ouput of task i to state s
+ 142             /T1.M2 1/
+ 143   
+ 144             pis(i,s) processing time for output of task i into state s
+ 145             /T1.M2 2/
+ 146             pi(i) maximum processing time in task i for any stage produced 
+      by it
+ 147   
+ 148             alpha(u,i) fixed utility demand by task i throughout its run
+ 149             /manpower.T1 0/
+ 150             beta(u,i) "variable utility demand by task i throughout its run
+      (te/hr)"
+ 151             /manpower.T1 0/
+ 152   
+ 153             vmaxij(i,j)  Maximum capacity of unit j when used for task i
+ 154             /T1.U1 10/
+ 155             vminij(i,j)  Minimum capacity of unit j when used for task i
+ 156             /T1.U1 1/
+ 157             Cs(s) maximum storage capacity for stage s  /(M1*M2) 99999/
+ 158             Cst(s) unit price of s/M1 1, M2 10/
+ 159  ;
+ 160  *pis(i,s)=5;
+ 161  pi(i)=smax(s,pis(i,s));
+ 162   
+ 163   
+ 164   
+ 165   
+ 166  *END OF INSTANCE FILE
+ 167  *parameter deliveries_time_varied(o);
+ 168   
+ 169   
+ 170   
+ 171   
+ 172   
+ 173   
+ 174   
+ 175   
+ 176   
+ 177   
+ 178   
+ 179   
+ 180   
+ 181   
+ 182   
+      Table deliveries(o,s)
+              SA      SB
+      o1      5       5
+      o2      5       5
+      o3      5       5
+      o4      5       5
+      o5      5       5
+      o6      5       5
+      o7      5       5
+      o8      5       5;
+ 195   
+ 196   
+      For debugging/testing utility formulas
+      Table UtilData(UtilInt,u,Attributes)
+                   manpower.starttime            manpower.magnitude      manpowe
+      r.price
+      Int1                    0                         1                     1
+      Int2                    1.5                       0                     0
+      Int3                    3.5                       1                     1
+      Int4                    6.1                       0                     0;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 4
+State_Space_Model
+C o m p i l a t i o n
+
+
+ 208  OPTIONS limrow = 0, limcol = 0, solprint = off;
+ 209  *OPTIONS limrow = 1000, limcol = 1000, solprint = on;
+ 210  *No upper limit on inventory (equation not enforced)
+ 211   
+ 212  *used for rounding W,B in recordstates in modelsolution file
+ 213  PARAMETER Small_number /1E-2/;
+ 214   
+ 215  *Now generating time grid using delta
+ 218  *$EvalGlobal calculations (%horizon%-%window%)
+ 222   
+ 223  set h time(multiples of delta) /h0*h66/
+ 224      n time window   /n0*n5/
+ 225      calc #of windows /calc0*calc24/
+ 226   
+ 227      closed_loop(h) horizon points for which we calculate closed loop cost
+ 228   
+ 229      Sbari(s,i)  materials produced by task i
+ 230      Si(s,i)     materials consumed by task i
+ 231      Tbars(i,s)    Tasks producing material s
+ 232      Ts(i,s) Tasks consuming material s;
+ 233   
+ 234  Sbari(s,i)=1$(rhobar(i,s) gt 0);
+ 235  Si(s,i)=1$(rho(i,s) gt 0);
+ 236  *Ij(i,j)=Ki(j,i);
+ 237  Tbars(i,s)=Sbari(s,i);
+ 238  Ts(i,s)=Si(s,i);
+ 239   
+ 240  closed_loop(h)=0;
+ 241  closed_loop(h)$(ord(h)-1 ge 0 and ord(h)-1 le 24)=1;
+ 242   
+ 243   
+ 244  alias(i,ip)
+ 245  alias(j,jp)
+ 246  alias(s,sp)
+ 247  alias(n,np)
+ 248  alias(h,hbar);
+ 249   
+ 250  set     UnitUnavailable_full(j,h)
+ 251  UnitUnavailable(j,n);
+ 252   
+ 253  parameter Uutmax_full(u,h),Cut_full(u,h) utility price;
+ 254   
+ 255  parameters Dst(s,n),Uutmax(u,n),Cut(u,n);
+ 256   
+ 257   
+ 258  parameter pis_new(i,s),pi_new(i);
+ 259  *tau_new(j,k,kp);
+ 260  pis_new(i,s)=ceil(pis(i,s)/1);
+ 261  pi_new(i)=ceil(pi(i)/1);
+ 262   
+ 263  parameter alpha_new(u,i),beta_new(u,i),Cst_new(s);
+ 264   
+ 265  alpha_new(u,i)=alpha(u,i);
+ 266   
+ 267  beta_new(u,i)=beta(u,i);
+ 268   
+ 269  Cst_new(s)=Cst(s);
+ 270   
+ 271   
+ 272   
+ 273   
+ 274  *UTILITY CALCULATIONS NEED TO BE CORRECTED
+ 275  *RIGHT NOW THERE IS BUG THAT IF THERE IS MORE THAN ONE CHANGE
+ 276  *WITHIN AN INTERVAL THEN THE CODE TAKES FIRST CHANGE ONLY
+ 277  *AND IGNORES THE SECOND CHANGE
+ 278  loop(UtilInt,
+ 279  *Maximum available utility
+ 280  Uutmax_full(u,h)$(ord(UtilInt) eq 1 and
+ 281                   ord(h) ge 1 and
+ 282                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 283                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 284                  =  UtilData(UtilInt,u,"magnitude");
+ 285   
+ 286   
+ 287   
+ 288   
+ 289  Uutmax_full(u,h)$((ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt)) an
+      d
+ 290                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 291                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 292                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 293                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 294                  =  UtilData(UtilInt,u,"magnitude");
+ 295   
+ 296   
+ 297   
+ 298  Uutmax_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 299                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 300                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 301                   ord(h) le card(h))
+ 302                  =  UtilData(UtilInt,u,"magnitude");
+ 303   
+ 304   
+ 305  *Utility Price
+ 306  Cut_full(u,h)$(ord(UtilInt) eq 1 and
+ 307            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 308            =  UtilData(UtilInt,u,"price");
+ 309   
+ 310  Cut_full(u,h)$(ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt) and
+ 311            ord(h)-1 gt (floor(UtilData(UtilInt,u,"starttime")/1)) and
+ 312            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 313            =  UtilData(UtilInt,u,"price");
+ 314   
+ 315  Cut_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 316            ord(h)-1 gt floor(UtilData(UtilInt,u,"starttime")/1) and
+ 317            ord(h) le card(h)   )
+ 318            =  UtilData(UtilInt,u,"price");
+ 319   
+ 320  Cut_full(u,h)$(ord(UtilInt) gt 1 and
+ 321           ord(h)-1 eq floor(UtilData(UtilInt,u,"starttime")/1))
+ 322           =(   UtilData(UtilInt-1,u,"price")*(UtilData(UtilInt,u,"starttime
+      ")-(ord(h)-1)* 1 )
+ 323                +UtilData(UtilInt,u,"price")*(ord(h)*1-UtilData(UtilInt,u,"s
+      tarttime"))   )/1;
+ 324  *Bug in cost calculation: what if there are 3 cost levels within one time 
+      grid?
+ 325  )
+ 326   
+ 327   
+ 328  *UnitUnavailabality(note the difference in inequalities as opposed to Util
+      ity....1=>unit not available so more magnitude is bad)
+ 329  loop(UnitInt,
+ 330  Unitunavailable_full(j,h)$(ord(UnitInt) eq 1 and
+ 331                   ord(h)-1 ge 0 and
+ 332                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 333                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 334                  =  UnitData(UnitInt,j,"magnitude");
+ 335   
+ 336   
+ 337   
+ 338   
+ 339  Unitunavailable_full(j,h)$((ord(UnitInt) gt 1 and ord(UnitInt) lt card(Uni
+      tInt)) and
+ 340                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 341                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 342                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 343                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 344                  =  UnitData(UnitInt,j,"magnitude");
+ 345   
+ 346   
+ 347   
+ 348  Unitunavailable_full(j,h)$(ord(UnitInt) eq card(UnitInt) and
+ 349                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 350                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 351                   ord(h) le card(h))
+ 352                  =  UnitData(UnitInt,j,"magnitude");
+ 353  )
+ 354   
+ 355   
+ 356   
+ 357  *display UnitUnavailable_full,Uutmax_full,Cut_full,Sbari,Si,rhobar,rho,Tba
+      rs,Ts,calc;
+ 358   
+ 359  *Ijk,tauChangeMax
+ 360   
+ 361   
+ 362   
+ 363  *Disturbance parameter for loading/unloading of materials
+ 364  parameters betaHatProd(i,j,s,n),betaHatCons(i,j,s,n);
+ 365  betaHatProd(i,j,s,n)=0;
+ 366  betaHatCons(i,j,s,n)=0;
+ 367   
+ 368   
+ 369  *Disturbance parameter for task delays
+ 370  parameters
+ 371  Yhat(i,j,n,hbar)
+ 372  Delay(calc,i,j,hbar)
+ 373  Zhat(i,j,n,hbar)
+ 374  Breakdown(calc,i,j,hbar)
+ 375  Duration_breakdown(calc,j)
+ 376  UnitBroken(j,n)
+ 377  WbarInfo(i,j,n,hbar)
+ 378  BbarInfo(i,j,n,hbar)
+ 379  KillDuration(i,j)
+ 380  KillDurationCountdown(i,j)
+ 381  KillOccupy(j,n)
+ 382  KillCountdown(j);
+ 383   
+ 384  *Initializing parameters
+ 385  Yhat(i,j,n,hbar)=0;
+ 386  Delay(calc,i,j,hbar)=0;
+ 387  Zhat(i,j,n,hbar)=0;
+ 388  Breakdown(calc,i,j,hbar)=0;
+ 389  Duration_breakdown(calc,j)=0;
+ 390  UnitBroken(j,n)=0;
+ 391  WbarInfo(i,j,n,hbar)=0;
+ 392  BbarInfo(i,j,n,hbar)=0;
+ 393  KillDuration(i,j)=0;
+ 394  KillDurationCountdown(i,j)=0;
+ 395  KillOccupy(j,n)=0;
+ 396  KillCountdown(j)=0;
+ 397   
+ 398  *hbar are the time points for lifting of variables
+ 399  *binary variables W(i,j,n),Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 400  binary variables Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 401  positive variable Bbar(i,j,n,hbar),Sst(s,n),Backlog(s,n),Ship(s,n),Ship_sa
+      les(s,n),Uut(u,n),Rst(s,n),SstTerminal(s),BacklogTerminal(s);
+ 402  variables obj_variable;
+ 403  integer variable NB(i,j) number of batches;
+ 404  *Assigning values to variables that might not participate in optimization
+ 405  Uut.l(u,n)=0;
+ 406  Ship_sales.l(s,n)=0;
+ 407   
+ 408  Equations
+ 409  numberOfBatches,
+ 410  Allocation,
+ 411  UnitCapacityMax,UnitCapacityMin,
+ 412  InventoryLimit,
+ 413  InventoryBalance,
+ 414  EndingInventory,
+ 415  BacklogBalance,
+ 416  EndingBacklog,
+ 417  UtilityLimit,
+ 418  UtilityBalance,
+ 419  objective_MIN_COST,
+ 420  objective_MAX_PROFIT,
+ 421  objective_MAX_PROFIT_Greedy
+ 422  UnitUnavailabality,
+ 423  *CorrectHolding(i,j,n),
+ 424  LiftingW,
+ 425  *LiftingW0,
+ 426  LiftingB,
+ 427  *LiftingB0,
+ 428  Carryover_W,Carryover_B,
+ 429  InventoryBalance_MAX_PROFIT,
+ 430  EndingInventory_MAX_PROFIT
+ 431  Ship_constraint(s,n)
+ 432  NoShip(s,n)
+ 433  NoTaskStart;
+ 434  *SHIPMENT;
+ 435  *NoTaskRunningAtEndOfHorizon;
+ 436   
+ 437  numberOfBatches(i,j)$Ij(i,j).. NB(i,j)=E=sum((n,hbar)$(ord(hbar)-1 eq 0),W
+      bar(i,j,n,hbar));
+ 438   
+ 439  *scalar ord_calc /0/;
+ 440  SCALAR fixed_decisions /0/;
+ 441  SCALAR reschedule_flag /0/;
+ 442  *re_freq-1-mod(ord_calc-1+re_freq-1,re_freq)  is zero for calc0
+ 443  Carryover_W(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Wbar(i,j,n,hbar)=E=WbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 444  Carryover_B(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Bbar(i,j,n,hbar)=E=BbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 445   
+ 446  *LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 447  *         Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,
+      j,n,hbar-1)-Zhat(i,j,n,hbar-1);
+ 448  *LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 449  *         Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1)
+ 450   
+ 451  LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 452           Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,j
+      ,n,hbar-1);
+ 453   
+ 454  LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 455           Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,j
+      ,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 456  Allocation(j,n).. sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 le (pi_new(i)-1)
+      ) ), Wbar(i,j,n,hbar))=L=1-sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 eq pi_n
+      ew(i)) ) , Yhat(i,j,n,hbar))-UnitBroken(j,n)
+ 457                        -sum((i,hbar)$(Ij(i,j) and ord(hbar)-1 ge 1 and ord(
+      hbar)-1 le pi(i)),T(i,j,hbar)$(ord(n)-1 lt KillDuration(i,j)))-KillOccupy(
+      j,n);
+ 458  *ord(np)-1=0 => Wbar0 which is also included in the above sum, so we dont 
+      have to explicitly sum over W now since W0 is also there
+ 459   
+ 460  UnitCapacityMax(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=L=Wbar(i,j,n,hbar)*vmaxij(i,j);
+ 461   
+ 462  UnitCapacityMin(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=G=Wbar(i,j,n,hbar)*vminij(i,j);
+ 463   
+ 464  InventoryLimit(s,n)$(FIS(s)).. Sst(s,n)=L=Cs(s);
+ 465   
+ 466  *Watch out for brackets in betahatCons and betaHatProd. One has multiplica
+      tion with rho other does not
+ 467  InventoryBalance(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,n)+sum((i,j
+      ,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhobar(
+      i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatProd(i
+      ,j,s,n)))
+ 468                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(produc
+      t_states(s))+Rst(s,n)$(feed_states(s));
+ 469  EndingInventory(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst(s,n)+sum((
+      i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhob
+      ar(i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatPro
+      d(i,j,s,n)))
+ 470                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(product
+      _states(s))+Rst(s,n)$(feed_states(s));
+ 471   
+ 472  ********
+ 473  *Inventory at point 2 means, inventory level infinitesimal time just befor
+      e point 2, ie 2-, need to define extra ending inventory variable SstTermin
+      al(s)
+ 474  *Deliveries are point functions like B, W while inventory is interval func
+      tion
+ 475  *Kondili has convention that inventory at point 2 is 2+, so has to define 
+      extra initial inventory parameter Sst0(s)
+ 476   
+ 477   
+ 478  ***********Backlogs******
+ 479  BacklogBalance(s,n)$(product_states(s) and ord(n) lt card(n)).. Backlog(s,
+      n+1)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 480  EndingBacklog(s,n)$(product_states(s) and ord(n) eq card(n)).. BacklogTerm
+      inal(s)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 481   
+ 482  ***********UtilityBalance******
+ 483  UtilityLimit(u,n).. Uut(u,n)=L=Uutmax(u,n);
+ 484  UtilityBalance(u,n).. Uut(u,n)=E=sum((i,j,hbar)$(Ij(i,j) and (ord(hbar)-1 
+      le pi_new(i)-1)),alpha_new(u,i)*Wbar(i,j,n,hbar)+beta_new(u,i)*Bbar(i,j,n,
+      hbar)  );
+ 485   
+ 486  UnitUnavailabality(i,j,n)$(UnitUnavailable(j,n) and Ij(i,j)).. sum((hbar)$
+      (ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 487   
+ 488  *Utility cost: sum((u,n),Cut(u,n)*Uut(u,n))
+ 489  *objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s
+      )) +1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 490  *                                 +1E2*sum((s,n)$(product_states(s)),Cst_n
+      ew(s)*Backlog(s,n))+1E2*sum(s$(product_states(s)),Cst_new(s)*BacklogTermin
+      al(s))
+ 491  *                                 +sum((i,j,hbar)$Ij(i,j),T(i,j,hbar));
+ 492  objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s)
+      ) + 1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 493                                   +1E2*sum((s,n)$(product_states(s)),Cst_ne
+      w(s)*Backlog(s,n))
+ 494                                   +1E2*sum(s$(product_states(s)),Cst_new(s)
+      *BacklogTerminal(s))
+ 495                                   +sum((i,j,n,hbar)$(Ij(i,j) AND ord(hbar)-
+      1 eq 0),Wbar(i,j,n,hbar));
+ 496   
+ 497   
+ 498  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum(s$(product_states(s)),Cst
+      _new(s)*SstTerminal(s))+1E1*sum((s,n)$(product_states(s)),Cst_new(s)*Ship(
+      s,n))
+ 499  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s) );
+ 500   
+ 501  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Sst(s,n))+1E1*sum(s$(product_states(s)),Cst_new(s)*SstTerminal
+      (s))
+ 502  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s))
+ 503  *                                       +1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Ship(s,n));
+ 504   
+ 505  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n))-sum((i,j,n,hbar)$(Ij(i,j) AND
+       ord(hbar)-1 eq 0),Wbar(i,j,n,hbar));
+ 506   
+ 507  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)))
+ 508  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)+Ship(s,n)))
+ 509  objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst_
+      new(s)*(Ship_sales(s,n)))
+ 510                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 511                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 512                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 513   
+ 514  objective_MAX_PROFIT_Greedy.. obj_variable =E= sum((s,n)$(product_states(s
+      )),round(2-(ord(n)/card(n)),2)*Cst_new(s)*(Ship(s,n)+Ship_sales(s,n)))
+ 515                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 516                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 517                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 518   
+ 519  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n));
+ 520   
+ 521  *SHIPMENT(s,n).. Ship(s,n)=L=Dst(s,n)  ;
+ 522  InventoryBalance_MAX_PROFIT(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,
+      n)
+ 523                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 524                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 525                           -Ship_sales(s,n)$(product_states(s))-Ship(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 526   
+ 527  EndingInventory_MAX_PROFIT(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst
+      (s,n)
+ 528                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 529                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 530                           -Ship(s,n)$(product_states(s))-Ship_sales(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 531   
+ 532  *Ship_constraint(s,n)$(ord(n) gt 1 AND ord(n) lt card(n) ).. Ship(s,n)=E=0
+      ;
+ 533  *Ship_constraint(s,n)$(Dst(s,n) eq 0).. Ship_sales(s,n)=E=0;
+ 534  Ship_constraint(s,n)$(NOT Dst(s,n) gt 0).. Ship_sales(s,n)=E=0;
+ 535   
+ 536  *NoTaskRunningAtEndOfHorizon(i,j,n)$(ord(n) eq card(n) and Ij(i,j))..   su
+      m(hbar$(ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 537  NoShip(s,n)$(ord(n) lt card(n)/2 and sameas(s,'M4')).. Ship_sales(s,n)=E=0
+      ;
+ 538  *NoShip(s,n)$(ord(n) lt card(n)/2).. Ship_sales(s,n)=E=0;
+ 539   
+ 540  NoTaskStart(i,j,n,hbar)$(ord(n)-1 eq 0 AND ord(hbar)-1 eq 0).. Wbar(i,j,n,
+      hbar)=E=0;
+ 541   
+ 542  *****************
+ 543  *DISTURBANCE VARIABLES
+ 544  *Build feature rich instances and do rigorous testing
+ 545  *****************
+ 546   
+ 547  SET attributes_states /W,B/;
+ 548  PARAMETERS
+ 549  record_states_raw(run,calc,attributes_states,i,j,n,hbar),
+ 550  record_states(run,calc,attributes_states,i,j,n,hbar),
+ 551  record_objective(run,calc),
+ 552  record_utility(run,calc,u,n),
+ 553  record_inventory(run,calc,s,n),
+ 554  record_inventory_raw(run,calc,s,n),
+ 555  record_backlog(run,calc,s,n),
+ 556  record_backlog_raw(run,calc,s,n),
+ 557  record_inventoryTerminal(run,calc,s),
+ 558  record_backlogTerminal(run,calc,s)
+ 559  record_T(run,calc,i,j,hbar)
+ 560  record_shipment(run,calc,s,n)
+ 561  record_shipment_sales(run,calc,s,n)
+ 562  record_shipment_sales_raw(run,calc,s,n)
+ 563  record_Rst(run,calc,s,n)
+ 564  record_shipment_raw(run,calc,s,n)
+ 565  record_Rst_raw(run,calc,s,n)
+ 566  record_yieldloss(run,calc,i,j,s,n)
+ 567  record_demands(run,calc,s,n)
+ 568  record_WbarInfo(run,calc,i,j,n,hbar)
+ 569  record_BbarInfo(run,calc,i,j,n,hbar)
+ 570  record_Demands_realization(run,s,h)
+ 571  record_fixed_decision(calc)
+ 572  record_reschedule_flag(calc,run)
+ 573  record_relaxed_objective(run,calc) Objective from solving RMIP
+ 574  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar) states from s
+      olving RMIP
+ 575  record_relaxed_shipment(run,calc,s,n)
+ 576  record_relaxed_shipment_sales(run,calc,s,n)
+ 577  record_relaxed_backlog(run,calc,s,n);
+ 578   
+ 579  record_states_raw(run,calc,attributes_states,i,j,n,hbar)=0;
+ 580  record_states(run,calc,'B',i,j,n,hbar)=0;
+ 581  record_states(run,calc,'W',i,j,n,hbar)=0;
+ 582  record_inventory(run,calc,s,n)=0;
+ 583  record_inventory_raw(run,calc,s,n)=0;
+ 584  record_backlog(run,calc,s,n)=0;
+ 585  record_backlog_raw(run,calc,s,n)=0;
+ 586  record_T(run,calc,i,j,hbar)=0;
+ 587  record_shipment(run,calc,s,n)=0 ;
+ 588  record_Rst(run,calc,s,n)=0;
+ 589  record_shipment_raw(run,calc,s,n)=0;
+ 590  record_shipment_sales_raw(run,calc,s,n)=0;
+ 591  record_shipment_sales(run,calc,s,n)=0;
+ 592  record_Rst_raw(run,calc,s,n)=0;
+ 593  record_yieldloss(run,calc,i,j,s,n)=0;
+ 594  record_demands(run,calc,s,n)=0;
+ 595  record_WbarInfo(run,calc,i,j,n,hbar)=0;
+ 596  record_BbarInfo(run,calc,i,j,n,hbar)=0;
+ 597  record_Demands_realization(run,s,h)=0;
+ 598  record_fixed_decision(calc)=0;
+ 599  record_reschedule_flag(calc,run)=0;
+ 600  record_relaxed_objective(run,calc)=0;
+ 601  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar)=0;
+ 602  record_relaxed_shipment(run,calc,s,n)=0;
+ 603  record_relaxed_shipment_sales(run,calc,s,n)=0;
+ 604  record_relaxed_backlog(run,calc,s,n)=0;
+ 605   
+ 606  *Initial conditions for first optimization horizon
+ 607  PARAMETERS InitialBbar(i,j,n,hbar),InitialWbar(i,j,n,hbar),InitialInventor
+      y(s),InitialBacklog(s);
+ 608  InitialBbar(i,j,n,hbar)=0;
+ 609  InitialWbar(i,j,n,hbar)=0;
+ 610  InitialInventory(s)=0;
+ 611  InitialBacklog(s)=0;
+ 612   
+ 613  *if (%InitialInventoryFlag% eq 1,
+ 614  *Start with half day of inventory
+ 615  *InitialInventory(s)$product_states(s)=12*demand_magnitude/demand_cycletim
+      e;
+ 616  *);
+ 617  InitialInventory(s)$product_states(s)=0*demand_magnitude/demand_cycletime;
+ 618   
+ 619   
+ 620  *MODEL P1 /all/;
+ 621  MODEL MIN_COST /
+ 622  numberOfBatches,
+ 623  Allocation,
+ 624  UnitCapacityMax,
+ 625  UnitCapacityMin,
+ 626  *InventoryLimit,
+ 627  InventoryBalance,
+ 628  EndingInventory,
+ 629  BacklogBalance,
+ 630  EndingBacklog,
+ 631  *UtilityLimit,
+ 632  *UtilityBalance,
+ 633  *UnitUnavailabality,
+ 634  LiftingW,
+ 635  LiftingB,
+ 636  Carryover_W,
+ 637  Carryover_B,
+ 638  objective_MIN_COST/;
+ 639   
+ 640  MODEL MAX_PROFIT_1 /
+ 641  numberOfBatches,
+ 642  Allocation,
+ 643  UnitCapacityMax,
+ 644  UnitCapacityMin,
+ 645  Carryover_B
+ 646  InventoryBalance_MAX_PROFIT,
+ 647  LiftingW,
+ 648  BacklogBalance
+ 649  LiftingB,
+ 650  Carryover_W,
+ 651  objective_MAX_PROFIT
+ 652  Ship_constraint
+ 653  EndingInventory_MAX_PROFIT,
+ 654  EndingBacklog/;
+ 655   
+ 656  MODEL MAX_PROFIT_2 /
+ 657  numberOfBatches,
+ 658  Allocation,
+ 659  UnitCapacityMax,
+ 660  UnitCapacityMin,
+ 661  InventoryBalance_MAX_PROFIT,
+ 662  EndingInventory_MAX_PROFIT,
+ 663  BacklogBalance,
+ 664  EndingBacklog,
+ 665  LiftingW,
+ 666  LiftingB,
+ 667  Carryover_W,
+ 668  Carryover_B,
+ 669  objective_MAX_PROFIT
+ 670  Ship_constraint/;
+ 671   
+ 672  MODEL MAX_PROFIT_SellAnytime /
+ 673  numberOfBatches,
+ 674  Allocation,
+ 675  UnitCapacityMax,
+ 676  UnitCapacityMin,
+ 677  InventoryBalance_MAX_PROFIT,
+ 678  EndingInventory_MAX_PROFIT,
+ 679  BacklogBalance,
+ 680  EndingBacklog,
+ 681  LiftingW,
+ 682  LiftingB,
+ 683  Carryover_B,
+ 684  Carryover_W,
+ 685  objective_MAX_PROFIT
+ 686  NoTaskStart/;
+ 687  MODEL MAX_PROFIT_SellAnytime_Greedy /
+ 688  numberOfBatches,
+ 689  Allocation,
+ 690  UnitCapacityMax,
+ 691  UnitCapacityMin,
+ 692  InventoryBalance_MAX_PROFIT,
+ 693  EndingInventory_MAX_PROFIT,
+ 694  BacklogBalance,
+ 695  EndingBacklog,
+ 696  LiftingW,
+ 697  LiftingB,
+ 698  Carryover_B,
+ 699  Carryover_W,
+ 700  objective_MAX_PROFIT_Greedy /;
+ 701   
+ 702  MODEL MAX_PROFIT_GREEDY /
+ 703  numberOfBatches,
+ 704  Allocation,
+ 705  UnitCapacityMax,
+ 706  UnitCapacityMin,
+ 707  InventoryBalance_MAX_PROFIT,
+ 708  EndingInventory_MAX_PROFIT,
+ 709  BacklogBalance,
+ 710  EndingBacklog,
+ 711  LiftingW,
+ 712  LiftingB,
+ 713  Carryover_W,
+ 714  Carryover_B,
+ 715  *objective_MAX_PROFIT
+ 716  objective_MAX_PROFIT_Greedy
+ 717  Ship_constraint/;
+ 718  *NoShip/;
+ 719   
+ 720  MODEL MAX_PROFIT_NOSHIP /
+ 721  numberOfBatches,
+ 722  Allocation,
+ 723  UnitCapacityMax,
+ 724  UnitCapacityMin,
+ 725  InventoryBalance_MAX_PROFIT,
+ 726  EndingInventory_MAX_PROFIT,
+ 727  BacklogBalance,
+ 728  EndingBacklog,
+ 729  LiftingW,
+ 730  LiftingB,
+ 731  Carryover_W,
+ 732  Carryover_B,
+ 733  objective_MAX_PROFIT
+ 734  *objective_MAX_PROFIT_Greedy
+ 735  Ship_constraint
+ 736  NoShip/;
+ 737   
+ 738  MODEL MAX_PROFIT_GREEDY_NOSHIP /
+ 739  numberOfBatches,
+ 740  Allocation,
+ 741  UnitCapacityMax,
+ 742  UnitCapacityMin,
+ 743  InventoryBalance_MAX_PROFIT,
+ 744  EndingInventory_MAX_PROFIT,
+ 745  BacklogBalance,
+ 746  EndingBacklog,
+ 747  LiftingW,
+ 748  LiftingB,
+ 749  Carryover_W,
+ 750  Carryover_B,
+ 751  *objective_MAX_PROFIT
+ 752  objective_MAX_PROFIT_Greedy
+ 753  Ship_constraint
+ 754  NoShip/;
+ 755   
+ 756  *SHIPMENT/;
+ 757   
+ 758   
+ 759  T.l(i,j,hbar)=0;
+ 760  *Parameters for Gantt Charting in Excel
+ 761  *END OF MODEL FILE
+ 762   
+ 763   
+ 764   
+ 765   
+ 766  PARAMETER runcost(run) cost of implemented closed loop
+ 767           runcost_Inv(run) Inventory cost,runcost_BO(run) Backlog cost, run
+      cost_W(run) start_cost_of_tasks
+ 768           runprofit(run) closed loop profit in MAX_profit
+ 769           sales_profit(run);
+ 770   
+ 771           runcost_Inv(run)=0;runcost_BO(run)=0; runcost_W(run)=0;runcost(ru
+      n)=0; runprofit(run)=0;sales_profit(run)=0;
+ 772   
+ 773  PARAMETER modelStat(calc,run)     Should be 1 for successful optimization
+ 774            BOStat_OL(calc,run)     If 1 means open loop had non zero back o
+      rder
+ 775            BOStat_CL(calc,run)     If 1 means closed loop had non zero back
+       order
+ 776            IntegralityGap(calc,run)
+ 777            Est_modelGap1(calc,run)  Estimated optimality gap by CPLEX (obj.
+      val in denominator)
+ 778            Est_modelGap2(calc,run)  Estimated optimality gap by CPLEX (obj.
+      Est in denominator)
+ 779            True_modelGap(calc,run) True optimality gap obtained by solving 
+      to optcr=0
+ 780            ETSolve(calc,run)
+ 781            ETSolver(calc,run)
+ 782            iterUsd(calc,run)
+ 783            nodUsd(calc,run)
+ 784            resUsd(calc,run)
+ 785            numDVar(calc,run)
+ 786            numEqu(calc,run)
+ 787            numInfes(calc,run)
+ 788            numNZ(calc,run)
+ 789            numVar(calc,run)
+ 790            solveStat(calc,run)
+ 791            Suboptimal_objective /0/
+ 792            Optimal_Objective /0/
+ 793            TimeToSolveOptimal(calc,run);
+ 794   
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      SET         o orders /o1*o%H%/;
+      PARAMETER deliveries_time(o,run);
+      deliveries_time(o,run)=demand_cycletime*ord(o);
+      PARAMETER deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+       
+      PARAMETER Dst_full(s,h);
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+       
+      PARAMETER Dst_full_realization(s,h,run);
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+       
+      *IF(%Demand_Disturbance_flag% eq 1,
+               LOOP(run,
+                  deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+                  Dst_full_realization(s,h,run)=(Dst_full(s,h)+Dst_full(s,h)*uni
+      formInt(-lambda_Demand,lambda_Demand)  )$(Dst_full(s,h) gt 0);
+               );
+      *);
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 820  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 821  ******DEMAND INFORMATION*****************************
+ 822  *Each order for all products
+ 823  SET         o orders /o1*o66/;
+ 824  PARAMETER deliveries_time(o,run);
+ 825  deliveries_time(o,run)=demand_cycletime*ord(o);
+ 826  PARAMETER deliveries(o,s);
+ 827  deliveries(o,s)$(product_states(s))=demand_magnitude;
+ 828  ******DEMAND INFORMATION*****************************
+ 829   
+ 830  PARAMETER Dst_full_realization(s,h,run),Dst_full(s,h);
+ 831   
+ 832  *IF(%Demand_Disturbance_flag% eq 1,
+ 833  LOOP(run,
+ 834    deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-demand_variati
+      on,demand_variation);
+ 835    Dst_full_realization(s,h,run)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(d
+      eliveries_time(o,run)/1)));
+ 836    Dst_full_realization(s,h,run)=(Dst_full_realization(s,h,run)+Dst_full_re
+      alization(s,h,run)/100*uniformInt(-lambda_Demand*100,lambda_Demand*100)  )
+      $(Dst_full_realization(s,h,run) gt 0);
+ 837  );
+ 838  *);
+ 839  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 840   
+ 841   
+ 842  PARAMETER ClosedLoopINV(run,s,h),ClosedLoopBO(run,s,h),ClosedLoopShip(run,
+      s,h),ClosedLoopShip_sales(run,s,h),
+ 843            ClosedLoopStart(run,h),Cost_EndInventory(run),ClosedLoopExecutio
+      ns(run,i);
+ 844  ClosedLoopINV(run,s,h)=0;
+ 845  ClosedLoopBO(run,s,h)=0;
+ 846  ClosedLoopShip(run,s,h)=0;
+ 847  ClosedLoopShip_sales(run,s,h)=0;
+ 848  ClosedLoopStart(run,h)=0;
+ 849  Cost_EndInventory(run)=0;
+ 850  ClosedLoopExecutions(run,i)=0;
+ 851  *This parameter switches to 1 at end of this file
+ 852  *indicating a succesful run(sweep of code) throughout
+ 853  PARAMETER SUCCESS /0/;
+ 854   
+ 855   
+ 856  PARAMETER timeLeft /0/;
+ 857  PARAMETER endingSeed /0/;
+ 858  *PARAMETER sample /0/;
+ 859   
+ 860  ********************STOPPING CRITERION*************
+      PARAMETER mean_runcost(run), std_dev_runcost(run), delta_std_dev_runcost(r
+      un), max_delta_std_dev_runcost(run), N_run count of runs;
+      mean_runcost(run)=0;
+      std_dev_runcost(run)=0;
+      delta_std_dev_runcost(run)=0;
+      max_delta_std_dev_runcost(run)=0;
+      N_run=0;
+      ALIAS(run,run_p);
+      ********************STOPPING CRITERION*************
+ 871   
+ 872  ********************[Start] Evaluations Runs *****************************
+      **********
+ 873  loop(run,
+      put screen;
+      put 'I am on run ' run.tl;
+      putclose;
+      put log;
+      put 'I am on run ' run.tl;
+      putclose;
+ 882   
+ 883  *We need to reset Dst_full(s,h) with each run to nominal values
+ 884  *and then as MH goes forward, Dst_full slowly takes the value of Dst_full_
+      realization
+ 885  *for that particular run, after which here we need to refresh it to nomina
+      l values
+ 886  Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o,r
+      un)/1)));
+ 887   
+ 888  if(0 eq 1,
+ 889  abort$1 "Look into robust case demand generation in MasterFile and make su
+      re its correct";
+ 890           Dst_full(s,h)=Dst_full(s,h)*(1+ lambda_Demand);
+ 891  );
+ 892  *this time sample is equal to 1, so we are in evaluation mode
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gm
+           s
+ 894  loop(calc,
+ 895  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+ 896  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+ 897  *abort$1 "stopped for debugging";
+ 898  *abort$(ord(calc)-1 eq 1) "stopped for debugging";
+ 899   
+ 900  *********VARIABLE RESCHEDULING FREQUENCY********
+ 901  *resetting old parameter values
+ 902  WbarInfo(i,j,n,hbar)=0;
+ 903  BbarInfo(i,j,n,hbar)=0;
+ 904   
+ 905  *DEMAND SAMPLING
+ 906  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+ 907          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+      ))) )=Dst_full_realization(s,h,run);
+ 908  *Now allocating demands to the rolling horizon calculation
+ 909          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+      ));
+ 910   
+ 911   
+      * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+      *are wrongly fixed)
+      if (re_freq=0,
+      *Reschedule flag is 1 for first optimization
+              reschedule_flag=0;
+      *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+              reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+      *Also do find schedule for the very first optimization
+              reschedule_flag$(ord(calc)-1 eq 0)=1;
+      *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+              if (reschedule_flag=1,
+      *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+                      fixed_decisions=0;
+              else
+      *Forced to follow previous fixed (planned) decisions
+                      fixed_decisions=card(n)-1;
+              );
+      else
+ 932          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+ 933          reschedule_flag=0;
+ 934          reschedule_flag$(fixed_decisions=0)=1;
+ 935  *);
+ 936  record_fixed_decision(calc)=fixed_decisions;
+ 937  record_reschedule_flag(calc,run)=reschedule_flag;
+ 938   
+ 939  *Unfix fixed variables
+ 940  Ship.lo(s,n)=0;Ship.up(s,n)=Inf;
+ 941  Rst.lo(s,n)=0;Rst.up(s,n)=Inf;
+ 942  Ship_sales.lo(s,n)=0;Ship_sales.up(s,n)=Inf;
+ 943  *Uut.lo(u,n)=0; Uut.up(u,n)=Inf;
+ 944  *Fix Input states
+ 945  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+ 946  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 947  Ship.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment(run,calc-1,s,
+      n+1);
+ 948  Rst.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_Rst(run,calc-1,s,n+1);
+ 949  Ship_sales.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment_sales(r
+      un,calc-1,s,n+1);
+ 950  T.fx(i,j,hbar)=0;
+ 951  *********VARIABLE RESCHEDULING FREQUENCY********
+ 952   
+ 953  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+ 954  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+      ntory(s)$(ord(calc)-1 eq 0);
+ 955  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+      cklog(s)$(ord(calc)-1 eq 0);
+ 956  *Uut.fx(u,n)$(ord(n)-1 le 0)=record_utility(run,calc-1,u,n+1);
+ 957   
+ 958   
+ 959  *Fix backlogs to zero if corresponding flag is 0
+ 960  if(0 eq 0,
+ 961  Backlog.fx(s,n)=0;
+ 962  BacklogTerminal.fx(s)=0;
+ 963  );
+ 964  *Dst(s,n)$(product_states(s) AND ord(n) eq 1) = 1;
+ 965  *Ship_sales.fx(s,n)$(ord(n)-1 eq 0 AND sameas(s,'M4')) = 8.05;
+ 966  *Ship_sales.fx(s,n)$(ord(n) lt card(n)) = 0;
+ 967   
+ 968  *cc=execseed;
+ 969  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 970  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+ 971  *if(%Demand_Disturbance_Flag% eq 1,
+ 972  *);
+ 973   
+ 974  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+ 975  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+ 976  *Now allocating demands to the rolling horizon calculation
+ 977  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+ 978  **UNCOMMENT HERE TO HERE
+ 979  *Display Dst_full;
+ 980   
+ 981   
+ 982  *UnitBreakdown disturbance
+ 983  *First breakdown unit for whole horizon and then sample after 1 time step
+ 984  *when it is coming back
+ 985  UnitBroken(j,n)=0;
+ 986  Zhat(i,j,n,hbar)=0;
+ 987  if(0 eq 1 and ord(calc)-1 ge 2,
+ 988           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown
+      (calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,
+      j,n,hbar-1)) gt 0));
+ 989   
+ 990  *If there is a delay ongoing then sample this breakdown
+ 991           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown(c
+      alc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,
+      n,hbar)) gt 0));
+ 992   
+ 993  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+ 994  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+ 995   
+ 996  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+ 997  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+ 998  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+ 999           Duration_breakdown(calc,j)=2$(sum((hbar,i)$(Ij(i,j) and ord(hbar)
+      -1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 and Duration_breakdown(calc-
+      1,j) eq (card(h)))
+1000                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+1001                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1002  *display Breakdown,duration_breakdown;
+1003   
+1004           UnitBroken(j,n)=0;
+1005           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+1006   
+1007           Zhat(i,j,n,hbar)=0;
+1008           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+      )=1;
+1009   
+1010  );
+1011   
+1012   
+1013   
+1014  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+1015  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+1016  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+1017  *was already over in the last horizon
+1018  if(0 eq 1,
+1019  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+1020  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+1021            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+1022            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+      (calc-1,i,j,hbar) eq 0)=2$(uniform(0,1) ge 0.6 and (sum(n$(ord(n)-1 eq 0),
+      record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and Delay(calc-1,i,j,hbar
+      -1) eq 0));
+1023  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+1024  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+1025   
+1026  *display Delay;
+1027  *Wipes out previous Yhats
+1028            Yhat(i,j,n,hbar)=0;
+1029  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+1030            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+1031  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+1032            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+      1$(Delay(calc,i,j,hbar) gt 0);
+1033   
+1034  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+1035  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+1036  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+1037  );
+1038   
+1039  *display Yhat;
+1040  *display WbarInfo;
+1041  *display BbarInfo;
+1042   
+1043   
+1044  *Introducing disturbance in material handling(loading/unloading)
+1045  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+1046  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+1047  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+1048  if(0 eq 1,
+1049  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+1050  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+1051  *wipes out previous parameter values
+1052  betaHatProd(i,j,s,n)=0;
+1053  betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-0
+      .1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yhat
+      (i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+1054  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+1055  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+1056  );
+1057  *Display betaHatProd;
+1058   
+1059   
+1060  *Correct allocation constraint
+1061  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+1062  KillOccupy(j,n)=0;
+1063  KillDuration(i,j)$Ij(i,j)=KillLength$(0);
+1064  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+1065  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+1066  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+1067  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+1068  if(0 eq 0,
+1069     T.fx(i,j,hbar)=0;
+1070  );
+1071  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+1072  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+1073   
+1074  ***************UTILITIES**************************************************
+      ******
+1075  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+      ;
+1076  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+      ailable_full(j,h));
+1077  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+1078  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+1079  *This correction is needed in model file
+1080  ***************UTILITIES**************************************************
+      ******
+1081  *Display Dst;
+1082   
+1083  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+1084  *Solve optimization horizon
+1085   
+1086  Option IntVarUp=0;
+1087  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+1088  MAX_PROFIT_SellAnytime_Greedy.optcr = optcr_value$(reschedule_flag)+1$(NOT
+       reschedule_flag);
+1089  MAX_PROFIT_SellAnytime_Greedy.reslim = timelimit;
+1090  MAX_PROFIT_SellAnytime_Greedy.holdFixed=1;
+1091  solve MAX_PROFIT_SellAnytime_Greedy using MIP MAXIMIZING obj_variable;
+1092   
+1093  modelStat(calc,run)=MAX_PROFIT_SellAnytime_Greedy.ModelStat;
+1094  *Watch out what should be denominator, Relaxed or Best found solution
+1095  *Cplex uses division by best found integer solution
+1096  Est_modelGap1(calc,run)=abs((MAX_PROFIT_SellAnytime_Greedy.objEst-MAX_PROF
+      IT_SellAnytime_Greedy.objVal)/(MAX_PROFIT_SellAnytime_Greedy.objVal+1E-10)
+      );
+1097  Est_modelGap2(calc,run)=abs((MAX_PROFIT_SellAnytime_Greedy.objEst-MAX_PROF
+      IT_SellAnytime_Greedy.objVal)/(MAX_PROFIT_SellAnytime_Greedy.objEst+1E-10)
+      );
+1098  Suboptimal_objective=MAX_PROFIT_SellAnytime_Greedy.objVal;
+1099   
+1100  ETSolve(calc,run)=MAX_PROFIT_SellAnytime_Greedy.etSolve;
+1101  ETSolver(calc,run)=MAX_PROFIT_SellAnytime_Greedy.etSolver;
+1102  iterUsd(calc,run)=MAX_PROFIT_SellAnytime_Greedy.iterUsd;
+1103  nodUsd(calc,run)=MAX_PROFIT_SellAnytime_Greedy.nodUsd;
+1104  resUsd(calc,run)=MAX_PROFIT_SellAnytime_Greedy.resUsd;
+1105  numDVar(calc,run)=MAX_PROFIT_SellAnytime_Greedy.numDVar;
+1106  numEqu(calc,run)=MAX_PROFIT_SellAnytime_Greedy.numEqu;
+1107  numInfes(calc,run)=MAX_PROFIT_SellAnytime_Greedy.numInfes;
+1108  numNZ(calc,run)=MAX_PROFIT_SellAnytime_Greedy.numNZ;
+1109  numVar(calc,run)=MAX_PROFIT_SellAnytime_Greedy.numVar;
+1110  solveStat(calc,run)=MAX_PROFIT_SellAnytime_Greedy.solveStat;
+1111   
+1112  *Recording optimized variables for each optimization horizon
+1113  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Bbar.l(i,j,n,hbar);
+1114  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Wbar.l(i,j,n,hbar);
+1115  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+1116  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Wbar.l(i,j,n,hbar));
+1117  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+      ar);
+1118  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+1119  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+1120  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+1121  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+1122  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+1123  record_objective(run,calc)=obj_variable.l;
+1124  record_utility(run,calc,u,n)=Uut.l(u,n);
+1125  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+1126  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+1127  record_shipment_raw(run,calc,s,n)=Ship.l(s,n);
+1128  record_shipment(run,calc,s,n)=round(Ship.l(s,n),2);
+1129  record_shipment_sales_raw(run,calc,s,n)=Ship_sales.l(s,n);
+1130  record_shipment_sales(run,calc,s,n)=round(Ship_sales.l(s,n),2);
+1131  record_Rst_raw(run,calc,s,n)=Rst.l(s,n);
+1132  record_Rst(run,calc,s,n)=round(Rst.l(s,n),2);
+1133  record_demands(run,calc,s,n)=Dst(s,n);
+1134  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+1135   
+1136  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+1137  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+1138   
+1139  BOStat_OL(calc,run) =  1$(sum((s,n),record_backlog(run,calc,s,n)+record_ba
+      cklogTerminal(run,calc,s)) > 0);
+1140  BOStat_CL(calc,run) =  1$(sum((s,n)$(ord(n)-1 eq 0),record_backlog(run,cal
+      c,s,n)) > 0);
+1141   
+1142  *display ship.l;
+1143  Optimal_Objective=Suboptimal_Objective;
+1144  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1145  IF(MAX_PROFIT_SellAnytime_Greedy.optcr <> 0 AND reschedule_flag eq 1,
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+1151  MAX_PROFIT_SellAnytime_Greedy.optcr=0;
+1152  solve MAX_PROFIT_SellAnytime_Greedy using MIP MAXIMIZING obj_variable;
+1153  Optimal_Objective=MAX_PROFIT_SellAnytime_Greedy.objVal;
+1154  True_modelGap(calc,run)=(Suboptimal_objective-Optimal_Objective)/(Optimal_
+      objective+1E-10);
+1155  TimeToSolveOptimal(calc,run)=MAX_PROFIT_SellAnytime_Greedy.resUsd;
+1156  );
+1157   
+1158  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1159   
+1160  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+1161   
+1162  IF (reschedule_flag eq 1,
+1163  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1164  solve MAX_PROFIT_SellAnytime_Greedy using RMIP MAXIMIZING obj_variable;
+1165  record_relaxed_objective(run,calc)=obj_variable.l;
+1166  IntegralityGap(calc,run)=record_relaxed_objective(run,calc)/(Optimal_Objec
+      tive+1E-10);
+1167  record_relaxed_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Bbar.l(i,j,n,hbar);
+1168  record_relaxed_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Wbar.l(i,j,n,hbar);
+1169  record_relaxed_shipment(run,calc,s,n)=Ship.l(s,n);
+1170  record_relaxed_shipment_sales(run,calc,s,n)=Ship_sales.l(s,n);
+1171  record_relaxed_backlog(run,calc,s,n)=Backlog.l(s,n);
+1172  );
+1173  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1174   
+1175  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF RMIP NOW**********
+1176   
+1177  );
+1178  **END OF CALC LOOP HERE
+1179   
+1180  *END OF SOLUTION FILE
+1181   
+1182   
+1183   
+1184  loop((n,calc)$(ord(n)-1 eq 0),
+1185           ClosedLoopINV(run,s,h)$(ord(h) eq ord(calc))=record_inventory(run
+      ,calc,s,n);
+1186           ClosedLoopBO(run,s,h)$(ord(h) eq ord(calc))=record_backlog(run,ca
+      lc,s,n);
+1187           ClosedLoopShip(run,s,h)$(ord(h) eq ord(calc))=record_shipment(run
+      ,calc,s,n);
+1188           ClosedLoopShip_sales(run,s,h)$(ord(h) eq ord(calc))=record_shipme
+      nt_sales(run,calc,s,n);
+1189           ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=sum((i,j,hbar)$(Ij(i
+      ,j) AND ord(hbar)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1190  *         ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=0;
+1191  );
+1192           ClosedLoopExecutions(run,i)=sum((calc,j,n,hbar)$(Ij(i,j) AND ord(
+      hbar)-1 eq 0
+1193                                           AND ord(n)-1 eq 0 AND ord(calc)-1
+       le 24-1),
+1194                                           record_states(run,calc,'W',i,j,n,
+      hbar));
+1195   
+1196  *         runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*Sinv(s,
+      h));
+1197  *         runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*BO(s,h))
+      ;
+1198           runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLo
+      opINV(run,s,h));
+1199           runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLoo
+      pBO(run,s,h));
+1200           runcost_W(run)=sum((h)$closed_loop(h),ClosedLoopStart(run,h));
+1201  *total profit from all shipments (demand+sales)
+1202   
+1203           runcost(run)=runcost_Inv(run)+runcost_BO(run)+runcost_W(run);
+1204   
+1205  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),
+1206  *                                 Cst_new(s)*(ClosedLoopShip(run,s,h)+Clos
+      edLoopShip_sales(run,s,h) ));
+1207           sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(h
+      ) and (ord(h)-1 ne 24) ),
+1208                                   Cst_new(s)*(ClosedLoopShip_sales(run,s,h)
+       ));
+1209  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),Cst_new(s)*ClosedLoopShip
+      _sales(run,s,h));
+1210           Cost_EndInventory(run)=sum((s,h)$(product_states(s) and ord(h)-1 
+      eq 24),Cst_new(s)*ClosedLoopINV(run,s,h));
+1211  *         runcost_W(run)=0;
+1212  *         runprofit(run)=sum((s,h)$(product_states(s) and closed_loop(h)),
+      Cst_new(s)*ClosedLoopShip(run,s,h))+runcost_W(run);
+1213  *Runprofit includes subtraction of BO even at last point because BO are wr
+      itten like inventory
+1214  *BO at 168 means just before 168th point. Ship at 168 means at 168 not bef
+      ore or after.
+1215  *Our runprofit is only for 167 points of closed loop and 168th point as co
+      rrection. So we are essentially wasting the last decision
+1216  *that is the open loop that was computed at 168.
+1217           runprofit(run)=sales_profit(run)+Cost_EndInventory(run)
+1218                           -(runcost_W(run)-sum((h)$(ord(h)-1 eq 24),ClosedL
+      oopStart(run,h)))
+1219                           -runcost_BO(run);
+1220   
+1221  *         runprofit(run)=runcost_Inv(run)-runcost_BO(run)
+1222  *                        +1E1*sum((s,h)$(product_states(s) and closed_loop
+      (h)),Cst_new(s)*ClosedLoopShip(run,s,h));
+1223   
+1224  *Does not include cost of Terminal BO and inventory but thats okay because
+       they are irrelevant when some extra horizon is allowed for getting comple
+      te closed loop rolling horizon solution
+1225  ************[Start]Information to get very crude estimate for running time
+       left**************
+1226  timeLeft=MAX_PROFIT_SellAnytime_Greedy.etSolve*(card(run)-ord(run))*card(c
+      alc);
+      put screen;
+      put 'Time for run ' P1.etSolve;
+      put ' Estimated Time Left ' timeLeft;
+      putclose;
+1233  *************[End]Information to get very crude estimate for running time 
+      left***************
+1234   
+      *************Stopping Criterion**************
+      N_run=ord(run);
+      mean_runcost(run)=sum(run_p$(ord(run_p) le N_run),runcost(run_p))/N_run;
+      std_dev_runcost(run)$(ord(run) gt 1)= sqrt(       sum(run_p$(ord(run_p) le
+       N_run),     ( abs(  runcost(run_p)-mean_runcost(run) )**2)) /(N_run-1)   
+       );
+      delta_std_dev_runcost(run)$(ord(run) gt 2)=std_dev_runcost(run)/std_dev_ru
+      ncost(run-1)  - 1;
+      max_delta_std_dev_runcost(run)= sqrt( 1 + (1.96**2-1)/N_run ) -1;
+      *icdfnorm(0.95,0,1);
+      *************Stopping Criterion**************
+1245  );
+1246  ********************[End] runs loop **************************************
+      *
+1247   
+1248  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1249  PARAMETERS BS(i,j,h),start(i,j,h),Sinv(s,h),end(i,j,h),BO(s,h);
+1250  IF (0 eq 0,
+1251           loop((run,calc)$(ord(run) eq 1),
+1252             BS(i,j,h)$(ord(h) eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 
+      and ord(n)-1 eq 0),record_states(run,calc,'B',i,j,n,hbar));
+1253  *start(i,j,h)$(ord(h)eq ord(calc))=round(sum((hbar,n)$(ord(hbar)-1 eq 0 an
+      d ord(n)-1 eq 0),record_states(calc,'W',i,j,n,hbar)));
+1254             start(i,j,h)$(ord(h)eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 
+      0 and ord(n)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1255             Sinv(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_in
+      ventory(run,calc,s,n));
+1256             BO(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_back
+      log(run,calc,s,n));
+1257           );
+1258  ELSE
+1259  *Write OPEN loop static gantt chart %GanttChart_OPENLOOP% eq 1
+1260           loop((run,calc)$(ord(run) eq 1 and ord(calc) eq 1),
+1261             BS(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(n) 
+      eq ord(h))),record_states(run,calc,'B',i,j,n,hbar));
+1262             start(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(
+      n) eq ord(h))),record_states(run,calc,'W',i,j,n,hbar));
+1263             Sinv(s,h)=sum(n$(ord(n) eq ord(h)),record_inventory(run,calc,s,
+      n));
+1264             BO(s,h)=sum(n$(ord(n) eq ord(h)),record_backlog(run,calc,s,n));
+1265           );
+1266  );
+1267  *Have ending account for task delays
+1268  end(i,j,h) = start(i,j,h-pi_new(i))$(BS(i,j,h-pi_new(i))>0);
+1269  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1270   
+1271  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1272  SUCCESS=1;
+1273  EXECUTE_UNLOAD 'Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gdx';
+1274  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1275   
+1276  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1277  IF(1 eq 1,
+1278  ************************************************
+1279  ********Closed-Loop GanttChartGeneration********
+1280  ************************************************
+1281  *Name of the excel file where the data will be exported
+1282  *$setglobal file %Results_FileName%_Gantt
+1283  *i = set of tasks
+1284  *j = set of units
+1285  *h = set of time points
+1286  *BS = batch size of task i starting in unit j at time t (must be indexed i
+      jt)
+1287  *start = binary variable that is 1 if task i starts in unit j at time t (m
+      ust be indexed ijt)
+1288  *Sinv = inventory level of material s at time t (must be indexed st)
+1289  *BO= backorder of state s at time t
+1290  *end =  binary variable that is 1 if task i ends in unit j at time t (must
+       be indexed ijt)
+1291   
+1292  *EXECUTE_UNLOAD '%Results_FileName%_Gantt.gdx' BS i j h  Sinv start end;
+1293   
+1294  *The first word of each line gives the type: set = set, var = variable, pa
+      r = parameter. This may need to be changed depending on your model
+1295  *The location of the output or the sheet names must not be changed
+1305   
+1306  *display BS,start,end,Sinv,BO;
+1307           IF (0 eq 0,
+1308                    EXECUTE 'gdxxrw Input=Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_
+      S1_MC1_Profit.gdx Output=Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit_G
+      antt_CL @GANTT_write.txt'
+1309           ELSE
+1310                    EXECUTE 'gdxxrw Input=Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_
+      S1_MC1_Profit.gdx Output=Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit_G
+      antt_OL_1 @GANTT_write.txt'
+1311           );
+1312  );
+1313  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1314   
+1315  *END OF MASTER FILE
+1316   
+1317   
+1318   
+1319   
+1320   
+1321   
+1322  *Watch out for overflow of solution for rolling horizon...ie the spilling 
+      over of
+1323  *rolling horizon beyond real horizon to get last implemented closed loop s
+      olution
+1324   
+1325   
+1326  *$set console
+1327  *$if %system.filesys% == UNIX  $set console /dev/tty
+1328  *$if %system.filesys% == DOS $set console con
+1329  *$if %system.filesys% == MS95  $set console con
+1330  *$if %system.filesys% == MSNT  $set console con
+1331  *$if "%console%." == "." abort "filesys not recognized";
+1332  *file screen / '%console%' /;
+1333  *file log /''/
+1334   
+1335   
+1336   
+1337   
+1338   
+1339   
+1340   
+1341   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 5
+State_Space_Model
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes\GAM
+                                          S_Code_Paper1\Z_N6_MH5_RF1_OPT1_DF1_DV
+                                          0_DL0_DU0_S1_MC1_Profit.gms
+     2       21 INCLUDE        1      21  .C:\Users\dhruv\Box Sync\Work\Codes\GA
+                                           MS_Code_Paper1\ConfigurationFile.gms
+     3       90 INCLUDE        2      69  ..C:\Users\dhruv\Box Sync\Work\Codes\G
+                                            AMS_Code_Paper1\MasterFile.gms
+     4      107 INCLUDE        3      17  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code_Paper1\NetworkN6.gms
+     5      206 INCLUDE        3      18  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code_Paper1\Model9.gms
+     6      893 INCLUDE        3     149  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code_Paper1\ModelSolution9.gms
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 6
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.032 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 7
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              265.0000
+
+ RESOURCE USAGE, LIMIT          0.032       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          265.000000    (0 iterations, 0 nodes)
+Final Solve:           265.000000    (0 iterations)
+
+Best possible:         265.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 8
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 9
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              265.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         265.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 10
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 11
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 12
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 13
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 14
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 15
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 16
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 17
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 18
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 19
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 20
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 21
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 22
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 23
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.078       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 24
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 25
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 26
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 27
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 28
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 29
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 30
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 31
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 32
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 33
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 34
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc7
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc7
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 35
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 36
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc7
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc7
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 37
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 38
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc8
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc8
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 39
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.078       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 40
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc8
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc8
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 41
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 42
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc9
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc9
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 43
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 44
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc9
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc9
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 45
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 46
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc10
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc10
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 47
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 48
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc10
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc10
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 49
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 50
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc11
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc11
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 51
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 52
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc11
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc11
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 53
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 54
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc12
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc12
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 55
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 56
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc12
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc12
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 57
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 58
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc13
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc13
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 59
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 60
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc13
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc13
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 61
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 62
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc14
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc14
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 63
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 64
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc14
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc14
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 65
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 66
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc15
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc15
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 67
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.032       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 68
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc15
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc15
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 69
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.046       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 70
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc16
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc16
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 71
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 72
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc16
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc16
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 73
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 74
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc17
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc17
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 75
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 76
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc17
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc17
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 77
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 78
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc18
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc18
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 79
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 80
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc18
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc18
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 81
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 82
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc19
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc19
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 83
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 84
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc19
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc19
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 85
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 86
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc20
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc20
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 87
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 88
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc20
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc20
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 89
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 90
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc21
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc21
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 91
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.078       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 92
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc21
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc21
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 93
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 94
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc22
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc22
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 95
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 96
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc22
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc22
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 97
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 98
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc23
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc23
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 99
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 100
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc23
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc23
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 101
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              398.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         398.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 102
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+LOOPS                                  run   run1
+                                      calc   calc24
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc24
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 103
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using MIP From line 1091
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    MIP                             DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1091
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 104
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+LOOPS                                  run   run1
+                                      calc   calc24
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS           62
+BLOCKS OF VARIABLES           9     SINGLE VARIABLES           68
+NON ZERO ELEMENTS           164     DISCRETE VARIABLES         19
+
+
+GENERATION TIME      =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc24
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 105
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_SellAnytime_Greedy Using RMIP From line 1164
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_SellAnytime_Greedy   OBJECTIVE  obj_variable
+     TYPE    RMIP                            DIRECTION  MAXIMIZE
+     SOLVER  CPLEX                           FROM LINE  1164
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              448.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.07 ticks)
+Optimal solution found.
+Objective :         448.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 05/08/16 21:32:11 Page 106
+State_Space_Model
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.437 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N6_MH5_RF1_OPT1
+           _DF1_DV0_DL0_DU0_S1_MC1_Profit.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N6_MH5_RF1_OPT1
+           _DF1_DV0_DL0_DU0_S1_MC1_Profit.lst

@@ -1,0 +1,7 @@
+set = i    rng = sets!A1
+set = j    rng = sets!A2
+set = h    rng = sets!A3
+par = BS    rng = BatchSize!A1
+par = start   rng = StartTime!A1
+par = Sinv rng = Inventory!A1
+par = end  rng = EndTime!A1

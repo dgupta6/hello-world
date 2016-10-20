@@ -1,0 +1,1017 @@
+
+--- Job ConfigurationFile.gms Start 04/10/16 14:46:20 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- ConfigurationFile.gms(69) 2 Mb
+--- .MasterFile.gms(9) 2 Mb 1 Error
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unknown symbol
+--- .MasterFile.gms(15) 3 Mb 3 Errors
+*** Error 763 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Numeric field missing in <element> * <element> list
+*** Error 508 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Blank needed between element and text
+      (-or- illegal character in element)
+--- .MasterFile.gms(17) 3 Mb 4 Errors
+*** Error 282 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unable to open include file
+--- .MasterFile.gms(18) 3 Mb
+--- ..Model9.gms(10) 3 Mb 6 Errors
+*** Error 659 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Error in evaluation
+*** Error 684 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Constant evaluation: BAD_CHAR
+--- ..Model9.gms(11) 3 Mb 8 Errors
+*** Error 659 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Error in evaluation
+*** Error 684 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Constant evaluation: BAD_CHAR
+--- ..Model9.gms(13) 3 Mb 10 Errors
+*** Error 659 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Error in evaluation
+*** Error 684 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Constant evaluation: BAD_CHAR
+--- ..Model9.gms(14) 3 Mb 12 Errors
+*** Error 659 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Error in evaluation
+*** Error 684 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Constant evaluation: BAD_CHAR
+--- ..Model9.gms(15) 3 Mb 14 Errors
+*** Error 659 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Error in evaluation
+*** Error 693 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Constant evaluation: FPU EXCEPTION
+--- ..Model9.gms(17) 3 Mb 15 Errors
+*** Error 764 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Could not extract number in <element> * <element> list
+--- ..Model9.gms(18) 3 Mb 16 Errors
+*** Error 764 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Could not extract number in <element> * <element> list
+--- ..Model9.gms(19) 3 Mb 17 Errors
+*** Error 764 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Could not extract number in <element> * <element> list
+--- ..Model9.gms(23) 3 Mb 19 Errors
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown identifier entered as set
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown identifier entered as set
+--- ..Model9.gms(28) 3 Mb 20 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(29) 3 Mb 21 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(35) 3 Mb 22 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(39) 3 Mb 23 Errors
+*** Error 157 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    No known set found in alias list
+--- ..Model9.gms(47) 3 Mb 24 Errors
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown identifier entered as set
+--- ..Model9.gms(54) 3 Mb 25 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(55) 3 Mb 27 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(59) 3 Mb 28 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(61) 3 Mb 32 Errors
+*** Error 148 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 201 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Invalid argument for function
+*** Error 148 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 201 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Invalid argument for function
+--- ..Model9.gms(63) 3 Mb 33 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(72) 3 Mb 34 Errors
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown identifier entered as set
+--- ..Model9.gms(76) 3 Mb 37 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+*** Error 116 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Label is unknown
+*** Error 116 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Label is unknown
+--- ..Model9.gms(102) 3 Mb 38 Errors
+*** Error 116 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Label is unknown
+--- ..Model9.gms(123) 3 Mb 40 Errors
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown identifier entered as set
+*** Error 340 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    A label/element with the same name exist. You may have forgotten
+       to quote a label/element reference. For example,
+       set i / a,b,c /; parameter x(i); x('a') = 10;
+--- ..Model9.gms(124) 3 Mb 41 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(126) 3 Mb 45 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(127) 3 Mb 48 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(128) 3 Mb 49 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(133) 3 Mb 50 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(134) 3 Mb 53 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(135) 3 Mb 56 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(136) 3 Mb 59 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(137) 3 Mb 62 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(138) 3 Mb 63 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(142) 3 Mb 64 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(143) 3 Mb 67 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(144) 3 Mb 70 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(146) 3 Mb 71 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(159) 3 Mb 72 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(160) 3 Mb 73 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(179) 3 Mb 74 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(180) 3 Mb 75 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(181) 3 Mb 76 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(182) 3 Mb 77 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(183) 3 Mb 78 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(184) 3 Mb 79 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(185) 3 Mb 80 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(186) 3 Mb 81 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(187) 3 Mb 82 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(188) 3 Mb 83 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(189) 3 Mb 84 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(190) 3 Mb 85 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(230) 3 Mb 86 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(236) 3 Mb 89 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(237) 3 Mb 92 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(244) 3 Mb 95 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(247) 3 Mb 98 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(250) 3 Mb 104 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ')' expected
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    ',' expected
+*** Error 148 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 133 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Incompatible operands for addition
+*** Error 654 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    The right side of an equation cannot be a set expression
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(253) 3 Mb 105 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(255) 3 Mb 106 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(257) 3 Mb 108 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(261) 3 Mb 110 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+--- ..Model9.gms(370) 3 Mb 111 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(371) 3 Mb 112 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(372) 3 Mb 113 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(377) 3 Mb 114 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(384) 3 Mb 115 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(386) 3 Mb 116 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(387) 3 Mb 117 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(392) 3 Mb 118 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(399) 3 Mb 119 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(400) 3 Mb 120 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(408) 3 Mb 123 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unknown symbol
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..Model9.gms(520) 3 Mb 124 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Model9.gms
+    Set has not been initialized
+--- ..Model9.gms(523) 3 Mb
+--- .MasterFile.gms(79) 3 Mb 126 Errors
+*** Error 763 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Numeric field missing in <element> * <element> list
+*** Error 508 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Blank needed between element and text
+      (-or- illegal character in element)
+--- .MasterFile.gms(81) 3 Mb 127 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unknown symbol
+--- .MasterFile.gms(83) 3 Mb 128 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unknown symbol
+--- .MasterFile.gms(90) 3 Mb 129 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unknown symbol
+--- .MasterFile.gms(92) 3 Mb 130 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unknown symbol
+--- .MasterFile.gms(149) 3 Mb
+--- ..ModelSolution9.gms(9) 3 Mb 131 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(10) 3 Mb 132 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(14) 3 Mb 133 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unknown symbol
+--- ..ModelSolution9.gms(39) 3 Mb 134 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unknown symbol
+--- ..ModelSolution9.gms(52) 3 Mb 141 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 767 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unexpected symbol will terminate the loop - symbol replaced by )
+*** Error  12 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ';' expected
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+--- ..ModelSolution9.gms(53) 3 Mb 146 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 767 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unexpected symbol will terminate the loop - symbol replaced by )
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(54) 3 Mb 148 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ..ModelSolution9.gms(55) 3 Mb 150 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ..ModelSolution9.gms(56) 3 Mb 152 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ..ModelSolution9.gms(57) 3 Mb 153 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(61) 3 Mb 156 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ..ModelSolution9.gms(62) 3 Mb 159 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ..ModelSolution9.gms(67) 3 Mb 164 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unknown symbol
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(70) 3 Mb 165 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(92) 3 Mb 166 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(93) 3 Mb 167 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(94) 3 Mb 168 Errors
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ..ModelSolution9.gms(95) 3 Mb 174 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(98) 3 Mb 179 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(106) 3 Mb 186 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ',' expected
+*** Error 148 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(111) 3 Mb 187 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(112) 3 Mb 190 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(114) 3 Mb 191 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(115) 3 Mb 194 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(117) 3 Mb 195 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(128) 3 Mb 201 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(129) 3 Mb 206 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(135) 3 Mb 207 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(137) 3 Mb 211 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(139) 3 Mb 217 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(144) 3 Mb 218 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(159) 3 Mb 219 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(160) 3 Mb 225 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(169) 3 Mb 226 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(170) 3 Mb 228 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(173) 3 Mb 234 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(174) 3 Mb 236 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(176) 3 Mb 237 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(182) 3 Mb 238 Errors
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ..ModelSolution9.gms(183) 3 Mb 241 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(184) 3 Mb 242 Errors
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ..ModelSolution9.gms(195) 3 Mb 243 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(196) 3 Mb 244 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(197) 3 Mb 245 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(198) 3 Mb 249 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Identifier expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unknown symbol
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ..ModelSolution9.gms(200) 3 Mb 252 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(203) 3 Mb 256 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(204) 3 Mb 260 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(205) 3 Mb 263 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(207) 3 Mb 266 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(208) 3 Mb 269 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(209) 3 Mb 272 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(210) 3 Mb 275 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(211) 3 Mb 278 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(212) 3 Mb 281 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(213) 3 Mb 284 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(214) 3 Mb 287 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(215) 3 Mb 290 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(216) 3 Mb 293 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(217) 3 Mb 296 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(220) 3 Mb 300 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(221) 3 Mb 304 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(222) 3 Mb 308 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(223) 3 Mb 312 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(224) 3 Mb 316 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(229) 3 Mb 318 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(230) 3 Mb 319 Errors
+*** Error 141 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- ..ModelSolution9.gms(232) 3 Mb 320 Errors
+*** Error 141 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- ..ModelSolution9.gms(243) 3 Mb 322 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(244) 3 Mb 324 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+--- ..ModelSolution9.gms(252) 3 Mb 329 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(259) 3 Mb 332 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Identifier expected
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ..ModelSolution9.gms(260) 3 Mb 335 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(262) 3 Mb 338 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(263) 3 Mb 339 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(271) 3 Mb 342 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Identifier expected
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ..ModelSolution9.gms(274) 3 Mb 347 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(275) 3 Mb 351 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Set has not been initialized
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ..ModelSolution9.gms(279) 3 Mb 352 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(284) 3 Mb 353 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\ModelSolution9.gms
+    Too many ),] or }
+--- ..ModelSolution9.gms(289) 3 Mb
+--- .MasterFile.gms(156) 3 Mb 356 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(159) 3 Mb 358 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(161) 3 Mb 359 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(193) 3 Mb 362 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- .MasterFile.gms(212) 3 Mb 363 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Too many ),] or }
+--- .MasterFile.gms(219) 3 Mb 365 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(221) 3 Mb 367 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(228) 3 Mb 370 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(229) 3 Mb 373 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(235) 3 Mb 376 Errors
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+*** Error 352 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MasterFile.gms
+    Set has not been initialized
+--- .MasterFile.gms(297) 3 Mb
+--- ConfigurationFile.gms(76) 3 Mb 376 Errors
+*** Status: Compilation error(s)
+--- Job ConfigurationFile.gms Stop 04/10/16 14:46:20 elapsed 0:00:00.521
+Exit code = 2

@@ -1,0 +1,87 @@
+B 2 C o m p i l a t i o n
+B 1607 Include File Summary
+B 1639 Equation Listing    SOLVE MAX_PROFIT_2 Using MIP From line 1100
+D 1640 numberOfBatches
+D 1650 Allocation
+D 1655 UnitCapacityMax
+D 1660 UnitCapacityMin
+D 1665 InventoryBalance_MAX_PROFIT
+D 1856 EndingInventory_MAX_PROFIT
+D 1871 BacklogBalance
+D 1922 EndingBacklog
+D 1929 LiftingW
+D 1934 LiftingB
+D 1939 Carryover_W
+D 1944 Carryover_B
+D 1949 objective_MAX_PROFIT
+D 1972 Ship_constraint
+B 2061 Column Listing      SOLVE MAX_PROFIT_2 Using MIP From line 1100
+E 2062 Sst
+E 2306 Ship
+E 2439 Ship_sales
+E 2692 obj_variable
+E 2699 NB
+B 2716 Model Statistics    SOLVE MAX_PROFIT_2 Using MIP From line 1100
+B 2739 Solution Report     SOLVE MAX_PROFIT_2 Using MIP From line 1100
+F 2779 numberOfBatches
+F 2787 Allocation
+F 2792 UnitCapacityMax
+F 2797 UnitCapacityMin
+F 2802 InventoryBalance_MAX_PROFIT
+F 2855 EndingInventory_MAX_PROFIT
+F 2864 BacklogBalance
+F 2893 EndingBacklog
+F 2900 LiftingW
+F 2905 LiftingB
+F 2910 Carryover_W
+F 2915 Carryover_B
+F 2918 objective_MAX_PROFIT
+F 2924 Ship_constraint
+G 2966 Sst
+G 3019 Ship
+G 3050 Ship_sales
+G 3107 obj_variable
+G 3111 NB
+B 3126 Equation Listing    SOLVE MAX_PROFIT_2 Using RMIP From line 1172
+D 3127 numberOfBatches
+D 3137 Allocation
+D 3142 UnitCapacityMax
+D 3147 UnitCapacityMin
+D 3152 InventoryBalance_MAX_PROFIT
+D 3343 EndingInventory_MAX_PROFIT
+D 3358 BacklogBalance
+D 3409 EndingBacklog
+D 3416 LiftingW
+D 3421 LiftingB
+D 3426 Carryover_W
+D 3431 Carryover_B
+D 3436 objective_MAX_PROFIT
+D 3459 Ship_constraint
+B 3548 Column Listing      SOLVE MAX_PROFIT_2 Using RMIP From line 1172
+E 3549 Sst
+E 3793 Ship
+E 3926 Ship_sales
+E 4179 obj_variable
+E 4186 NB
+B 4203 Model Statistics    SOLVE MAX_PROFIT_2 Using RMIP From line 1172
+B 4226 Solution Report     SOLVE MAX_PROFIT_2 Using RMIP From line 1172
+F 4257 numberOfBatches
+F 4265 Allocation
+F 4270 UnitCapacityMax
+F 4275 UnitCapacityMin
+F 4280 InventoryBalance_MAX_PROFIT
+F 4333 EndingInventory_MAX_PROFIT
+F 4342 BacklogBalance
+F 4371 EndingBacklog
+F 4378 LiftingW
+F 4383 LiftingB
+F 4388 Carryover_W
+F 4393 Carryover_B
+F 4396 objective_MAX_PROFIT
+F 4402 Ship_constraint
+G 4444 Sst
+G 4497 Ship
+G 4528 Ship_sales
+G 4585 obj_variable
+G 4589 NB
+B 4604 E x e c u t i o n

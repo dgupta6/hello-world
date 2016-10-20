@@ -1,0 +1,1270 @@
+
+--- Job Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms Start 09/23/16 13:14:15 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Medium MUD - 10 User License                   G160923:1323AO-GEN
+          University of Wisconsin - Madison, Department of Chemical &DC4923
+          License for teaching and research at degree granting institutions
+          License_Admin:_Ho_T._Jae_Lee,_hlee558@wisc.edu___________________
+--- Starting compilation
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(21) 2 Mb
+--- .ConfigurationFile.gms(70) 2 Mb
+--- ..MasterFile.gms(17) 3 Mb
+--- ...NetworkN2.gms(107) 3 Mb
+--- ..MasterFile.gms(18) 3 Mb
+--- ...Model9.gms(572) 3 Mb
+--- ..MasterFile.gms(163) 3 Mb
+--- ...ModelSolution9.gms(308) 3 Mb
+--- ..MasterFile.gms(316) 3 Mb
+--- .ConfigurationFile.gms(77) 3 Mb
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(21) 3 Mb
+--- Starting execution: elapsed 0:00:00.032
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 4 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 4 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.236
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 2 times.
+MIP Presolve eliminated 95 rows and 107 columns.
+Aggregator did 94 substitutions.
+Reduced MIP has 67 rows, 64 columns, and 214 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.37 ticks)
+Found incumbent of value 30000.000000 after 0.03 sec. (0.50 ticks)
+Probing fixed 0 vars, tightened 23 bounds.
+Probing time = 0.00 sec. (0.07 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 67 rows, 64 columns, and 214 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.12 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 14.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 15 rows and 2 columns.
+Aggregator did 15 substitutions.
+Reduced LP has 37 rows, 47 columns, and 145 nonzeros.
+Presolve time = 0.00 sec. (0.06 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          2500.375000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.03 sec. (0.12 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        30000.0000    -2500.0000           108.33%
+Found incumbent of value 30000.000000 after 0.16 sec. (0.95 ticks)
+      0     0     2501.5000     7    30000.0000     2501.5000        6   91.66%
+      0     0     6377.7500     4    30000.0000      Cuts: 23       35   78.74%
+*     0+    0                         9253.0000     6377.7500            31.07%
+Found incumbent of value 9253.000000 after 0.30 sec. (1.43 ticks)
+      0     0     6773.6667     8     9253.0000      Cuts: 12       48   26.79%
+      0     0        cutoff           9253.0000                     51    0.00%
+Elapsed time = 0.30 sec. (2.20 ticks, tree = 0.00 MB, solutions = 2)
+
+Clique cuts applied:  1
+Implied bound cuts applied:  3
+Flow cuts applied:  7
+Mixed integer rounding cuts applied:  10
+Gomory fractional cuts applied:  6
+
+Root node processing (before b&c):
+  Real time             =    0.31 sec. (2.21 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.31 sec. (2.21 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.31sec (det. 2.21 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 229 rows and 232 columns.
+Aggregator did 22 substitutions.
+Reduced LP has 5 rows, 11 columns, and 16 nonzeros.
+Presolve time = 0.08 sec. (0.11 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          8253.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.08sec (det. 0.21 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         9253.000000    (51 iterations, 0 nodes)
+Final Solve:          9253.000000    (2 iterations)
+
+Best possible:        9253.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:00.750
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.796
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 115 rows and 127 columns.
+Aggregator did 79 substitutions.
+Reduced LP has 62 rows, 59 columns, and 207 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =           243.000000
+Iteration:     7   Dual objective     =        -43437.000000
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.54 ticks)
+
+Optimal solution found.
+Objective :        2501.500000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:00.859
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc1
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.874
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 2 times.
+MIP Presolve eliminated 82 rows and 92 columns.
+Aggregator did 102 substitutions.
+Reduced MIP has 72 rows, 71 columns, and 232 nonzeros.
+Reduced MIP has 22 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.38 ticks)
+Found incumbent of value 44000.000000 after 0.00 sec. (0.52 ticks)
+Probing fixed 0 vars, tightened 23 bounds.
+Probing time = 0.00 sec. (0.08 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 72 rows, 71 columns, and 232 nonzeros.
+Reduced MIP has 22 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+Probing fixed 0 vars, tightened 3 bounds.
+Probing time = 0.00 sec. (0.06 ticks)
+Clique table members: 12.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 16 rows and 2 columns.
+Aggregator did 16 substitutions.
+Reduced LP has 40 rows, 53 columns, and 161 nonzeros.
+Presolve time = 0.00 sec. (0.06 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =         -2623.750000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.15 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        44000.0000    -8000.0000           118.18%
+Found incumbent of value 44000.000000 after 0.12 sec. (1.02 ticks)
+      0     0     3376.0000     4    44000.0000     3376.0000       17   92.33%
+      0     0     6376.7500     4    44000.0000      Cuts: 15       35   85.51%
+*     0+    0                         9252.0000     6376.7500            31.08%
+Found incumbent of value 9252.000000 after 0.14 sec. (1.49 ticks)
+      0     0     7085.4583     5     9252.0000      Cuts: 12       46   23.42%
+      0     0        cutoff           9252.0000                     50    0.00%
+Elapsed time = 0.14 sec. (2.30 ticks, tree = 0.00 MB, solutions = 2)
+
+Implied bound cuts applied:  3
+Flow cuts applied:  11
+Mixed integer rounding cuts applied:  8
+Gomory fractional cuts applied:  5
+
+Root node processing (before b&c):
+  Real time             =    0.14 sec. (2.31 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.14 sec. (2.31 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.14sec (det. 2.31 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 228 rows and 233 columns.
+Aggregator did 23 substitutions.
+Reduced LP has 5 rows, 9 columns, and 14 nonzeros.
+Presolve time = 0.00 sec. (0.11 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          8252.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.02sec (det. 0.21 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         9252.000000    (50 iterations, 0 nodes)
+Final Solve:          9252.000000    (2 iterations)
+
+Best possible:        9252.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:01.108
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc1
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.110
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 103 rows and 113 columns.
+Aggregator did 86 substitutions.
+Reduced LP has 67 rows, 66 columns, and 223 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =            92.000000
+Iteration:     6   Dual objective     =        -53133.000000
+LP status(1): optimal
+Cplex Time: 0.06sec (det. 0.56 ticks)
+
+Optimal solution found.
+Objective :        3376.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:01.283
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc2
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.314
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 2 times.
+MIP Presolve eliminated 55 rows and 65 columns.
+Aggregator did 119 substitutions.
+Reduced MIP has 82 rows, 81 columns, and 267 nonzeros.
+Reduced MIP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.06 sec. (0.40 ticks)
+Found incumbent of value 54500.000000 after 0.06 sec. (0.55 ticks)
+Probing fixed 0 vars, tightened 34 bounds.
+Probing time = 0.00 sec. (0.10 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 82 rows, 81 columns, and 267 nonzeros.
+Reduced MIP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.15 ticks)
+Probing fixed 0 vars, tightened 2 bounds.
+Probing time = 0.00 sec. (0.07 ticks)
+Clique table members: 14.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 18 rows and 2 columns.
+Aggregator did 18 substitutions.
+Reduced LP has 46 rows, 61 columns, and 188 nonzeros.
+Presolve time = 0.00 sec. (0.07 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =         -2623.750000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.17 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        54500.0000    -8000.0000           114.68%
+Found incumbent of value 54500.000000 after 0.08 sec. (1.13 ticks)
+      0     0     3376.0000     4    54500.0000     3376.0000       17   93.81%
+      0     0     6376.7500     4    54500.0000      Cuts: 15       35   88.30%
+*     0+    0                         9252.0000     6376.7500            31.08%
+Found incumbent of value 9252.000000 after 0.08 sec. (1.66 ticks)
+      0     0     7301.9000     5     9252.0000      Cuts: 12       48   21.08%
+      0     0        cutoff           9252.0000                     52    0.00%
+Elapsed time = 0.08 sec. (2.59 ticks, tree = 0.00 MB, solutions = 2)
+
+Implied bound cuts applied:  3
+Flow cuts applied:  10
+Mixed integer rounding cuts applied:  19
+Gomory fractional cuts applied:  3
+
+Root node processing (before b&c):
+  Real time             =    0.08 sec. (2.61 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.08 sec. (2.61 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.09sec (det. 2.61 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 224 rows and 229 columns.
+Aggregator did 27 substitutions.
+Reduced LP has 5 rows, 9 columns, and 14 nonzeros.
+Presolve time = 0.00 sec. (0.11 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          8252.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.21 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         9252.000000    (52 iterations, 0 nodes)
+Final Solve:          9252.000000    (2 iterations)
+
+Best possible:        9252.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:01.470
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc2
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.501
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 79 rows and 89 columns.
+Aggregator did 100 substitutions.
+Reduced LP has 77 rows, 76 columns, and 258 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =            82.000000
+Iteration:     5   Dual objective     =        -67330.000000
+LP status(1): optimal
+Cplex Time: 0.05sec (det. 0.60 ticks)
+
+Optimal solution found.
+Objective :        3376.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:01.644
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc3
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.675
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 4 times.
+MIP Presolve eliminated 73 rows and 83 columns.
+MIP Presolve modified 4 coefficients.
+Aggregator did 116 substitutions.
+Reduced MIP has 67 rows, 66 columns, and 224 nonzeros.
+Reduced MIP has 23 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.03 sec. (0.52 ticks)
+Found incumbent of value 66500.000000 after 0.03 sec. (0.66 ticks)
+Probing fixed 0 vars, tightened 33 bounds.
+Probing time = 0.00 sec. (0.08 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 67 rows, 66 columns, and 224 nonzeros.
+Reduced MIP has 23 binaries, 1 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+Probing time = 0.00 sec. (0.06 ticks)
+Clique table members: 13.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 14 rows and 2 columns.
+Aggregator did 14 substitutions.
+Reduced LP has 39 rows, 50 columns, and 161 nonzeros.
+Presolve time = 0.00 sec. (0.06 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          5501.000000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.12 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        66500.0000     3250.0000            95.11%
+Found incumbent of value 66500.000000 after 0.05 sec. (1.13 ticks)
+      0     0     9125.7500     3    66500.0000     9125.7500        6   86.28%
+*     0+    0                        33500.0000     9125.7500            72.76%
+Found incumbent of value 33500.000000 after 0.05 sec. (1.27 ticks)
+*     0     0      integral     0     9251.0000       Cuts: 9        7    0.00%
+Found incumbent of value 9251.000000 after 0.05 sec. (1.44 ticks)
+      0     0        cutoff           9251.0000     9251.0000        7    0.00%
+Elapsed time = 0.05 sec. (1.44 ticks, tree = 0.00 MB, solutions = 3)
+
+Implied bound cuts applied:  3
+Flow cuts applied:  2
+Mixed integer rounding cuts applied:  2
+Gomory fractional cuts applied:  2
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (1.45 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (1.45 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 1.45 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 227 rows and 232 columns.
+Aggregator did 24 substitutions.
+Reduced LP has 5 rows, 9 columns, and 14 nonzeros.
+Presolve time = 0.00 sec. (0.11 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          8501.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.21 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         9251.000000    (7 iterations, 0 nodes)
+Final Solve:          9251.000000    (2 iterations)
+
+Best possible:        9251.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:01.831
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc3
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.925
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 93 rows and 103 columns.
+Aggregator did 92 substitutions.
+Reduced LP has 71 rows, 70 columns, and 235 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =            83.000000
+Iteration:     6   Dual objective     =        -23583.750000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.56 ticks)
+
+Optimal solution found.
+Objective :        9125.500000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.003
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc4
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.112
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 4 times.
+MIP Presolve eliminated 56 rows and 62 columns.
+MIP Presolve modified 4 coefficients.
+Aggregator did 129 substitutions.
+Reduced MIP has 71 rows, 74 columns, and 241 nonzeros.
+Reduced MIP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.03 sec. (0.54 ticks)
+Found incumbent of value 82000.000000 after 0.03 sec. (0.69 ticks)
+Probing fixed 0 vars, tightened 32 bounds.
+Probing time = 0.00 sec. (0.09 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 71 rows, 74 columns, and 241 nonzeros.
+Reduced MIP has 25 binaries, 1 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.14 ticks)
+Probing fixed 0 vars, tightened 1 bounds.
+Probing time = 0.00 sec. (0.06 ticks)
+Clique table members: 14.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 14 rows and 2 columns.
+Aggregator did 15 substitutions.
+Reduced LP has 42 rows, 57 columns, and 177 nonzeros.
+Presolve time = 0.00 sec. (0.06 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          5252.000000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.14 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        82000.0000     3001.0000            96.34%
+Found incumbent of value 82000.000000 after 0.12 sec. (1.21 ticks)
+      0     0     8876.7500     6    82000.0000     8876.7500        8   89.17%
+*     0+    0                        14001.0000     8876.7500            36.60%
+Found incumbent of value 14001.000000 after 0.12 sec. (1.33 ticks)
+      0     0     9501.7500     4    14001.0000      Cuts: 15       25   32.14%
+      0     0     9773.5000     8    14001.0000      Cuts: 10       39   30.19%
+*     0+    0                        12253.0000     9773.5000            20.24%
+Found incumbent of value 12253.000000 after 0.14 sec. (2.11 ticks)
+      0     0    10252.6250     3    12253.0000      Cuts: 18       52   16.33%
+      0     0    10753.7500     2    12253.0000       Cuts: 6       63   12.24%
+*     0+    0                        11254.0000    10753.7500             4.45%
+Found incumbent of value 11254.000000 after 0.14 sec. (3.10 ticks)
+      0     0    10879.0000     6    11254.0000       Cuts: 5       68    3.33%
+      0     2    10879.0000     6    11254.0000    10879.5000       68    3.33%
+Elapsed time = 0.16 sec. (4.32 ticks, tree = 0.00 MB, solutions = 4)
+
+Implied bound cuts applied:  2
+Flow cuts applied:  7
+Mixed integer rounding cuts applied:  6
+Gomory fractional cuts applied:  1
+
+Root node processing (before b&c):
+  Real time             =    0.16 sec. (4.33 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.13 ticks)
+                          ------------
+Total (root+branch&cut) =    0.16 sec. (4.46 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.16sec (det. 4.46 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 213 rows and 213 columns.
+Aggregator did 34 substitutions.
+Reduced LP has 9 rows, 18 columns, and 30 nonzeros.
+Presolve time = 0.00 sec. (0.12 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          7254.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.22 ticks)
+
+Proven optimal solution.
+
+MIP Solution:        11254.000000    (81 iterations, 5 nodes)
+Final Solve:         11254.000000    (5 iterations)
+
+Best possible:       11254.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.347
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc4
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.378
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 75 rows and 84 columns.
+Aggregator did 101 substitutions.
+Reduced LP has 80 rows, 80 columns, and 264 nonzeros.
+Presolve time = 0.00 sec. (0.17 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =          2567.000000
+Iteration:    14   Dual objective     =        -21635.750000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.59 ticks)
+
+Optimal solution found.
+Objective :        8876.250000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.440
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc5
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.456
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 5 times.
+MIP Presolve eliminated 87 rows and 99 columns.
+Aggregator did 105 substitutions.
+Reduced MIP has 64 rows, 61 columns, and 208 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.08 sec. (0.55 ticks)
+Found incumbent of value 71000.000000 after 0.08 sec. (0.68 ticks)
+Probing fixed 0 vars, tightened 19 bounds.
+Probing time = 0.00 sec. (0.07 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 64 rows, 61 columns, and 208 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.12 ticks)
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 14.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 15 rows and 2 columns.
+Aggregator did 15 substitutions.
+Reduced LP has 34 rows, 44 columns, and 139 nonzeros.
+Presolve time = 0.00 sec. (0.05 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =        -10748.250000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.12 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        71000.0000    -2000.0000           102.82%
+Found incumbent of value 71000.000000 after 0.09 sec. (1.12 ticks)
+      0     0     8750.7500     4    71000.0000     8750.7500        8   87.67%
+*     0+    0                        18750.0000     8750.7500            53.33%
+Found incumbent of value 18750.000000 after 0.09 sec. (1.22 ticks)
+      0     0     9543.1875     6    18750.0000      Cuts: 10       26   49.10%
+*     0+    0                        16752.0000     9543.1875            43.03%
+Found incumbent of value 16752.000000 after 0.09 sec. (1.57 ticks)
+      0     0    10017.2500     6    16752.0000      Cuts: 19       44   40.20%
+*     0+    0                        15752.0000    10017.2500            36.41%
+Found incumbent of value 15752.000000 after 0.09 sec. (2.11 ticks)
+      0     0    10345.6250     7    15752.0000      Cuts: 16       51   34.32%
+      0     0    11190.2500     7    15752.0000      Cuts: 10       61   28.96%
+*     0+    0                        11753.0000    11190.2500             4.79%
+Found incumbent of value 11753.000000 after 0.11 sec. (2.93 ticks)
+      0     0    11252.0000     5    11753.0000       Cuts: 4       63    4.26%
+*     0+    0                        11503.0000    11252.0000             2.18%
+Found incumbent of value 11503.000000 after 0.11 sec. (3.39 ticks)
+      0     0        cutoff          11503.0000    11252.0000       68    2.18%
+Elapsed time = 0.11 sec. (3.43 ticks, tree = 0.00 MB, solutions = 6)
+
+Clique cuts applied:  1
+Flow cuts applied:  6
+Mixed integer rounding cuts applied:  5
+
+Root node processing (before b&c):
+  Real time             =    0.11 sec. (3.45 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.11 sec. (3.45 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.11sec (det. 3.45 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 216 rows and 217 columns.
+Aggregator did 32 substitutions.
+Reduced LP has 8 rows, 16 columns, and 26 nonzeros.
+Presolve time = 0.00 sec. (0.12 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          7753.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.22 ticks)
+
+Proven optimal solution.
+
+MIP Solution:        11503.000000    (68 iterations, 0 nodes)
+Final Solve:         11503.000000    (4 iterations)
+
+Best possible:       11503.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.630
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc5
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.645
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 107 rows and 117 columns.
+Aggregator did 84 substitutions.
+Reduced LP has 65 rows, 64 columns, and 211 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =          2246.000000
+Iteration:    12   Dual objective     =        -38741.000000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.54 ticks)
+
+Optimal solution found.
+Objective :        8750.750000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.708
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.848
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 74 rows and 83 columns.
+Aggregator did 110 substitutions.
+Reduced MIP has 72 rows, 72 columns, and 234 nonzeros.
+Reduced MIP has 22 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.45 ticks)
+Found incumbent of value 85500.000000 after 0.00 sec. (0.60 ticks)
+Probing fixed 0 vars, tightened 23 bounds.
+Probing time = 0.00 sec. (0.08 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 72 rows, 72 columns, and 234 nonzeros.
+Reduced MIP has 22 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.13 ticks)
+Probing fixed 0 vars, tightened 1 bounds.
+Probing time = 0.00 sec. (0.06 ticks)
+Clique table members: 12.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 16 rows and 2 columns.
+Aggregator did 16 substitutions.
+Reduced LP has 40 rows, 54 columns, and 163 nonzeros.
+Presolve time = 0.00 sec. (0.06 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =         -3750.000000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.15 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        85500.0000    -4250.0000           104.97%
+Found incumbent of value 85500.000000 after 0.08 sec. (1.10 ticks)
+      0     0     7876.0000     3    85500.0000     7876.0000       17   90.79%
+*     0+    0                        25000.0000     7876.0000            68.50%
+Found incumbent of value 25000.000000 after 0.09 sec. (1.25 ticks)
+      0     0     8126.5000     2    25000.0000       Cuts: 7       24   67.49%
+*     0+    0                        23501.0000     8126.5000            65.42%
+Found incumbent of value 23501.000000 after 0.09 sec. (1.59 ticks)
+      0     0     8377.0000     2    23501.0000       Cuts: 8       36   64.35%
+*     0+    0                        16502.0000     8377.0000            49.24%
+Found incumbent of value 16502.000000 after 0.09 sec. (2.02 ticks)
+      0     0     8779.4444     5    16502.0000       Cuts: 6       58   46.80%
+*     0     0      integral     0     9252.0000       Cuts: 6       61    0.00%
+Found incumbent of value 9252.000000 after 0.09 sec. (2.75 ticks)
+      0     0        cutoff           9252.0000     9252.0000       61    0.00%
+Elapsed time = 0.09 sec. (2.75 ticks, tree = 0.00 MB, solutions = 5)
+
+Flow cuts applied:  4
+Mixed integer rounding cuts applied:  3
+Gomory fractional cuts applied:  1
+
+Root node processing (before b&c):
+  Real time             =    0.09 sec. (2.76 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.09 sec. (2.76 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.11sec (det. 2.76 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 215 rows and 218 columns.
+Aggregator did 33 substitutions.
+Reduced LP has 8 rows, 14 columns, and 24 nonzeros.
+Presolve time = 0.00 sec. (0.12 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          5002.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.22 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         9252.000000    (61 iterations, 0 nodes)
+Final Solve:          9252.000000    (4 iterations)
+
+Best possible:        9252.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.020
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.051
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 95 rows and 103 columns.
+Aggregator did 91 substitutions.
+Reduced LP has 70 rows, 71 columns, and 229 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =          1893.000000
+Iteration:     8   Dual objective     =        -47684.000000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.57 ticks)
+
+Optimal solution found.
+Objective :        7876.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.113
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc7
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.129
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 56 columns.
+Aggregator did 127 substitutions.
+Reduced MIP has 82 rows, 82 columns, and 269 nonzeros.
+Reduced MIP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.48 ticks)
+Found incumbent of value 85500.000000 after 0.00 sec. (0.63 ticks)
+Probing fixed 0 vars, tightened 27 bounds.
+Probing time = 0.00 sec. (0.09 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 82 rows, 82 columns, and 269 nonzeros.
+Reduced MIP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.15 ticks)
+Probing fixed 0 vars, tightened 6 bounds.
+Probing time = 0.00 sec. (0.07 ticks)
+Clique table members: 14.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 18 rows and 2 columns.
+Aggregator did 18 substitutions.
+Reduced LP has 46 rows, 62 columns, and 190 nonzeros.
+Presolve time = 0.00 sec. (0.07 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =         -6500.000000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.18 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        85500.0000    -7000.0000           108.19%
+Found incumbent of value 85500.000000 after 0.12 sec. (1.23 ticks)
+      0     0     5376.0000     3    85500.0000     5376.0000       20   93.71%
+*     0+    0                        27750.0000     5376.0000            80.63%
+Found incumbent of value 27750.000000 after 0.12 sec. (1.41 ticks)
+      0     0     5626.5000     2    27750.0000       Cuts: 7       27   79.72%
+*     0+    0                        26251.0000     5626.5000            78.57%
+Found incumbent of value 26251.000000 after 0.14 sec. (1.77 ticks)
+      0     0     5877.0000     2    26251.0000       Cuts: 8       37   77.61%
+*     0+    0                        17002.0000     5877.0000            65.43%
+Found incumbent of value 17002.000000 after 0.14 sec. (2.25 ticks)
+      0     0     6418.0000     3    17002.0000       Cuts: 6       64   62.25%
+*     0     0      integral     0     7002.0000       Cuts: 5       67    0.00%
+Found incumbent of value 7002.000000 after 0.14 sec. (3.11 ticks)
+      0     0        cutoff           7002.0000     7002.0000       67    0.00%
+Elapsed time = 0.14 sec. (3.11 ticks, tree = 0.00 MB, solutions = 5)
+
+Flow cuts applied:  4
+Mixed integer rounding cuts applied:  3
+Gomory fractional cuts applied:  1
+
+Root node processing (before b&c):
+  Real time             =    0.14 sec. (3.12 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.14 sec. (3.12 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.16sec (det. 3.12 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 211 rows and 214 columns.
+Aggregator did 37 substitutions.
+Reduced LP has 8 rows, 14 columns, and 24 nonzeros.
+Presolve time = 0.00 sec. (0.12 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          2252.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.22 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         7002.000000    (67 iterations, 0 nodes)
+Final Solve:          7002.000000    (4 iterations)
+
+Best possible:        7002.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.378
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc7
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.410
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 71 rows and 79 columns.
+Aggregator did 105 substitutions.
+Reduced LP has 80 rows, 81 columns, and 264 nonzeros.
+Presolve time = 0.00 sec. (0.17 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =          2383.000000
+Iteration:     8   Dual objective     =        -55832.000000
+LP status(1): optimal
+Cplex Time: 0.05sec (det. 0.60 ticks)
+
+Optimal solution found.
+Objective :        5376.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.505
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc8
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.521
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 7 times.
+MIP Presolve eliminated 77 rows and 89 columns.
+MIP Presolve modified 4 coefficients.
+Aggregator did 115 substitutions.
+Reduced MIP has 64 rows, 61 columns, and 208 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.67 ticks)
+Found incumbent of value 86000.000000 after 0.00 sec. (0.80 ticks)
+Probing fixed 0 vars, tightened 17 bounds.
+Probing time = 0.00 sec. (0.07 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 64 rows, 61 columns, and 208 nonzeros.
+Reduced MIP has 21 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.12 ticks)
+Probing fixed 0 vars, tightened 2 bounds.
+Probing time = 0.00 sec. (0.05 ticks)
+Clique table members: 12.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 14 rows and 2 columns.
+Aggregator did 14 substitutions.
+Reduced LP has 36 rows, 45 columns, and 145 nonzeros.
+Presolve time = 0.01 sec. (0.05 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =        -18750.000000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.01 sec. (0.13 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        86000.0000    -5750.0000           106.69%
+Found incumbent of value 86000.000000 after 0.01 sec. (1.24 ticks)
+      0     0     3750.5000     2    86000.0000     3750.5000       14   95.64%
+*     0+    0                        20000.0000     3750.5000            81.25%
+Found incumbent of value 20000.000000 after 0.01 sec. (1.36 ticks)
+*     0     0      integral     0     4251.0000      Cuts: 10       20    0.00%
+Found incumbent of value 4251.000000 after 0.01 sec. (1.52 ticks)
+      0     0        cutoff           4251.0000     4251.0000       20    0.00%
+Elapsed time = 0.03 sec. (1.52 ticks, tree = 0.00 MB, solutions = 3)
+
+Implied bound cuts applied:  2
+Flow cuts applied:  1
+Mixed integer rounding cuts applied:  5
+Gomory fractional cuts applied:  2
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (1.54 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (1.54 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 1.54 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 217 rows and 219 columns.
+Aggregator did 29 substitutions.
+Reduced LP has 10 rows, 17 columns, and 30 nonzeros.
+Presolve time = 0.00 sec. (0.12 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          2251.000000
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.22 ticks)
+
+Proven optimal solution.
+
+MIP Solution:         4251.000000    (20 iterations, 0 nodes)
+Final Solve:          4251.000000    (3 iterations)
+
+Best possible:        4251.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.630
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc8
+---   256 rows  265 columns  722 non-zeroes
+---   93 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.679
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 97 rows and 105 columns.
+Aggregator did 90 substitutions.
+Reduced LP has 69 rows, 70 columns, and 223 nonzeros.
+Presolve time = 0.00 sec. (0.16 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =             2.000000
+Iteration:     4   Dual objective     =        -21335.000000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.59 ticks)
+
+Optimal solution found.
+Objective :        3750.500000
+
+--- Restarting execution
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.726
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1333) 3 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH12_RF1_OPT1_DF4_DV1_DL25_DU1_S1_MC1_Cost.gdx
+--- Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms(1337) 3 Mb
+*** Status: Normal completion
+--- Job Z_N2_MH12_RF1_OPT1_DF4_DV1_DL2.5_DU1_S1_MC1_Cost.gms Stop 09/23/16 13:14:19 elapsed 0:00:03.806

@@ -1,0 +1,479 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 04/06/16 16:24:41 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   2  *Max number of files should be less than 99999 otherwise naming will go wr
+      ong
+   3   
+   4  *Watch out for decimals in put writing facility. filename.td=0 so entries 
+      could be rounded down
+   5  * EVENT BASED RESCHEDULING RF0 (HAS BUG: when moving horizon is shorter th
+      an rescheduling freq, more decisions
+   6  *are wrongly fixed)
+   7   
+  10   
+  11  *Following two lines decide number of points in horizon
+  12  *it is important to keep this number same across different MH lengths
+  13  *so that the same demand is sampled
+  14  *Horizon (H) is set by MH+192 in put facility below
+  15  *Used for defining end of horizon (Important to keep it same for sampling 
+      same demand)
+  17  PARAMETER MH_max;
+  18  *PARAMETER MH_max /48/;
+  19  *remember to put a line to use smax to get automatic value for MH_max
+  20   
+  21  *Number of runs per MC simulation
+  22  *Provides capability to run multiple Demand load uncertainty cases
+  23  *within one batch file, effectively reducing the number of files to manage
+  24  *Since all downstream code (MATLAB data analysis) assumes N_runs=1,
+  25  *better keep it to 1
+  27   
+  28  *$include study_MH.gms
+  29  *$include study_RF.gms
+  30  *$include study_OPT.gms
+  31  *$INCLUDE study_Jan22_CTM_Email.gms
+  32  *For greedy paradox also change model to greedy objective in Model9 file
+  33  *$INCLUDE study_GreedyParadoxN1.gms
+  34  *$include study_SolutionMultiplicity.gms
+  35  *$include study_MHN3.gms
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\study_All_N2.gms
+  37  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+  38  *MH      Moving Horizon Length           /MH0 6,MH1001 9, MH1 12, MH2 15, 
+      MH3 18, MH4 21, MH5 24, MH6 30, MH7 36, MH8 42, MH9 48/;
+  39  SETS
+  40  *DESIGN PARAMETERS
+  41  MH      Moving Horizon Length           /MH1*MH7/
+  42  RF      Rescheduling Frequency          /RF1*RF6/
+  43  OPT     Optimality gap                  /OPT1*OPT5/
+  44  *TESTING OVER SPACE OF
+  45  N       Network                         /N2/
+  46  DF      Demand Freq                     /DF1*DF3/
+  47  *Variation in temporal position of demand
+  48  DV      Demand Variation                /DV1/
+  49  DL      Demand Load                     /DL1*DL3/
+  50  *Uncertainty in magnitude of demand
+  51  DU      Demand Uncertainty              /DU1/
+  52  MC      Monte Carlo Run#                /MC1*MC100/
+  53  S       surprise                        /S1/
+  54  *S       surprise                        /S0 0,S1 0.25/
+  55  Obj     MinCost or MaxProfit            /Cost,Profit/;
+  56   
+  57   
+  58  *Testing space
+  59  TABLE par_DF(N,DF)
+  60          DF1     DF2     DF3
+  61  N2      3       6       12;
+  62  TABLE par_DV(DF,DV)
+  63          DV1
+  64  DF1     1
+  65  DF2     1
+  66  DF3     3;
+  67   
+  68  *DEMAND MAGNITUDE
+  69  *APPROX 50%, 80% and 100% load
+  70  PARAMETER
+      par_DM(N,DF,DL)  /N1.DF1.(DL1 1,DL2 3,DL3 5),
+                        N2.DF1.(DL1 3,DL2 4,DL3 5),
+                        N3.DF1.(DL1 1,DL2 3,DL3 5),
+                        N4.DF1.(DL1 1,DL2 2,DL3 3),
+                        N4.DF2.(DL1 2,DL2 3,DL3 5),
+                        N4.DF3.(DL1 4,DL2 6,DL3 8),
+                        N4.DF4.(DL1 5,DL2 8,DL3 10)/;
+  80  par_DM(N,DF,DL)  /(N2).DF1.(DL1 3,DL2 4,DL3 5)/;
+  81  par_DM(N,DF,DL)= par_DM(N,'DF1',DL)*(par_DF(N,DF)/par_DF(N,'DF1'));
+  82   
+  83   
+  84   
+  85  *Demand magnitude uncertainty
+  86  PARAMETER par_DU(DL,DU),par_S(S);
+  87  par_DU(DL,DU)=0.1;
+  88  par_S(S)=0;
+  89  *Now setting seed for each demand monte carlo sample
+  90  PARAMETER seed(MC);
+  91  loop MC do seed(MC)=UniformInt(1,card(MC)*999); endloop
+  92  display seed;
+  93   
+  94  *Design decisions
+  95  PARAMETER
+  96  par_MH(N,DF,MH)
+  97  par_RF(N,DF,RF)
+  98  par_OPT(N,OPT);
+  99   
+ 100  *par_MH(N,DF,MH)= 12+3*(ord(MH)-1)$(ord(MH) le 3)+6*(ord(MH)-2)$(ord(MH) g
+      e 4);
+ 101  par_MH(N,DF,MH)= 18+3*(ord(MH)-1);
+ 102  *par_RF(N,DF,RF)= 3*(ord(RF)-1);par_RF(N,DF,RF)$(ord(RF) eq 1)= ord(RF);
+ 103  par_RF(N,DF,RF)= ord(RF);
+ 104  par_OPT(N,OPT)=0.025*(ord(OPT)-1);
+ 105   
+ 106  *MH_max is important because it ensures that we consistently sample the sa
+      me demands through MakeBatchFiles
+ 107  MH_max=smax((N,DF,MH),par_MH(N,DF,MH));
+ 108  *N       Network                         /N1 1,N2 2,N3 3/
+ 109  *RF      Rescheduling Frequency          /RF0 0,RF1 1, RF2 3, RF3 6/
+ 110  *OPT     Optimality gap                  /OPT0 0, OPT1 0.025, OPT2 0.05, O
+      PT3 0.075, OPT4 0.1/;
+ 111   
+ 112   
+ 113  *Due to difference in complexities we only want certain combinations of N,
+      MH
+ 114  SET N_DL_combination(N,DL);
+ 115  N_DL_combination(N,DL)=no;
+ 116  N_DL_combination(N,DL)=yes;
+ 117   
+ 118  SET N_MH_combination(N,MH);
+ 119  N_MH_combination(N,MH)=no;
+ 120  *N_MH_combination(N,MH)=yes$( (ord(N) eq 1 and ord(MH) le 3) OR (ord(N) gt
+       1 and ord(MH) gt 1));
+ 121  N_MH_combination(N,MH)=yes;
+ 122  display N_MH_combination;
+ 123   
+ 124  SET Demand_combination(DF,DV,DL,DU,S);
+ 125  Demand_combination(DF,DV,DL,DU,S)=no;
+ 126  Demand_combination(DF,DV,DL,DU,S)$(ord(DU) eq 1 AND ord(S) eq 1)=yes;
+ 127  display Demand_combination;
+ 128   
+ 129  SET N_Obj_combination(N,OBJ);
+ 130  N_Obj_combination(N,OBJ)=no;
+ 131  N_Obj_combination(N,OBJ)=yes;
+ 132   
+ 133  SET comb_OBJ_DL(OBJ,DL);
+ 134  comb_OBJ_DL(OBJ,DL)=no;
+ 135  comb_OBJ_DL(OBJ,DL)$(ord(OBJ) eq 1)=yes;
+ 136  comb_OBJ_DL(OBJ,DL)$(ord(OBJ) eq 2 AND ord(DL) eq 1)=yes;
+ 137   
+ 138   
+ 139  SET comb(N,MH,RF,OPT);
+ 140  comb(N,MH,RF,OPT)= no;
+ 141  comb(N,MH,RF,OPT)$((ord(RF) eq 1 or ord(RF) eq 3 OR ord(RF) eq 6) AND ord(
+      OPT) eq 1)= yes;
+ 142  comb(N,MH,RF,OPT)$((ord(MH) eq 1 or ord(MH) eq 3 OR ord(MH) eq 5) AND ord(
+      OPT) eq 1)= yes;
+ 143  comb(N,MH,RF,OPT)$(ord(MH) eq 3 AND (ord(RF) eq 1 or ord(RF) eq 3 OR ord(R
+      F) eq 6))= yes;
+ 144   
+ 145  SET Allowed_MC(MC);
+ 146  Allowed_MC(MC)=no;
+ 147  Allowed_MC(MC)$(ord(MC) le 25)=yes;
+ 148  *Allowed_MC(MC)$(ord(MC) ge 26 AND ord(MC) le 50)=yes;
+ 149  *Allowed_MC(MC)$(ord(MC) ge 51 AND ord(MC) le 75)=yes;
+ 150  *Allowed_MC(MC)$(ord(MC) ge 76 AND ord(MC) le 100)=yes;
+ 151   
+ 152   
+ 153  *comb(N,MH,RF,DL,OPT)$(ord(N) ge 1 and ord(MH) eq 1 and Ord(RF) eq 1 and O
+      Rd(DL) eq 2 and ord(OPT) eq 1)= yes;
+ 154  *comb(N,MH,RF,L,OPT)$(ord(OPT) eq 1)= yes;
+ 155  *comb(N,MH,RF)$(ord(N) eq 1 and ord(MH) eq 1)= yes;
+ 156  *comb(N,MH,RF,OPT)$(ord(N) eq 1 AND ord(MH) eq 1 AND ord(RF) eq 1 AND ord(
+      OPT) eq 1)= yes;
+ 157  *Only allowing certain combinations of Networks and Moving horizons
+ 158  *comb(N,MH,RF,DL,OPT)$(NOT N_MH_combination(N,MH))=no;
+ 159  *$include study_N3_remaining.gms
+ 160  SCALAR i /999999/;
+ 161   
+ 162  FILE LinuxBatchFile /LinuxBatchFile.bat/;
+ 163  FILE WindowsBatchFile /WindowsBatchFile.bat/;
+ 164  FILE GamsFiles /MakeGMS.gms/;
+ 165  GamsFiles.pw=255*4;
+ 166  GamsFiles.nw=0;
+ 167  GamsFiles.nd=0;
+ 168  GamsFiles.tw=0;
+ 169  GamsFiles.lw=0;
+ 170   
+ 171  LinuxBatchFile.pw=255*4;
+ 172  LinuxBatchFile.nw=0;
+ 173  LinuxBatchFile.nd=0;
+ 174  LinuxBatchFile.tw=0;
+ 175  LinuxBatchFile.lw=0;
+ 176   
+ 177  WindowsBatchFile.pw=255*4;
+ 178  WindowsBatchFile.nw=0;
+ 179  WindowsBatchFile.nd=0;
+ 180  WindowsBatchFile.tw=0;
+ 181  WindowsBatchFile.lw=0;
+ 182   
+ 183  PUT LinuxBatchFile;
+ 184  PUT "REQUEST_CPUS=1"/;
+ 185  PUT "export REQUEST_CPUS"/;
+ 186  PUT "echo REQUEST_CPUS set to $REQUEST_CPUS"/;
+ 187  PUT "REQUEST_MEMORY=1024"/;
+ 188  PUT "export REQUEST_MEMORY"/;
+ 189  PUT "echo REQUEST_MEMORY set to $REQUEST_MEMORY MB"/;
+ 190  *PUT 'rm *.gdx *.lst *.log *.sh *.out *.txt *.err' /;
+ 191  PUT WindowsBatchFile;
+ 192  PUT GamsFiles;
+ 193   
+ 194  *$SETGLOBAL Path %gams.cdir%
+ 195  *Linux_BFile.nw=0;
+ 196  *Windows_BFile.nw=0;
+ 197  *GAMSFiles.nw=0;
+ 198  *$SETGLOBAL KEY "N.tl:2 '_' MH.tl:2 MH.te(MH) '_RF' RF.te(RF)'_' OPT.tl:4'
+      _'DF.tl:2 DF.te(DF)'_'DV.tl:2 DV.te(DV)'_'DL.tl:2 DL.te(DL)'_'DU.tl:3 '_' 
+      S.tl:2 '_'MC.tl:2 ord(MC):0:0";
+ 200  *$SETGLOBAL KEY "N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' par_RF(N,DF,RF) 
+      '_' OPT.tl:4 '_'DF.tl:2 par_DF(N,DF) '_'DV.tl:2 par_DV(DF,DV)";
+ 201   
+ 202  SET Combinations_made(N,MH,RF,DF,DV,DL,DU,S,OPT,MC);
+ 203  Combinations_made(N,MH,RF,DF,DV,DL,DU,S,OPT,MC)=NO;
+ 204  parameter counter /0/;
+ 205  loop N do
+ 206  loop MH do
+ 207  loop RF do
+ 208  loop OPT do
+ 209  loop DF do
+ 210  loop DV do
+ 211  loop DL do
+ 212  loop DU do
+ 213  loop S do
+ 214  loop MC do
+ 215  loop Obj do
+ 216  *         PUT 'condor_gams Z_' %KEY%  ' '   '"../Code_Paper1/"'  /;
+ 217  *         PUT 'condor_gams Z_' %KEY%  ' '   '"%gams.curdir%"'  /;
+ 218          if Allowed_MC(MC) AND comb_OBJ_DL(OBJ,DL) AND comb(N,MH,RF,OPT) AN
+      D Demand_combination(DF,DV,DL,DU,S) AND N_MH_Combination(N,MH) AND N_DL_co
+      mbination(N,DL) AND N_Obj_combination(N,OBJ) then
+ 219   
+ 220               Combinations_made(N,MH,RF,DF,DV,DL,DU,S,OPT,MC)=YES;
+ 221               PUT LinuxBatchFile;
+ 222               i = i-1;
+ 223                   PUT 'touch "Z_'N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' p
+      ar_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'
+      DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj
+      .tl'.gdx" "Z_'N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' 
+      OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,D
+      F,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj.tl'.lst" "1.txt";
+      '/;
+ 224  *         PUT 'condor_gams Z_' %KEY%  ' "'    %Key%'.gms,'%Key%'.gdx,'%Key
+      %'.lst,MasterFile.gms,Model9.gms,ModelSolution9.gms,Network1.gms,Network2.
+      gms,Network3.gms,ConfigurationFile.gms"' /;
+ 225  *         PUT 'condor_gams Z_' %KEY%  ' "Z_'    %Key%'.gms,Z_'%Key%'.gdx,M
+      asterFile.gms,Model9.gms,ModelSolution9.gms,Network1.gms,Network2.gms,Netw
+      ork3.gms,ConfigurationFile.gms"' /;
+ 226                   PUT './condor_gams_dhruv.bat Z_' N.tl:2 '_' MH.tl:2 par_M
+      H(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:
+      2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 
+      ord(MC):0:0 '_'Obj.tl  ' "Z_'    N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' 
+      par_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_
+      'DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Ob
+      j.tl'.gms,Z_'N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' O
+      PT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,DF
+      ,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj.tl'.gdx,Z_'N.tl:2 
+      '_' MH.tl:2 par_MH(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_
+      DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S
+      .tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj.tl'.lst,';
+ 227                   PUT 'ConfigurationFile.gms,MasterFile.gms,Model9.gms,Mode
+      lSolution9.gms,Network'N.tl'.gms" 'i';' /;
+ 228                   PUT WindowsBatchFile;
+ 229                   PUT 'gams Z_' N.tl:2 '_' MH.tl:2 par_MH(N,DF,MH) '_RF' pa
+      r_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'D
+      L.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj.
+      tl/;
+ 230                   PUT GamsFiles;
+ 231  *         PUT %Key%/;
+ 232  *         PUT 'condor_gams Z_' %KEY%  ' '   '"%gams.lo%"'  /;
+ 233                   PUT 'FILE FILENAME' @14 i:6:0 ' /Z_' N.tl:2 '_' MH.tl:2 p
+      ar_MH(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_DF(N,DF)'_'DV
+      .tl:2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S.tl:2 '_'MC.t
+      l:2 ord(MC):0:0 '_'Obj.tl '.gms/' /;
+ 234                   PUT 'PUT FILENAME' @13 i:6:0 ';'/;
+ 235                   PUT "PUT '$SETGLOBAL NetworkNumber" @40 N.tl:2"'/;"/;
+ 236                   PUT "PUT '$SETGLOBAL MH" @40 par_MH(N,DF,MH)  "'/;"/;
+ 237                   PUT "PUT 'SCALAR re_freq" @40 '/' par_RF(N,DF,RF) '/;' "'
+      /;"/;
+ 238                   PUT "PUT 'PARAMETER demand_cycletime" @40 '/'par_DF(N,DF)
+      '/;' "'/;"/;
+ 239                   PUT "PUT 'PARAMETER demand_variation" @40 '/'par_DV(DF,DV
+      ) '/;' "'/;"/;
+ 240                   PUT "PUT 'PARAMETER demand_magnitude" @40 '/' par_DM(N,DF
+      ,DL):0:2 "/;'/;"/;
+ 241   
+ 242  *            if ord(DU)=1 then
+ 243  *                 PUT "PUT '$SETGLOBAL Demand_Disturbance_flag" @40 0 "'/;
+      "/;
+ 244  *            else
+ 245  *                 PUT "PUT '$SETGLOBAL Demand_Disturbance_flag" @40 1 "'/;
+      "/;
+ 246  *            endif;
+ 247   
+ 248                   PUT "PUT 'PARAMETER lambda_Demand" @40 '/' par_DU(DL,DU):
+      0:4 "/;'/;"/;
+ 249                   PUT "PUT 'SCALAR surprise " @40 '/' par_S(S):0:4 "/; '/;"
+      /;
+ 250                   PUT "PUT 'SCALAR optcr_value" @40 '/'par_OPT(N,OPT):0:4'/
+      ;' "'/;"/;
+ 251                   PUT "PUT 'PARAMETER SEED_VALUE" @40 '/' seed(MC):0:0   '/
+      ;' "'/;"/;
+ 252                   PUT "PUT '$SETGLOBAL N_runs" @40 "1'/;"/;
+ 253  *         PUT "PUT '$EvalGlobal H" @40 MH.te(MH) '+%H%' "'/;"/;
+ 254                   PUT "PUT '$EVALGLOBAL H" @40 MH_max:0:0 '+192' "'/;"/;
+ 255                   PUT "PUT '$SETGLOBAL Results_FileName " @40  'Z_' N.tl:2 
+      '_' MH.tl:2 par_MH(N,DF,MH) '_RF' par_RF(N,DF,RF)'_' OPT.tl'_'DF.tl:2 par_
+      DF(N,DF)'_'DV.tl:2 par_DV(DF,DV)'_'DL.tl:2 par_DM(N,DF,DL)'_'DU.tl:3 '_' S
+      .tl:2 '_'MC.tl:2 ord(MC):0:0 '_'Obj.tl "'/;"/;
+ 256   
+ 257                   if (sameas(obj,'Profit')) then
+ 258                      PUT "PUT '$SETGLOBAL OPTIMIZATION_DIRECTION " @40  ' m
+      aximizing'"'/;"/;
+ 259                      PUT "PUT '$SETGLOBAL MODEL_NAME"            @40    ' M
+      AX_PROFIT_2 '"'/;"/;
+ 260                      PUT "PUT '$SETGLOBAL InitialInventoryBufferHours" @60 
+          ' 12'"'/;"/;
+ 261                      PUT "PUT '$SETGLOBAL Transient_H" @40   '0 '"'/;"/;
+ 262                      PUT "PUT '$SETGLOBAL Closed_Loop_Upper" @40   ' 168 '"
+      '/;"/;
+ 263                      PUT "PUT '$SETGLOBAL Backlog_flag" @40   ' 0 '"'/;"/;
+ 264                   endif;
+ 265   
+ 266   
+ 267                   if (sameas(obj,'Cost')) then
+ 268                      PUT "PUT '$SETGLOBAL OPTIMIZATION_DIRECTION " @40  ' m
+      inimizing '"'/;"/;
+ 269                      PUT "PUT '$SETGLOBAL MODEL_NAME"            @40    ' M
+      IN_COST  '"'/;"/;
+ 270                      PUT "PUT '$SETGLOBAL InitialInventoryBufferHours" @60 
+          ' 6'"'/;"/;
+ 271                      PUT "PUT '$SETGLOBAL Transient_H" @40   ' 0 '"'/;"/;
+ 272                      PUT "PUT '$SETGLOBAL Closed_Loop_Upper" @40   ' 168'"'
+      /;"/;
+ 273                     PUT "PUT '$SETGLOBAL Backlog_flag" @40   ' 1 '"'/;"/;
+ 274  *                    PUT "PUT '$SETGLOBAL InitialInventoryFlag" @40     ' 
+      0'"'/;"/;
+ 275  *                    PUT "PUT '$SETGLOBAL Transient_H" @40   ' 48 '"'/;"/;
+ 276  *                    PUT "PUT '$SETGLOBAL Closed_Loop_Upper" @40   ' 192'"
+      '/;"/;
+ 277                   endif;
+ 278   
+ 279   
+ 280                   PUT "PUT '$INCLUDE ConfigurationFile.gms'/;"/;
+ 281                   PUT /;
+ 282                   counter=counter+1;
+ 283          endif;
+ 284  endloop;
+ 285  endloop;
+ 286  endloop;
+ 287  endloop;
+ 288  endloop;
+ 289  endloop;
+ 290  endloop;
+ 291  endloop;
+ 292  endloop;
+ 293  endloop;
+ 294  endloop;
+ 295   
+ 296  display counter;
+ 297  EXECUTE_UNLOAD 'MakeBatchFiles.gdx'
+ 298  *END of MakeBatchFiles file
+ 299   
+ 300   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 04/06/16 16:24:41 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes\GAM
+                                          S_Code_Paper1\MakeBatchFiles.gms
+     2       36 INCLUDE        1      36  .C:\Users\dhruv\Box Sync\Work\Codes\GA
+                                           MS_Code_Paper1\study_All_N2.gms
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 04/06/16 16:24:41 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     92 PARAMETER seed  
+
+MC1   17158.000,    MC2   84243.000,    MC3   54983.000,    MC4   30084.000
+MC5   29192.000,    MC6   22383.000,    MC7   34949.000,    MC8   85542.000
+MC9    6705.000,    MC10  49972.000,    MC11  99712.000,    MC12  57816.000
+MC13  99015.000,    MC14  76149.000,    MC15  13057.000,    MC16  63908.000
+MC17  15936.000,    MC18  24984.000,    MC19  66826.000,    MC20  43493.000
+MC21  35935.000,    MC22  35109.000,    MC23  13137.000,    MC24  14996.000
+MC25  58853.000,    MC26  83007.000,    MC27  23059.000,    MC28  66507.000
+MC29  77509.000,    MC30  30336.000,    MC31  11039.000,    MC32  50189.000
+MC33  16002.000,    MC34  87159.000,    MC35  26485.000,    MC36  28553.000
+MC37  59337.000,    MC38  72200.000,    MC39  62763.000,    MC40  46334.000
+MC41  41290.000,    MC42  11758.000,    MC43  31390.000,    MC44   4651.000
+MC45  33822.000,    MC46  18192.000,    MC47  64509.000,    MC48  56019.000
+MC49  76920.000,    MC50  29751.000,    MC51  66045.000,    MC52  75507.000
+MC53  62683.000,    MC54  28359.000,    MC55   8634.000,    MC56  10242.000
+MC57  64061.000,    MC58  54477.000,    MC59   3150.000,    MC60  79157.000
+MC61   7270.000,    MC62  17549.000,    MC63  52511.000,    MC64  74946.000
+MC65  17795.000,    MC66   3411.000,    MC67  58455.000,    MC68  62061.000
+MC69  38898.000,    MC70  35836.000,    MC71  24280.000,    MC72  24618.000
+MC73  13038.000,    MC74  93252.000,    MC75  37956.000,    MC76  78262.000
+MC77  29974.000,    MC78  12536.000,    MC79  74813.000,    MC80   6917.000
+MC81  20182.000,    MC82    507.000,    MC83  26935.000,    MC84  49936.000
+MC85  15114.000,    MC86  17400.000,    MC87  33031.000,    MC88  31659.000
+MC89  32177.000,    MC90  96302.000,    MC91  99261.000,    MC92  36954.000
+MC93  37252.000,    MC94  77121.000,    MC95  39629.000,    MC96  91219.000
+MC97  11946.000,    MC98  73475.000,    MC99   5537.000,    MC100 57573.000
+
+
+----    122 SET N_MH_combination  
+
+           MH1         MH2         MH3         MH4         MH5         MH6
+
+N2         YES         YES         YES         YES         YES         YES
+
+ +         MH7
+
+N2         YES
+
+
+----    127 SET Demand_combination  
+
+INDEX 1 = DF1  INDEX 2 = DV1
+
+                 S1
+
+DL1.DU1         YES
+DL2.DU1         YES
+DL3.DU1         YES
+
+INDEX 1 = DF2  INDEX 2 = DV1
+
+                 S1
+
+DL1.DU1         YES
+DL2.DU1         YES
+DL3.DU1         YES
+
+INDEX 1 = DF3  INDEX 2 = DV1
+
+                 S1
+
+DL1.DU1         YES
+DL2.DU1         YES
+DL3.DU1         YES
+
+
+----    296 PARAMETER counter              =    12600.000  
+
+**** REPORT FILE SUMMARY
+
+LinuxBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\LinuxBatchFil
+               e.bat
+WindowsBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\WindowsBatc
+                 hFile.bat
+GamsFiles C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MakeGMS.gms
+
+
+EXECUTION TIME       =        0.983 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MakeBatchFiles.gm
+           s
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MakeBatchFiles.ls
+           t

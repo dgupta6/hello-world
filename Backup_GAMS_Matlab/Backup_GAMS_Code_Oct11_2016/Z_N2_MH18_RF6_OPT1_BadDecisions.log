@@ -1,0 +1,1051 @@
+
+--- Job Z_N2_MH18_RF6_OPT1_BadDecisions.gms Start 09/23/16 13:13:45 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Medium MUD - 10 User License                   G160923:1323AO-GEN
+          University of Wisconsin - Madison, Department of Chemical &DC4923
+          License for teaching and research at degree granting institutions
+          License_Admin:_Ho_T._Jae_Lee,_hlee558@wisc.edu___________________
+--- Starting compilation
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(21) 2 Mb
+--- .ConfigurationFile.gms(70) 2 Mb
+--- ..MasterFile.gms(17) 3 Mb
+--- ...NetworkN2.gms(107) 3 Mb
+--- ..MasterFile.gms(18) 3 Mb
+--- ...Model9.gms(572) 3 Mb
+--- ..MasterFile.gms(163) 3 Mb
+--- ...ModelSolution9.gms(308) 3 Mb
+--- ..MasterFile.gms(316) 3 Mb
+--- .ConfigurationFile.gms(77) 3 Mb
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(21) 3 Mb
+--- Starting execution: elapsed 0:00:00.416
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 4 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 4 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.822
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 2 times.
+MIP Presolve eliminated 184 rows and 202 columns.
+Aggregator did 312 substitutions.
+Reduced MIP has 180 rows, 138 columns, and 579 nonzeros.
+Reduced MIP has 66 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.02 sec. (1.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.09 sec. (1.62 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.09 sec. (1.62 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.11sec (det. 1.62 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.403
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.450
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 249 rows and 267 columns.
+Aggregator did 250 substitutions.
+Reduced LP has 177 rows, 135 columns, and 570 nonzeros.
+Presolve time = 0.00 sec. (0.41 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =            41.000000
+Iteration:    43   Dual objective     =             3.000000
+LP status(1): optimal
+Cplex Time: 0.19sec (det. 0.85 ticks)
+
+Optimal solution found.
+Objective :           4.500000
+
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.794
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc1
+---   736 rows  637 columns  1,855 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.841
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n4)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.03sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.935
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc2
+---   724 rows  640 columns  1,846 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.997
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.106
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc3
+---   712 rows  643 columns  1,837 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.153
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.223
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc4
+---   700 rows  646 columns  1,828 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.292
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.386
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc5
+---   688 rows  649 columns  1,819 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.433
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.557
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.604
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.03sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.698
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.729
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.10 ticks)
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Rerunning with presolve turned off and solving with LPMETHOD=0
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =             0.000000
+Iteration:     2   Dual objective     =             4.500000
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.52 ticks)
+
+Model has been proven infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:03.831
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc7
+---   736 rows  637 columns  1,855 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.894
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.003
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc8
+---   724 rows  640 columns  1,846 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.034
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.130
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc9
+---   712 rows  643 columns  1,837 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.177
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.344
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc10
+---   700 rows  646 columns  1,828 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.406
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.468
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc11
+---   688 rows  649 columns  1,819 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.515
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 2 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.656
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc12
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.702
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.03sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.780
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc12
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.812
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.10 ticks)
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Rerunning with presolve turned off and solving with LPMETHOD=0
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             4.500000
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.37 ticks)
+
+Model has been proven infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:04.938
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc13
+---   736 rows  637 columns  1,855 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.970
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.110
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc14
+---   724 rows  640 columns  1,846 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.157
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.250
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc15
+---   712 rows  643 columns  1,837 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.284
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.426
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc16
+---   700 rows  646 columns  1,828 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.457
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.566
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc17
+---   688 rows  649 columns  1,819 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.613
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.738
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc18
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.785
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.01sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:05.878
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc18
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.910
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.10 ticks)
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Rerunning with presolve turned off and solving with LPMETHOD=0
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =             0.999999
+Iteration:     3   Dual objective     =             4.500000
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.52 ticks)
+
+Model has been proven infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.034
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc19
+---   736 rows  637 columns  1,855 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.081
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.206
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc20
+---   724 rows  640 columns  1,846 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.237
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'Allocation(U2.n3)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.364
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc21
+---   712 rows  643 columns  1,837 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.426
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.03sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.504
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc22
+---   700 rows  646 columns  1,828 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.536
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.21 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.676
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc23
+---   688 rows  649 columns  1,819 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.707
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M1.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.05sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.802
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating MIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- LOOPS run = run1
+---       calc = calc24
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.849
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.14 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.20 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.20 ticks)
+MIP status(103): integer infeasible
+Cplex Time: 0.00sec (det. 0.20 ticks)
+CPLEX Error  1217: No solution exists.
+Problem is integer infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1150) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:06.989
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(911) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- LOOPS run = run1
+---       calc = calc24
+---   676 rows  652 columns  1,810 non-zeroes
+---   243 discrete-columns
+--- Executing CPLEX: elapsed 0:00:07.020
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+Row 'InventoryBalance(M3.n0)' infeasible, all entries at implied bounds.
+Presolve time = 0.00 sec. (0.10 ticks)
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Rerunning with presolve turned off and solving with LPMETHOD=0
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =             0.999999
+Iteration:     3   Dual objective     =             4.500000
+LP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.52 ticks)
+
+Model has been proven infeasible.
+--- Restarting execution
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1223) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:07.255
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1333) 4 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH18_RF6_OPT1_BadDecisions.gdx
+--- Z_N2_MH18_RF6_OPT1_BadDecisions.gms(1337) 4 Mb
+*** Status: Normal completion
+--- Job Z_N2_MH18_RF6_OPT1_BadDecisions.gms Stop 09/23/16 13:13:52 elapsed 0:00:07.335

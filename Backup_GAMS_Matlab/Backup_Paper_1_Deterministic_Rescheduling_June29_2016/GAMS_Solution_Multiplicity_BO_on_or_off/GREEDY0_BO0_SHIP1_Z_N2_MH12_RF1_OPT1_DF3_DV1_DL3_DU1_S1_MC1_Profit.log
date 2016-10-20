@@ -1,0 +1,108 @@
+
+--- Job GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms Start 03/04/16 21:45:32 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(21) 2 Mb
+--- .ConfigurationFile.gms(69) 2 Mb
+--- ..MasterFile.gms(17) 3 Mb
+--- ...NetworkN2.gms(107) 3 Mb
+--- ..MasterFile.gms(18) 3 Mb
+--- ...Model9.gms(507) 3 Mb
+--- GDXin=C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multiplicity\BO1.gdx
+--- ...Model9.gms(553) 3 Mb
+--- ..MasterFile.gms(146) 3 Mb
+--- ...ModelSolution9.gms(294) 3 Mb
+--- ..MasterFile.gms(288) 3 Mb
+--- .ConfigurationFile.gms(76) 3 Mb
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(21) 3 Mb
+--- Starting execution: elapsed 0:00:00.081
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(876) 7 Mb
+--- Generating MIP model MAX_PROFIT_2
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1100) 7 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   124 rows  130 columns  246 non-zeroes
+---   3 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.155
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+MIP Presolve eliminated 124 rows and 130 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 106 rows and 112 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.05 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.08 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          374.000000    (0 iterations, 0 nodes)
+Final Solve:           374.000000    (0 iterations)
+
+Best possible:         374.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1100) 4 Mb
+--- Reading solution for model MAX_PROFIT_2
+--- Executing after solve: elapsed 0:00:01.259
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(876) 6 Mb
+--- Generating RMIP model MAX_PROFIT_2
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1172) 6 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   124 rows  130 columns  246 non-zeroes
+---   3 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.288
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 106 rows and 112 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.05 ticks)
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 0.11 ticks)
+
+Optimal solution found.
+Objective :         374.000000
+
+--- Restarting execution
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1172) 4 Mb
+--- Reading solution for model MAX_PROFIT_2
+--- Executing after solve: elapsed 0:00:01.374
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1275) 6 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multiplicity\GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gdx
+--- GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms(1279) 6 Mb
+*** Status: Normal completion
+--- Job GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit.gms Stop 03/04/16 21:45:33 elapsed 0:00:01.390

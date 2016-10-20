@@ -1,0 +1,23 @@
+                            FILE FILENAME999998 /Z_N2_MH8_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Cost.gms/
+PUT FILENAME999998;
+PUT '$SETGLOBAL NetworkNumber          N2'/;
+PUT '$SETGLOBAL MH                     8'/;
+PUT 'SCALAR re_freq                    /1/;'/;
+PUT 'PARAMETER demand_cycletime        /3/;'/;
+PUT 'PARAMETER demand_variation        /1/;'/;
+PUT 'PARAMETER demand_magnitude        /3.00/;'/;
+PUT 'PARAMETER lambda_Demand           /0.1000/;'/;
+PUT 'SCALAR surprise                   /0.0000/; '/;
+PUT 'SCALAR optcr_value                /0.0000/;'/;
+PUT 'PARAMETER SEED_VALUE              /17158/;'/;
+PUT '$SETGLOBAL N_runs                 1'/;
+PUT '$EVALGLOBAL H                     32+192'/;
+PUT '$SETGLOBAL Results_FileName       Z_N2_MH8_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Cost'/;
+PUT '$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing '/;
+PUT '$SETGLOBAL MODEL_NAME              MIN_COST  '/;
+PUT '$SETGLOBAL InitialInventoryBufferHours                 6'/;
+PUT '$SETGLOBAL Transient_H             0 '/;
+PUT '$SETGLOBAL Closed_Loop_Upper       168'/;
+PUT '$SETGLOBAL Backlog_flag            1 '/;
+PUT '$SETGLOBAL Gantt_OL_Number       1'/;
+PUT '$INCLUDE ConfigurationFile.gms'/;

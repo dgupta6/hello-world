@@ -1,0 +1,4461 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   3  SCALAR re_freq                    /1/;
+   4  PARAMETER demand_cycletime        /3/;
+   5  PARAMETER demand_variation        /1/;
+   6  PARAMETER demand_magnitude        /3.00/;
+   7  PARAMETER lambda_Demand           /0.1000/;
+   8  SCALAR surprise                   /0.0000/;
+   9  SCALAR optcr_value                /0.0000/;
+  10  PARAMETER SEED_VALUE              /1716/;
+  18  *$SETGLOBAL Closed_Loop_Upper       168
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\ConfigurationFile.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 2
+CONFIGURATION_FILE
+C o m p i l a t i o n
+
+
+  23   
+  24  *$SETGLOBAL OPTIMIZATION_DIRECTION  maximizing
+  25  *$SETGLOBAL MODEL_NAME MAX_PROFIT
+  26  *$SETGLOBAL InitialInventoryFlag 1
+  27   
+  28  *$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing
+  29  *$SETGLOBAL MODEL_NAME MIN_COST
+  30  *$SETGLOBAL InitialInventoryFlag 0
+  31  *******HORIZON********
+  32  *$SETGLOBAL H 192
+  34  *$SETGLOBAL MH 20
+  35  *SCALAR re_freq /1/;
+  36  *Used in chopping off initial transient in closed loop cost evaluation
+  37  *$SETGLOBAL Transient_H 48
+  38  *$SETGLOBAL Transient_H 0
+  39  *We do Closed_Loop_Upper # of calc and record closed loop solution only ti
+      ll there
+  40  *$SETGLOBAL Closed_Loop_Upper 168
+  41  *$SETGLOBAL Closed_Loop_Upper 192
+  42  *******HORIZON********
+  43   
+  44  *******NETWORK AND MODEL********
+  45  *$SETGLOBAL NetworkNumber 1
+  48  *******NETWORK AND MODEL********
+  49   
+  50  *******DEMAND LOAD********
+  51  *PARAMETER demand_cycletime /12/;
+  52  *PARAMETER demand_variation /3/;
+  53  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+  54  *******DEMAND LOAD********
+  55   
+  56  ******DISTURBANCES********************
+  57  *$SETGLOBAL Demand_Disturbance_flag 0
+  61  *Parameters for demand uncertainty
+  62  *What fraction ahead of rolling Horizon does demand forecast changes'
+  63  *SCALAR surprise /0.34/;
+  64  *Magnitude of Uncertainties
+  65  *PARAMETER lambda_Demand /0.2/;
+  66  *Yet to replace these names in ModelSolution9 file
+  67  *and these values are hardcoded right now (look into code again)
+  68  PARAMETER lambda_TaskDelay /0.2/;
+  69  PARAMETER lambda_UnitBreakdown /0.2/;
+  70  PARAMETER bringing_unit_back /2/;
+  71  PARAMETER lambda_Handling /0.2/;
+  72  ******DISTURBANCES********************
+  73   
+  74  *******OPTIMIZATION OPTIONS****
+  75  *SCALAR   optcr_value /0/;
+  76  SCALAR   timelimit /3600/;
+  77  *******OPTIMIZATION OPTIONS****
+  78   
+  79  *******EVALUATION********
+  80  *$SETGLOBAL N_runs 1
+  81  *******EVALUATION********
+  82   
+  83  *******REPORTING********
+  86  *$SETGLOBAL Results_FileName Config_Results
+  87  *******REPORTING********
+  88   
+  89  *Run the closed loop and generate results
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\MasterFile.gms
+  91  *Change this to name of the instance
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 3
+MasterFile
+C o m p i l a t i o n
+
+
+  97  *$OFFLISTING
+  98   
+  99  execseed=SEED_VALUE;
+ 100  *parameter cc /0/;
+ 101   
+ 103  SCALAR KillLength /2/;
+ 104   
+ 105  SET run /run1*run1/;
+ 106   
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\NetworkN2.gms
+ 108  Sets     i tasks  /T1*T3/
+ 109           s states /M1*M4/
+ 110           j units  /U1*U2/
+ 111           u utilities /manpower/
+ 112   
+ 113  *         Ki(j,i) set of equipments(units) suitable for task i
+ 114  *         /(Reactor1).(TA,TB),Heater.Heating/
+ 115           Ij(i,j) set of equipments(units) suitable for task i
+ 116           /T1.U1,(T2,T3).U2/
+ 117   
+ 118           FIS(s) States with Finite Intermediate Storage /M2/
+ 119           product_states(s) Product States/M3*M4/
+ 120           feed_states(s) Feed States/M1/
+ 121   
+ 122           UtilInt Intervals for utility /Int1/
+ 123           UnitInt Intervals for unit-unavailability /Int1/
+ 124   
+ 125           Attributes/magnitude, starttime, price/
+ 126  ;
+ 127   
+ 128  Table UtilData(UtilInt,u,Attributes)
+ 129               manpower.starttime            manpower.magnitude      manpowe
+      r.price
+ 130  Int1                    0                         10                     0
+ 131  ;
+ 132   
+ 133  *Availability of unit  0=available, 1=not available
+ 134  Table UnitData(UnitInt,j,Attributes)
+ 135                U1.magnitude         U1.starttime
+ 136  Int1              0                     0
+ 137  ;
+ 138   
+ 139  Parameters rho(i,s) proportion of input of task i from states s
+ 140             /T1.M1 1,(T2,T3).M2 1/
+ 141             rhobar(i,s) proportion of ouput of task i to state s
+ 142             /T1.M2 1, T2.M3 1, T3.M4 1/
+ 143   
+ 144             pis(i,s) processing time for output of task i into state s
+ 145             /T1.M2 2,T2.M3 2, T3.M4 3/
+ 146             pi(i) maximum processing time in task i for any stage produced 
+      by it
+ 147   
+ 148             alpha(u,i) fixed utility demand by task i throughout its run
+ 149             /manpower.(T1*T2) 0/
+ 150             beta(u,i) "variable utility demand by task i throughout its run
+      (te/hr)"
+ 151             /manpower.(T1*T2) 0/
+ 152   
+ 153             vmaxij(i,j)  Maximum capacity of unit j when used for task i
+ 154             /T1.U1 20, (T2,T3).U2 10/
+ 155             vminij(i,j)  Minimum capacity of unit j when used for task i
+ 156             /T1.U1 10, (T2,T3).U2 5/
+ 157             Cs(s) maximum storage capacity for stage s  /(M1*M4) 99999/
+ 158             Cst(s) unit price of s/M1 1, M2 5, M3 10, M4 10/
+ 159  ;
+ 160  *pis(i,s)=5;
+ 161  pi(i)=smax(s,pis(i,s));
+ 162   
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      set         o orders /o1*o%H%/;
+      parameter deliveries_time(o);
+      deliveries_time(o)=demand_cycletime*ord(o);
+      deliveries_time(o)=deliveries_time(o)+UniformInt(-demand_variation,demand_
+      variation);
+      parameter deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+ 174   
+ 175  *END OF INSTANCE FILE
+ 176   
+ 177   
+ 178   
+ 179   
+ 180   
+ 181   
+ 182   
+ 183   
+ 184   
+ 185   
+ 186   
+ 187   
+ 188   
+ 189   
+ 190   
+ 191   
+      Table deliveries(o,s)
+              SA      SB
+      o1      5       5
+      o2      5       5
+      o3      5       5
+      o4      5       5
+      o5      5       5
+      o6      5       5
+      o7      5       5
+      o8      5       5;
+ 204   
+ 205   
+      For debugging/testing utility formulas
+      Table UtilData(UtilInt,u,Attributes)
+                   manpower.starttime            manpower.magnitude      manpowe
+      r.price
+      Int1                    0                         1                     1
+      Int2                    1.5                       0                     0
+      Int3                    3.5                       1                     1
+      Int4                    6.1                       0                     0;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\Model9.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 4
+State_Space_Model
+C o m p i l a t i o n
+
+
+ 217  *OPTIONS limrow = 0, limcol = 0, solprint = off;
+ 218  OPTIONS limrow = 1000, limcol = 1000, solprint = on;
+ 219  *No upper limit on inventory (equation not enforced)
+ 220   
+ 221  *used for rounding W,B in recordstates in modelsolution file
+ 222  PARAMETER Small_number /1E-2/;
+ 223   
+ 224  *Now generating time grid using delta
+ 227  *$EvalGlobal calculations (%horizon%-%window%)
+ 231   
+ 232  set h time(multiples of delta) /h0*h228/
+ 233      n time window   /n0*n12/
+ 234      calc #of windows /calc0*calc0/
+ 235   
+ 236      closed_loop(h) horizon points for which we calculate closed loop cost
+ 237   
+ 238      Sbari(s,i)  materials produced by task i
+ 239      Si(s,i)     materials consumed by task i
+ 240      Tbars(i,s)    Tasks producing material s
+ 241      Ts(i,s) Tasks consuming material s;
+ 242   
+ 243  Sbari(s,i)=1$(rhobar(i,s) gt 0);
+ 244  Si(s,i)=1$(rho(i,s) gt 0);
+ 245  *Ij(i,j)=Ki(j,i);
+ 246  Tbars(i,s)=Sbari(s,i);
+ 247  Ts(i,s)=Si(s,i);
+ 248   
+ 249  closed_loop(h)=0;
+ 250  closed_loop(h)$(ord(h)-1 ge 0 and ord(h)-1 le 0)=1;
+ 251   
+ 252   
+ 253  alias(i,ip)
+ 254  alias(j,jp)
+ 255  alias(s,sp)
+ 256  alias(n,np)
+ 257  alias(h,hbar);
+ 258   
+ 259  set     UnitUnavailable_full(j,h)
+ 260  UnitUnavailable(j,n);
+ 261   
+ 262  parameter Uutmax_full(u,h),Cut_full(u,h) utility price;
+ 263   
+ 264  parameters Dst(s,n),Uutmax(u,n),Cut(u,n);
+ 265   
+ 266   
+ 267  parameter pis_new(i,s),pi_new(i);
+ 268  *tau_new(j,k,kp);
+ 269  pis_new(i,s)=ceil(pis(i,s)/1);
+ 270  pi_new(i)=ceil(pi(i)/1);
+ 271   
+ 272  parameter alpha_new(u,i),beta_new(u,i),Cst_new(s);
+ 273   
+ 274  alpha_new(u,i)=alpha(u,i);
+ 275   
+ 276  beta_new(u,i)=beta(u,i);
+ 277   
+ 278  Cst_new(s)=Cst(s);
+ 279   
+ 280   
+ 281   
+ 282   
+ 283  *UTILITY CALCULATIONS NEED TO BE CORRECTED
+ 284  *RIGHT NOW THERE IS BUG THAT IF THERE IS MORE THAN ONE CHANGE
+ 285  *WITHIN AN INTERVAL THEN THE CODE TAKES FIRST CHANGE ONLY
+ 286  *AND IGNORES THE SECOND CHANGE
+ 287  loop(UtilInt,
+ 288  *Maximum available utility
+ 289  Uutmax_full(u,h)$(ord(UtilInt) eq 1 and
+ 290                   ord(h) ge 1 and
+ 291                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 292                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 293                  =  UtilData(UtilInt,u,"magnitude");
+ 294   
+ 295   
+ 296   
+ 297   
+ 298  Uutmax_full(u,h)$((ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt)) an
+      d
+ 299                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 300                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 301                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 302                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 303                  =  UtilData(UtilInt,u,"magnitude");
+ 304   
+ 305   
+ 306   
+ 307  Uutmax_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 308                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 309                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 310                   ord(h) le card(h))
+ 311                  =  UtilData(UtilInt,u,"magnitude");
+ 312   
+ 313   
+ 314  *Utility Price
+ 315  Cut_full(u,h)$(ord(UtilInt) eq 1 and
+ 316            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 317            =  UtilData(UtilInt,u,"price");
+ 318   
+ 319  Cut_full(u,h)$(ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt) and
+ 320            ord(h)-1 gt (floor(UtilData(UtilInt,u,"starttime")/1)) and
+ 321            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 322            =  UtilData(UtilInt,u,"price");
+ 323   
+ 324  Cut_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 325            ord(h)-1 gt floor(UtilData(UtilInt,u,"starttime")/1) and
+ 326            ord(h) le card(h)   )
+ 327            =  UtilData(UtilInt,u,"price");
+ 328   
+ 329  Cut_full(u,h)$(ord(UtilInt) gt 1 and
+ 330           ord(h)-1 eq floor(UtilData(UtilInt,u,"starttime")/1))
+ 331           =(   UtilData(UtilInt-1,u,"price")*(UtilData(UtilInt,u,"starttime
+      ")-(ord(h)-1)* 1 )
+ 332                +UtilData(UtilInt,u,"price")*(ord(h)*1-UtilData(UtilInt,u,"s
+      tarttime"))   )/1;
+ 333  *Bug in cost calculation: what if there are 3 cost levels within one time 
+      grid?
+ 334  )
+ 335   
+ 336   
+ 337  *UnitUnavailabality(note the difference in inequalities as opposed to Util
+      ity....1=>unit not available so more magnitude is bad)
+ 338  loop(UnitInt,
+ 339  Unitunavailable_full(j,h)$(ord(UnitInt) eq 1 and
+ 340                   ord(h)-1 ge 0 and
+ 341                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 342                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 343                  =  UnitData(UnitInt,j,"magnitude");
+ 344   
+ 345   
+ 346   
+ 347   
+ 348  Unitunavailable_full(j,h)$((ord(UnitInt) gt 1 and ord(UnitInt) lt card(Uni
+      tInt)) and
+ 349                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 350                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 351                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 352                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 353                  =  UnitData(UnitInt,j,"magnitude");
+ 354   
+ 355   
+ 356   
+ 357  Unitunavailable_full(j,h)$(ord(UnitInt) eq card(UnitInt) and
+ 358                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 359                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 360                   ord(h) le card(h))
+ 361                  =  UnitData(UnitInt,j,"magnitude");
+ 362  )
+ 363   
+ 364   
+ 365   
+ 366  *display UnitUnavailable_full,Uutmax_full,Cut_full,Sbari,Si,rhobar,rho,Tba
+      rs,Ts,calc;
+ 367   
+ 368  *Ijk,tauChangeMax
+ 369   
+ 370   
+ 371   
+ 372  *Disturbance parameter for loading/unloading of materials
+ 373  parameters betaHatProd(i,j,s,n),betaHatCons(i,j,s,n);
+ 374  betaHatProd(i,j,s,n)=0;
+ 375  betaHatCons(i,j,s,n)=0;
+ 376   
+ 377   
+ 378  *Disturbance parameter for task delays
+ 379  parameters
+ 380  Yhat(i,j,n,hbar)
+ 381  Delay(calc,i,j,hbar)
+ 382  Zhat(i,j,n,hbar)
+ 383  Breakdown(calc,i,j,hbar)
+ 384  Duration_breakdown(calc,j)
+ 385  UnitBroken(j,n)
+ 386  WbarInfo(i,j,n,hbar)
+ 387  BbarInfo(i,j,n,hbar)
+ 388  KillDuration(i,j)
+ 389  KillDurationCountdown(i,j)
+ 390  KillOccupy(j,n)
+ 391  KillCountdown(j);
+ 392   
+ 393  *Initializing parameters
+ 394  Yhat(i,j,n,hbar)=0;
+ 395  Delay(calc,i,j,hbar)=0;
+ 396  Zhat(i,j,n,hbar)=0;
+ 397  Breakdown(calc,i,j,hbar)=0;
+ 398  Duration_breakdown(calc,j)=0;
+ 399  UnitBroken(j,n)=0;
+ 400  WbarInfo(i,j,n,hbar)=0;
+ 401  BbarInfo(i,j,n,hbar)=0;
+ 402  KillDuration(i,j)=0;
+ 403  KillDurationCountdown(i,j)=0;
+ 404  KillOccupy(j,n)=0;
+ 405  KillCountdown(j)=0;
+ 406   
+ 407  *hbar are the time points for lifting of variables
+ 408  *binary variables W(i,j,n),Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 409  binary variables Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 410  positive variable Bbar(i,j,n,hbar),Sst(s,n),Backlog(s,n),Ship(s,n),Ship_sa
+      les(s,n),Uut(u,n),Rst(s,n),SstTerminal(s),BacklogTerminal(s);
+ 411  variables obj_variable;
+ 412  integer variable NB(i,j) number of batches;
+ 413  *Assigning values to variables that might not participate in optimization
+ 414  Uut.l(u,n)=0;
+ 415  Ship_sales.l(s,n)=0;
+ 416   
+ 417  Equations
+ 418  numberOfBatches,
+ 419  Allocation,
+ 420  UnitCapacityMax,UnitCapacityMin,
+ 421  InventoryLimit,
+ 422  InventoryBalance,
+ 423  EndingInventory,
+ 424  BacklogBalance,
+ 425  EndingBacklog,
+ 426  UtilityLimit,
+ 427  UtilityBalance,
+ 428  objective_MIN_COST,
+ 429  objective_MAX_PROFIT,
+ 430  objective_MAX_PROFIT_Greedy
+ 431  UnitUnavailabality,
+ 432  *CorrectHolding(i,j,n),
+ 433  LiftingW,
+ 434  *LiftingW0,
+ 435  LiftingB,
+ 436  *LiftingB0,
+ 437  Carryover_W,Carryover_B,
+ 438  InventoryBalance_MAX_PROFIT,
+ 439  EndingInventory_MAX_PROFIT
+ 440  Ship_constraint(s,n)
+ 441  NoShip(s,n);
+ 442  *SHIPMENT;
+ 443  *NoTaskRunningAtEndOfHorizon;
+ 444   
+ 445  numberOfBatches(i,j)$Ij(i,j).. NB(i,j)=E=sum((n,hbar)$(ord(hbar)-1 eq 0),W
+      bar(i,j,n,hbar));
+ 446   
+ 447  *scalar ord_calc /0/;
+ 448  SCALAR fixed_decisions /0/;
+ 449  SCALAR reschedule_flag /0/;
+ 450  *re_freq-1-mod(ord_calc-1+re_freq-1,re_freq)  is zero for calc0
+ 451  Carryover_W(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Wbar(i,j,n,hbar)=E=WbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 452  Carryover_B(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Bbar(i,j,n,hbar)=E=BbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 453   
+ 454  *LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 455  *         Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,
+      j,n,hbar-1)-Zhat(i,j,n,hbar-1);
+ 456  *LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 457  *         Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1)
+ 458   
+ 459  LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 460           Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,j
+      ,n,hbar-1);
+ 461   
+ 462  LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 463           Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,j
+      ,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 464  Allocation(j,n).. sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 le (pi_new(i)-1)
+      ) ), Wbar(i,j,n,hbar))=L=1-sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 eq pi_n
+      ew(i)) ) , Yhat(i,j,n,hbar))-UnitBroken(j,n)
+ 465                        -sum((i,hbar)$(Ij(i,j) and ord(hbar)-1 ge 1 and ord(
+      hbar)-1 le pi(i)),T(i,j,hbar)$(ord(n)-1 lt KillDuration(i,j)))-KillOccupy(
+      j,n);
+ 466  *ord(np)-1=0 => Wbar0 which is also included in the above sum, so we dont 
+      have to explicitly sum over W now since W0 is also there
+ 467   
+ 468  UnitCapacityMax(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=L=Wbar(i,j,n,hbar)*vmaxij(i,j);
+ 469   
+ 470  UnitCapacityMin(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=G=Wbar(i,j,n,hbar)*vminij(i,j);
+ 471   
+ 472  InventoryLimit(s,n)$(FIS(s)).. Sst(s,n)=L=Cs(s);
+ 473   
+ 474  *Watch out for brackets in betahatCons and betaHatProd. One has multiplica
+      tion with rho other does not
+ 475  InventoryBalance(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,n)+sum((i,j
+      ,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhobar(
+      i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatProd(i
+      ,j,s,n)))
+ 476                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(produc
+      t_states(s))+Rst(s,n)$(feed_states(s));
+ 477  EndingInventory(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst(s,n)+sum((
+      i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhob
+      ar(i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatPro
+      d(i,j,s,n)))
+ 478                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(product
+      _states(s))+Rst(s,n)$(feed_states(s));
+ 479   
+ 480  ********
+ 481  *Inventory at point 2 means, inventory level infinitesimal time just befor
+      e point 2, ie 2-, need to define extra ending inventory variable SstTermin
+      al(s)
+ 482  *Deliveries are point functions like B, W while inventory is interval func
+      tion
+ 483  *Kondili has convention that inventory at point 2 is 2+, so has to define 
+      extra initial inventory parameter Sst0(s)
+ 484   
+ 485   
+ 486  ***********Backlogs******
+ 487  BacklogBalance(s,n)$(product_states(s) and ord(n) lt card(n)).. Backlog(s,
+      n+1)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 488  EndingBacklog(s,n)$(product_states(s) and ord(n) eq card(n)).. BacklogTerm
+      inal(s)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 489   
+ 490  ***********UtilityBalance******
+ 491  UtilityLimit(u,n).. Uut(u,n)=L=Uutmax(u,n);
+ 492  UtilityBalance(u,n).. Uut(u,n)=E=sum((i,j,hbar)$(Ij(i,j) and (ord(hbar)-1 
+      le pi_new(i)-1)),alpha_new(u,i)*Wbar(i,j,n,hbar)+beta_new(u,i)*Bbar(i,j,n,
+      hbar)  );
+ 493   
+ 494  UnitUnavailabality(i,j,n)$(UnitUnavailable(j,n) and Ij(i,j)).. sum((hbar)$
+      (ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 495   
+ 496  *Utility cost: sum((u,n),Cut(u,n)*Uut(u,n))
+ 497  *objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s
+      )) +1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 498  *                                 +1E2*sum((s,n)$(product_states(s)),Cst_n
+      ew(s)*Backlog(s,n))+1E2*sum(s$(product_states(s)),Cst_new(s)*BacklogTermin
+      al(s))
+ 499  *                                 +sum((i,j,hbar)$Ij(i,j),T(i,j,hbar));
+ 500  objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s)
+      ) + 1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 501                                   +1E2*sum((s,n)$(product_states(s)),Cst_ne
+      w(s)*Backlog(s,n))
+ 502                                   +1E2*sum(s$(product_states(s)),Cst_new(s)
+      *BacklogTerminal(s))
+ 503                                   +sum((i,j,n,hbar)$(Ij(i,j) AND ord(hbar)-
+      1 eq 0),Wbar(i,j,n,hbar));
+ 504   
+ 505   
+ 506  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum(s$(product_states(s)),Cst
+      _new(s)*SstTerminal(s))+1E1*sum((s,n)$(product_states(s)),Cst_new(s)*Ship(
+      s,n))
+ 507  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s) );
+ 508   
+ 509  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Sst(s,n))+1E1*sum(s$(product_states(s)),Cst_new(s)*SstTerminal
+      (s))
+ 510  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s))
+ 511  *                                       +1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Ship(s,n));
+ 512   
+ 513  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n))-sum((i,j,n,hbar)$(Ij(i,j) AND
+       ord(hbar)-1 eq 0),Wbar(i,j,n,hbar));
+ 514   
+ 515  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)))
+      objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst_
+      new(s)*(Ship_sales(s,n)+Ship(s,n)))
+                                               -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+                                               -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+                                               -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 522   
+ 523  objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst_
+      new(s)*(Ship_sales(s,n)))
+ 524                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 525                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 526                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 527   
+ 528  objective_MAX_PROFIT_Greedy.. obj_variable =E= sum((s,n)$(product_states(s
+      )),round(2-(ord(n)/card(n)),2)*Cst_new(s)*(Ship(s,n)+Ship_sales(s,n)))
+ 529                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 530                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 531                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 532   
+ 533  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n));
+ 534   
+ 535  *SHIPMENT(s,n).. Ship(s,n)=L=Dst(s,n)  ;
+ 536  InventoryBalance_MAX_PROFIT(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,
+      n)
+ 537                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 538                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 539                           -Ship_sales(s,n)$(product_states(s))-Ship(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 540   
+ 541  EndingInventory_MAX_PROFIT(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst
+      (s,n)
+ 542                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 543                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 544                           -Ship(s,n)$(product_states(s))-Ship_sales(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 545   
+ 546  *Ship_constraint(s,n)$(ord(n) gt 1 AND ord(n) lt card(n) ).. Ship(s,n)=E=0
+      ;
+ 547  *Ship_constraint(s,n)$(Dst(s,n) eq 0).. Ship_sales(s,n)=E=0;
+ 548  Ship_constraint(s,n)$((NOT Dst(s,n) gt 0) AND product_states(s)).. Ship_sa
+      les(s,n)=E=0;
+ 549   
+ 550  *NoTaskRunningAtEndOfHorizon(i,j,n)$(ord(n) eq card(n) and Ij(i,j))..   su
+      m(hbar$(ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 551  NoShip(s,n)$(ord(n) lt card(n)/2 and sameas(s,'M4')).. Ship_sales(s,n)=E=0
+      ;
+ 552  *NoShip(s,n)$(ord(n) lt card(n)/2).. Ship_sales(s,n)=E=0;
+ 553   
+ 554  *****************
+ 555  *DISTURBANCE VARIABLES
+ 556  *Build feature rich instances and do rigorous testing
+ 557  *****************
+ 558   
+ 559  SET attributes_states /W,B/;
+ 560  PARAMETERS
+ 561  record_states_raw(run,calc,attributes_states,i,j,n,hbar),
+ 562  record_states(run,calc,attributes_states,i,j,n,hbar),
+ 563  record_objective(run,calc),
+ 564  record_utility(run,calc,u,n),
+ 565  record_inventory(run,calc,s,n),
+ 566  record_inventory_raw(run,calc,s,n),
+ 567  record_backlog(run,calc,s,n),
+ 568  record_backlog_raw(run,calc,s,n),
+ 569  record_inventoryTerminal(run,calc,s),
+ 570  record_backlogTerminal(run,calc,s)
+ 571  record_T(run,calc,i,j,hbar)
+ 572  record_shipment(run,calc,s,n)
+ 573  record_shipment_sales(run,calc,s,n)
+ 574  record_shipment_sales_raw(run,calc,s,n)
+ 575  record_Rst(run,calc,s,n)
+ 576  record_shipment_raw(run,calc,s,n)
+ 577  record_Rst_raw(run,calc,s,n)
+ 578  record_yieldloss(run,calc,i,j,s,n)
+ 579  record_demands(run,calc,s,n)
+ 580  record_WbarInfo(run,calc,i,j,n,hbar)
+ 581  record_BbarInfo(run,calc,i,j,n,hbar)
+ 582  record_Demands_realization(run,s,h)
+ 583  record_fixed_decision(calc)
+ 584  record_reschedule_flag(calc,run)
+ 585  record_relaxed_objective(run,calc) Objective from solving RMIP
+ 586  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar) states from s
+      olving RMIP
+ 587  record_relaxed_shipment(run,calc,s,n)
+ 588  record_relaxed_shipment_sales(run,calc,s,n)
+ 589  record_relaxed_backlog(run,calc,s,n)
+ 590  record_relaxed_backlogTerminal(run,calc,s)
+ 591  record_relaxed_inventory(run,calc,s,n)
+ 592  record_relaxed_inventoryTerminal(run,calc,s)
+ 593  record_relaxed_Rst(run,calc,s,n);
+ 594   
+ 595   
+ 596  *Initial conditions for first optimization horizon
+ 597  PARAMETERS InitialBbar(i,j,n,hbar),InitialWbar(i,j,n,hbar),InitialInventor
+      y(s),InitialBacklog(s);
+ 598  InitialBbar(i,j,n,hbar)=0;
+ 599  InitialWbar(i,j,n,hbar)=0;
+ 600  InitialInventory(s)=0;
+ 601  InitialBacklog(s)=0;
+ 602   
+ 603  *if (%InitialInventoryFlag% eq 1,
+ 604  *Start with half day of inventory
+ 605  *InitialInventory(s)$product_states(s)=12*demand_magnitude/demand_cycletim
+      e;
+ 606  *);
+ 607  InitialInventory(s)$product_states(s)=12*demand_magnitude/demand_cycletime
+      ;
+ 608   
+ 609   
+ 610  *MODEL P1 /all/;
+ 611  MODEL MIN_COST /
+ 612  numberOfBatches,
+ 613  Allocation,
+ 614  UnitCapacityMax,
+ 615  UnitCapacityMin,
+ 616  *InventoryLimit,
+ 617  InventoryBalance,
+ 618  EndingInventory,
+ 619  BacklogBalance,
+ 620  EndingBacklog,
+ 621  *UtilityLimit,
+ 622  *UtilityBalance,
+ 623  *UnitUnavailabality,
+ 624  LiftingW,
+ 625  LiftingB,
+ 626  Carryover_W,
+ 627  Carryover_B,
+ 628  objective_MIN_COST/;
+ 629   
+ 630  MODEL MAX_PROFIT_1 /
+ 631  numberOfBatches,
+ 632  Allocation,
+ 633  UnitCapacityMax,
+ 634  UnitCapacityMin,
+ 635  Carryover_B
+ 636  InventoryBalance_MAX_PROFIT,
+ 637  LiftingW,
+ 638  BacklogBalance
+ 639  LiftingB,
+ 640  Carryover_W,
+ 641  objective_MAX_PROFIT
+ 642  Ship_constraint
+ 643  EndingInventory_MAX_PROFIT,
+ 644  EndingBacklog/;
+ 645   
+ 646  MODEL MAX_PROFIT_2 /
+ 647  numberOfBatches,
+ 648  Allocation,
+ 649  UnitCapacityMax,
+ 650  UnitCapacityMin,
+ 651  InventoryBalance_MAX_PROFIT,
+ 652  EndingInventory_MAX_PROFIT,
+ 653  BacklogBalance,
+ 654  EndingBacklog,
+ 655  LiftingW,
+ 656  LiftingB,
+ 657  Carryover_W,
+ 658  Carryover_B,
+ 659  objective_MAX_PROFIT
+ 660  Ship_constraint/;
+ 661   
+ 662  MODEL MAX_PROFIT_GREEDY /
+ 663  numberOfBatches,
+ 664  Allocation,
+ 665  UnitCapacityMax,
+ 666  UnitCapacityMin,
+ 667  InventoryBalance_MAX_PROFIT,
+ 668  EndingInventory_MAX_PROFIT,
+ 669  BacklogBalance,
+ 670  EndingBacklog,
+ 671  LiftingW,
+ 672  LiftingB,
+ 673  Carryover_W,
+ 674  Carryover_B,
+ 675  *objective_MAX_PROFIT
+ 676  objective_MAX_PROFIT_Greedy
+ 677  Ship_constraint/;
+ 678  *NoShip/;
+ 679   
+ 680  MODEL MAX_PROFIT_NOSHIP /
+ 681  numberOfBatches,
+ 682  Allocation,
+ 683  UnitCapacityMax,
+ 684  UnitCapacityMin,
+ 685  InventoryBalance_MAX_PROFIT,
+ 686  EndingInventory_MAX_PROFIT,
+ 687  BacklogBalance,
+ 688  EndingBacklog,
+ 689  LiftingW,
+ 690  LiftingB,
+ 691  Carryover_W,
+ 692  Carryover_B,
+ 693  objective_MAX_PROFIT
+ 694  *objective_MAX_PROFIT_Greedy
+ 695  Ship_constraint
+ 696  NoShip/;
+ 697   
+ 698  MODEL MAX_PROFIT_GREEDY_NOSHIP /
+ 699  numberOfBatches,
+ 700  Allocation,
+ 701  UnitCapacityMax,
+ 702  UnitCapacityMin,
+ 703  InventoryBalance_MAX_PROFIT,
+ 704  EndingInventory_MAX_PROFIT,
+ 705  BacklogBalance,
+ 706  EndingBacklog,
+ 707  LiftingW,
+ 708  LiftingB,
+ 709  Carryover_W,
+ 710  Carryover_B,
+ 711  *objective_MAX_PROFIT
+ 712  objective_MAX_PROFIT_Greedy
+ 713  Ship_constraint
+ 714  NoShip/;
+ 715   
+ 716  *SHIPMENT/;
+ 717   
+ 718   
+ 719  T.l(i,j,hbar)=0;
+ 720  *Parameters for Gantt Charting in Excel
+ 721  *END OF MODEL FILE
+ 722   
+ 723  *$ontext
+ 724  *$GDXIN GREEDY0_BO0_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit
+      .gdx
+ 725  *$GDXIN GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Profit
+      .gdx
+ 726  *$GDXIN BO0.gdx
+GDXIN   C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multiplic
+        ity\BO1.gdx
+--- LOAD  record_states = 120:record_states
+--- LOAD  record_inventory = 123:record_inventory
+--- LOAD  record_inventoryTerminal = 127:record_inventoryTerminal
+--- LOAD  record_backlog = 125:record_backlog
+--- LOAD  record_backlogTerminal = 128:record_backlogTerminal
+--- LOAD  record_shipment = 130:record_shipment
+--- LOAD  record_shipment_sales = 131:record_shipment_sales
+--- LOAD  record_Rst = 133:record_Rst
+--- LOAD  record_objective = 121:record_objective
+ 731  loop((run,calc)$(ord(calc)-1 eq 0),
+ 732  Wbar.fx(i,j,n,hbar)=record_states(run,calc,'W',i,j,n,hbar);
+ 733  Bbar.fx(i,j,n,hbar)=record_states(run,calc,'B',i,j,n,hbar);
+ 734  *Sst.fx(s,n)=record_inventory(run,calc,s,n);
+ 735  *Backlog.fx(s,n)=record_backlog(run,calc,s,n);
+ 736  *obj_variable.fx=record_objective(run,calc);
+ 737  SstTerminal.fx(s)=record_inventoryTerminal(run,calc,s);
+ 738  BacklogTerminal.fx(s)=record_backlogTerminal(run,calc,s);
+ 739  *Ship.fx(s,n)=record_shipment(run,calc,s,n);
+ 740  *Ship_sales.fx(s,n)=record_shipment_sales(run,calc,s,n);
+ 741  Rst.fx(s,n)=record_Rst(run,calc,s,n);
+ 742  );
+ 743  *$offtext
+ 744  *display Wbar.l
+ 745   
+ 746   
+ 747  record_states_raw(run,calc,attributes_states,i,j,n,hbar)=0;
+ 748  record_states(run,calc,'B',i,j,n,hbar)=0;
+ 749  record_states(run,calc,'W',i,j,n,hbar)=0;
+ 750  record_inventory(run,calc,s,n)=0;
+ 751  record_inventory_raw(run,calc,s,n)=0;
+ 752  record_backlog(run,calc,s,n)=0;
+ 753  record_backlog_raw(run,calc,s,n)=0;
+ 754  record_T(run,calc,i,j,hbar)=0;
+ 755  record_shipment(run,calc,s,n)=0 ;
+ 756  record_Rst(run,calc,s,n)=0;
+ 757  record_shipment_raw(run,calc,s,n)=0;
+ 758  record_shipment_sales_raw(run,calc,s,n)=0;
+ 759  record_shipment_sales(run,calc,s,n)=0;
+ 760  record_Rst_raw(run,calc,s,n)=0;
+ 761  record_yieldloss(run,calc,i,j,s,n)=0;
+ 762  record_demands(run,calc,s,n)=0;
+ 763  record_WbarInfo(run,calc,i,j,n,hbar)=0;
+ 764  record_BbarInfo(run,calc,i,j,n,hbar)=0;
+ 765  record_Demands_realization(run,s,h)=0;
+ 766  record_fixed_decision(calc)=0;
+ 767  record_reschedule_flag(calc,run)=0;
+ 768  record_relaxed_objective(run,calc)=0;
+ 769  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar)=0;
+ 770  record_relaxed_shipment(run,calc,s,n)=0;
+ 771  record_relaxed_shipment_sales(run,calc,s,n)=0;
+ 772  record_relaxed_backlog(run,calc,s,n)=0;
+ 773  record_relaxed_backlogTerminal(run,calc,s)=0;
+ 774  record_relaxed_inventory(run,calc,s,n)=0;
+ 775  record_relaxed_inventoryTerminal(run,calc,s)=0;
+ 776  record_relaxed_Rst(run,calc,s,n)=0;
+ 777   
+ 778   
+ 779   
+ 780  PARAMETER runcost(run) cost of implemented closed loop
+ 781           runcost_Inv(run) Inventory cost,runcost_BO(run) Backlog cost, run
+      cost_W(run) start_cost_of_tasks
+ 782           runprofit(run) closed loop profit in MAX_profit
+ 783           sales_profit(run);
+ 784   
+ 785           runcost_Inv(run)=0;runcost_BO(run)=0; runcost_W(run)=0;runcost(ru
+      n)=0; runprofit(run)=0;sales_profit(run)=0;
+ 786   
+ 787  PARAMETER modelStat(calc,run)     Should be 1 for successful optimization
+ 788            BOStat_OL(calc,run)     If 1 means open loop had non zero back o
+      rder
+ 789            BOStat_CL(calc,run)     If 1 means closed loop had non zero back
+       order
+ 790            IntegralityGap(calc,run)
+ 791            Est_modelGap1(calc,run)  Estimated optimality gap by CPLEX (obj.
+      val in denominator)
+ 792            Est_modelGap2(calc,run)  Estimated optimality gap by CPLEX (obj.
+      Est in denominator)
+ 793            True_modelGap(calc,run) True optimality gap obtained by solving 
+      to optcr=0
+ 794            ETSolve(calc,run)
+ 795            ETSolver(calc,run)
+ 796            iterUsd(calc,run)
+ 797            nodUsd(calc,run)
+ 798            resUsd(calc,run)
+ 799            numDVar(calc,run)
+ 800            numEqu(calc,run)
+ 801            numInfes(calc,run)
+ 802            numNZ(calc,run)
+ 803            numVar(calc,run)
+ 804            solveStat(calc,run)
+ 805            Suboptimal_objective /0/
+ 806            Optimal_Objective /0/;
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      SET         o orders /o1*o%H%/;
+      PARAMETER deliveries_time(o,run);
+      deliveries_time(o,run)=demand_cycletime*ord(o);
+      PARAMETER deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+       
+      PARAMETER Dst_full(s,h);
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+       
+      PARAMETER Dst_full_realization(s,h,run);
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+       
+      *IF(%Demand_Disturbance_flag% eq 1,
+               LOOP(run,
+                  deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+                  Dst_full_realization(s,h,run)=(Dst_full(s,h)+Dst_full(s,h)*uni
+      formInt(-lambda_Demand,lambda_Demand)  )$(Dst_full(s,h) gt 0);
+               );
+      *);
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 832  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 833  ******DEMAND INFORMATION*****************************
+ 834  *Each order for all products
+ 835  SET         o orders /o1*o228/;
+ 836  PARAMETER deliveries_time(o,run);
+ 837  deliveries_time(o,run)=demand_cycletime*ord(o);
+ 838  PARAMETER deliveries(o,s);
+ 839  deliveries(o,s)$(product_states(s))=demand_magnitude;
+ 840  ******DEMAND INFORMATION*****************************
+ 841   
+ 842  PARAMETER Dst_full_realization(s,h,run),Dst_full(s,h);
+ 843   
+ 844  *IF(%Demand_Disturbance_flag% eq 1,
+ 845  LOOP(run,
+ 846    deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-demand_variati
+      on,demand_variation);
+ 847    Dst_full_realization(s,h,run)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(d
+      eliveries_time(o,run)/1)));
+ 848    Dst_full_realization(s,h,run)=(Dst_full_realization(s,h,run)+Dst_full_re
+      alization(s,h,run)/100*uniformInt(-lambda_Demand*100,lambda_Demand*100)  )
+      $(Dst_full_realization(s,h,run) gt 0);
+ 849  );
+ 850  *);
+ 851  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 852   
+ 853   
+ 854  PARAMETER ClosedLoopINV(run,s,h),ClosedLoopBO(run,s,h),ClosedLoopShip(run,
+      s,h),ClosedLoopShip_sales(run,s,h),
+ 855            ClosedLoopStart(run,h),Cost_EndInventory(run);
+ 856  ClosedLoopINV(run,s,h)=0;
+ 857  ClosedLoopBO(run,s,h)=0;
+ 858  ClosedLoopShip(run,s,h)=0;
+ 859  ClosedLoopShip_sales(run,s,h)=0;
+ 860  ClosedLoopStart(run,h)=0;
+ 861  Cost_EndInventory(run)=0;
+ 862  *This parameter switches to 1 at end of this file
+ 863  *indicating a succesful run(sweep of code) throughout
+ 864  PARAMETER SUCCESS /0/;
+ 865   
+ 866   
+ 867  PARAMETER timeLeft /0/;
+ 868  PARAMETER endingSeed /0/;
+ 869  *PARAMETER sample /0/;
+ 870   
+ 871  ********************STOPPING CRITERION*************
+      PARAMETER mean_runcost(run), std_dev_runcost(run), delta_std_dev_runcost(r
+      un), max_delta_std_dev_runcost(run), N_run count of runs;
+      mean_runcost(run)=0;
+      std_dev_runcost(run)=0;
+      delta_std_dev_runcost(run)=0;
+      max_delta_std_dev_runcost(run)=0;
+      N_run=0;
+      ALIAS(run,run_p);
+      ********************STOPPING CRITERION*************
+ 882   
+ 883  ********************[Start] Evaluations Runs *****************************
+      **********
+ 884  loop(run,
+      put screen;
+      put 'I am on run ' run.tl;
+      putclose;
+      put log;
+      put 'I am on run ' run.tl;
+      putclose;
+ 893   
+ 894  *We need to reset Dst_full(s,h) with each run to nominal values
+ 895  *and then as MH goes forward, Dst_full slowly takes the value of Dst_full_
+      realization
+ 896  *for that particular run, after which here we need to refresh it to nomina
+      l values
+ 897  Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o,r
+      un)/1)));
+ 898   
+ 899  if(0 eq 1,
+ 900  abort$1 "Look into robust case demand generation in MasterFile and make su
+      re its correct";
+ 901           Dst_full(s,h)=Dst_full(s,h)*(1+ lambda_Demand);
+ 902  );
+ 903  *this time sample is equal to 1, so we are in evaluation mode
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\ModelSolution9.gms
+ 905  loop(calc,
+ 906  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+ 907  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+ 908  *abort$1 "stopped for debugging";
+ 909  *abort$(ord(calc)-1 eq 1) "stopped for debugging";
+ 910   
+ 911  *********VARIABLE RESCHEDULING FREQUENCY********
+ 912  *resetting old parameter values
+ 913  WbarInfo(i,j,n,hbar)=0;
+ 914  BbarInfo(i,j,n,hbar)=0;
+ 915   
+ 916  *DEMAND SAMPLING
+ 917  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+ 918          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+      ))) )=Dst_full_realization(s,h,run);
+ 919  *Now allocating demands to the rolling horizon calculation
+ 920          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+      ));
+ 921   
+ 922   
+      * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+      *are wrongly fixed)
+      if (re_freq=0,
+      *Reschedule flag is 1 for first optimization
+              reschedule_flag=0;
+      *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+              reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+      *Also do find schedule for the very first optimization
+              reschedule_flag$(ord(calc)-1 eq 0)=1;
+      *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+              if (reschedule_flag=1,
+      *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+                      fixed_decisions=0;
+              else
+      *Forced to follow previous fixed (planned) decisions
+                      fixed_decisions=card(n)-1;
+              );
+      else
+ 943          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+ 944          reschedule_flag=0;
+ 945          reschedule_flag$(fixed_decisions=0)=1;
+ 946  *);
+ 947  record_fixed_decision(calc)=fixed_decisions;
+ 948  record_reschedule_flag(calc,run)=reschedule_flag;
+ 949   
+      *Unfix fixed variables
+      Ship.lo(s,n)=0;Ship.up(s,n)=Inf;
+      Rst.lo(s,n)=0;Rst.up(s,n)=Inf;
+      Ship_sales.lo(s,n)=0;Ship_sales.up(s,n)=Inf;
+      *Uut.lo(u,n)=0; Uut.up(u,n)=Inf;
+      *Fix Input states
+      Ship.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment(run,calc-1,s,
+      n+1);
+      Rst.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_Rst(run,calc-1,s,n+1);
+      Ship_sales.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment_sales(r
+      un,calc-1,s,n+1);
+ 961  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+ 962  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 963   
+ 964  T.fx(i,j,hbar)=0;
+ 965  *********VARIABLE RESCHEDULING FREQUENCY********
+ 966   
+ 967  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+ 968  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+      ntory(s)$(ord(calc)-1 eq 0);
+ 969  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+      cklog(s)$(ord(calc)-1 eq 0);
+ 970  *Uut.fx(u,n)$(ord(n)-1 le 0)=record_utility(run,calc-1,u,n+1);
+ 971   
+ 972   
+ 973  *Fix backlogs to zero if corresponding flag is 0
+ 974  if(1 eq 0,
+ 975  Backlog.fx(s,n)=0;
+ 976  BacklogTerminal.fx(s)=0;
+ 977  );
+ 978  Dst(s,n)$(product_states(s) AND ord(n)-1 eq 0) = 1;
+ 979  *Wbar.fx(i,j,n,hbar)=0;
+ 980  *Wbar.fx('T1','U1',n,'h0')$(ord(n)-1 eq 0 or ord(n)-1 eq 3)=1;
+ 981  *Wbar.fx('T2','U2',n,'h0')$(ord(n)-1 eq 2 or ord(n)-1 eq 4)=1;
+ 982  *Ship_sales.fx(s,n)$(ord(n)-1 eq 0 AND sameas(s,'M4')) = 8.05;
+ 983  *Ship_sales.fx(s,n)$(ord(n) lt card(n)) = 0;
+ 984   
+ 985  *cc=execseed;
+ 986  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 987  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+ 988  *if(%Demand_Disturbance_Flag% eq 1,
+ 989  *);
+ 990   
+ 991  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+ 992  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+ 993  *Now allocating demands to the rolling horizon calculation
+ 994  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+ 995  **UNCOMMENT HERE TO HERE
+ 996  *Display Dst_full;
+ 997   
+ 998   
+ 999  *UnitBreakdown disturbance
+1000  *First breakdown unit for whole horizon and then sample after 1 time step
+1001  *when it is coming back
+1002  UnitBroken(j,n)=0;
+1003  Zhat(i,j,n,hbar)=0;
+1004  if(0 eq 1 and ord(calc)-1 ge 2,
+1005           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown
+      (calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,
+      j,n,hbar-1)) gt 0));
+1006   
+1007  *If there is a delay ongoing then sample this breakdown
+1008           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown(c
+      alc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,
+      n,hbar)) gt 0));
+1009   
+1010  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+1011  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+1012   
+1013  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+1014  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+1015  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1016           Duration_breakdown(calc,j)=2$(sum((hbar,i)$(Ij(i,j) and ord(hbar)
+      -1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 and Duration_breakdown(calc-
+      1,j) eq (card(h)))
+1017                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+1018                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1019  *display Breakdown,duration_breakdown;
+1020   
+1021           UnitBroken(j,n)=0;
+1022           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+1023   
+1024           Zhat(i,j,n,hbar)=0;
+1025           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+      )=1;
+1026   
+1027  );
+1028   
+1029   
+1030   
+1031  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+1032  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+1033  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+1034  *was already over in the last horizon
+1035  if(0 eq 1,
+1036  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+1037  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+1038            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+1039            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+      (calc-1,i,j,hbar) eq 0)=2$(uniform(0,1) ge 0.6 and (sum(n$(ord(n)-1 eq 0),
+      record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and Delay(calc-1,i,j,hbar
+      -1) eq 0));
+1040  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+1041  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+1042   
+1043  *display Delay;
+1044  *Wipes out previous Yhats
+1045            Yhat(i,j,n,hbar)=0;
+1046  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+1047            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+1048  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+1049            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+      1$(Delay(calc,i,j,hbar) gt 0);
+1050   
+1051  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+1052  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+1053  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+1054  );
+1055   
+1056  *display Yhat;
+1057  *display WbarInfo;
+1058  *display BbarInfo;
+1059   
+1060   
+1061  *Introducing disturbance in material handling(loading/unloading)
+1062  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+1063  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+1064  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+1065  if(0 eq 1,
+1066  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+1067  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+1068  *wipes out previous parameter values
+1069  betaHatProd(i,j,s,n)=0;
+1070  betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-0
+      .1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yhat
+      (i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+1071  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+1072  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+1073  );
+1074  *Display betaHatProd;
+1075   
+1076   
+1077  *Correct allocation constraint
+1078  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+1079  KillOccupy(j,n)=0;
+1080  KillDuration(i,j)$Ij(i,j)=KillLength$(0);
+1081  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+1082  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+1083  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+1084  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+1085  if(0 eq 0,
+1086     T.fx(i,j,hbar)=0;
+1087  );
+1088  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+1089  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+1090   
+1091  ***************UTILITIES**************************************************
+      ******
+1092  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+      ;
+1093  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+      ailable_full(j,h));
+1094  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+1095  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+1096  *This correction is needed in model file
+1097  ***************UTILITIES**************************************************
+      ******
+1098  *Display Dst;
+1099   
+1100  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+1101  *Solve optimization horizon
+1102   
+1103  Option IntVarUp=0;
+1104  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+1105  MAX_PROFIT_2.optcr = optcr_value$(reschedule_flag)+1$(NOT reschedule_flag)
+      ;
+1106  MAX_PROFIT_2.reslim = timelimit;
+1107  MAX_PROFIT_2.holdFixed=1;
+1108  solve MAX_PROFIT_2 using MIP maximizing obj_variable;
+1109   
+1110  modelStat(calc,run)=MAX_PROFIT_2.ModelStat;
+1111  *Watch out what should be denominator, Relaxed or Best found solution
+1112  *Cplex uses division by best found integer solution
+1113  Est_modelGap1(calc,run)=abs((MAX_PROFIT_2.objEst-MAX_PROFIT_2.objVal)/(MAX
+      _PROFIT_2.objVal+1E-10));
+1114  Est_modelGap2(calc,run)=abs((MAX_PROFIT_2.objEst-MAX_PROFIT_2.objVal)/(MAX
+      _PROFIT_2.objEst+1E-10));
+1115  Suboptimal_objective=MAX_PROFIT_2.objVal;
+1116   
+1117  ETSolve(calc,run)=MAX_PROFIT_2.etSolve;
+1118  ETSolver(calc,run)=MAX_PROFIT_2.etSolver;
+1119  iterUsd(calc,run)=MAX_PROFIT_2.iterUsd;
+1120  nodUsd(calc,run)=MAX_PROFIT_2.nodUsd;
+1121  resUsd(calc,run)=MAX_PROFIT_2.resUsd;
+1122  numDVar(calc,run)=MAX_PROFIT_2.numDVar;
+1123  numEqu(calc,run)=MAX_PROFIT_2.numEqu;
+1124  numInfes(calc,run)=MAX_PROFIT_2.numInfes;
+1125  numNZ(calc,run)=MAX_PROFIT_2.numNZ;
+1126  numVar(calc,run)=MAX_PROFIT_2.numVar;
+1127  solveStat(calc,run)=MAX_PROFIT_2.solveStat;
+1128   
+1129  *Recording optimized variables for each optimization horizon
+1130  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Bbar.l(i,j,n,hbar);
+1131  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Wbar.l(i,j,n,hbar);
+1132  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+1133  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Wbar.l(i,j,n,hbar));
+1134  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+      ar);
+1135  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+1136  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+1137  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+1138  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+1139  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+1140  record_objective(run,calc)=obj_variable.l;
+1141  record_utility(run,calc,u,n)=Uut.l(u,n);
+1142  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+1143  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+1144  record_shipment_raw(run,calc,s,n)=Ship.l(s,n);
+1145  record_shipment(run,calc,s,n)=round(Ship.l(s,n),2);
+1146  record_shipment_sales_raw(run,calc,s,n)=Ship_sales.l(s,n);
+1147  record_shipment_sales(run,calc,s,n)=round(Ship_sales.l(s,n),2);
+1148  record_Rst_raw(run,calc,s,n)=Rst.l(s,n);
+1149  record_Rst(run,calc,s,n)=round(Rst.l(s,n),2);
+1150  record_demands(run,calc,s,n)=Dst(s,n);
+1151  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+1152   
+1153  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+1154  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+1155   
+1156  BOStat_OL(calc,run) =  1$(sum((s,n),record_backlog(run,calc,s,n)+record_ba
+      cklogTerminal(run,calc,s)) > 0);
+1157  BOStat_CL(calc,run) =  1$(sum((s,n)$(ord(n)-1 eq 0),record_backlog(run,cal
+      c,s,n)) > 0);
+1158   
+1159  *display ship.l;
+1160  Optimal_Objective=Suboptimal_Objective;
+1161  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1162  IF(MAX_PROFIT_2.optcr <> 0 AND reschedule_flag eq 1,
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+1168  MAX_PROFIT_2.optcr=0;
+1169  solve MAX_PROFIT_2 using MIP maximizing obj_variable;
+1170  Optimal_Objective=MAX_PROFIT_2.objVal;
+1171  True_modelGap(calc,run)=(Suboptimal_objective-Optimal_Objective)/(Optimal_
+      objective+1E-10);
+1172  );
+1173   
+1174  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1175   
+1176  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+1177   
+1178  IF (reschedule_flag eq 1,
+1179  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1180  Backlog.fx(s,n)=0;
+1181  BacklogTerminal.fx(s)=0;
+1182   
+1183  solve MAX_PROFIT_2 using MIP maximizing obj_variable;
+1184   
+1185  record_relaxed_objective(run,calc)=obj_variable.l;
+1186  IntegralityGap(calc,run)=record_relaxed_objective(run,calc)/(Optimal_Objec
+      tive+1E-10);
+1187  record_relaxed_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Bbar.l(i,j,n,hbar);
+1188  record_relaxed_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Wbar.l(i,j,n,hbar);
+1189  record_relaxed_shipment(run,calc,s,n)=Ship.l(s,n);
+1190  record_relaxed_shipment_sales(run,calc,s,n)=Ship_sales.l(s,n);
+1191  record_relaxed_backlog(run,calc,s,n)=Backlog.l(s,n);
+1192  record_relaxed_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+1193  record_relaxed_inventory(run,calc,s,n)=Sst.l(s,n);
+1194  record_relaxed_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+1195  record_relaxed_Rst(run,calc,s,n)=Rst.l(s,n);
+1196  );
+1197  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1198   
+1199  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF RMIP NOW**********
+1200   
+1201  );
+1202  **END OF CALC LOOP HERE
+1203   
+1204  *END OF SOLUTION FILE
+1205   
+1206   
+1207   
+1208  loop((n,calc)$(ord(n)-1 eq 0),
+1209           ClosedLoopINV(run,s,h)$(ord(h) eq ord(calc))=record_inventory(run
+      ,calc,s,n);
+1210           ClosedLoopBO(run,s,h)$(ord(h) eq ord(calc))=record_backlog(run,ca
+      lc,s,n);
+1211           ClosedLoopShip(run,s,h)$(ord(h) eq ord(calc))=record_shipment(run
+      ,calc,s,n);
+1212           ClosedLoopShip_sales(run,s,h)$(ord(h) eq ord(calc))=record_shipme
+      nt_sales(run,calc,s,n);
+1213           ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=sum((i,j,hbar)$(Ij(i
+      ,j) AND ord(hbar)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1214  *         ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=0;
+1215  );
+1216  *         runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*Sinv(s,
+      h));
+1217  *         runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*BO(s,h))
+      ;
+1218           runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLo
+      opINV(run,s,h));
+1219           runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLoo
+      pBO(run,s,h));
+1220           runcost_W(run)=sum(h$closed_loop(h),ClosedLoopStart(run,h));
+1221  *total profit from all shipments (demand+sales)
+1222   
+1223           runcost(run)=runcost_Inv(run)+runcost_BO(run)+runcost_W(run);
+1224   
+1225           sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(h
+      ) and (ord(h)-1 ne 0) ),
+1226                                   Cst_new(s)*(ClosedLoopShip(run,s,h)+Close
+      dLoopShip_sales(run,s,h) ));
+1227  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),Cst_new(s)*ClosedLoopShip
+      _sales(run,s,h));
+1228           Cost_EndInventory(run)=sum((s,h)$(product_states(s) and ord(h)-1 
+      eq 0),Cst_new(s)*ClosedLoopINV(run,s,h));
+1229  *         runcost_W(run)=0;
+1230  *         runprofit(run)=sum((s,h)$(product_states(s) and closed_loop(h)),
+      Cst_new(s)*ClosedLoopShip(run,s,h))+runcost_W(run);
+1231  *Runprofit includes subtraction of BO even at last point because BO are wr
+      itten like inventory
+1232  *BO at 168 means just before 168th point. Ship at 168 means at 168 not bef
+      ore or after.
+1233  *Our runprofit is only for 167 points of closed loop and 168th point as co
+      rrection. So we are essentially wasting the last decision
+1234  *that is the open loop that was computed at 168.
+1235           runprofit(run)=sales_profit(run)+Cost_EndInventory(run)
+1236                           -(runcost_W(run)-sum(h$(ord(h)-1 eq 0),ClosedLoop
+      Start(run,h)))
+1237                           -runcost_BO(run);
+1238   
+1239  *         runprofit(run)=runcost_Inv(run)-runcost_BO(run)
+1240  *                        +1E1*sum((s,h)$(product_states(s) and closed_loop
+      (h)),Cst_new(s)*ClosedLoopShip(run,s,h));
+1241   
+1242  *Does not include cost of Terminal BO and inventory but thats okay because
+       they are irrelevant when some extra horizon is allowed for getting comple
+      te closed loop rolling horizon solution
+1243  ************[Start]Information to get very crude estimate for running time
+       left**************
+1244  timeLeft=MAX_PROFIT_2.etSolve*(card(run)-ord(run))*card(calc);
+      put screen;
+      put 'Time for run ' P1.etSolve;
+      put ' Estimated Time Left ' timeLeft;
+      putclose;
+1251  *************[End]Information to get very crude estimate for running time 
+      left***************
+1252   
+      *************Stopping Criterion**************
+      N_run=ord(run);
+      mean_runcost(run)=sum(run_p$(ord(run_p) le N_run),runcost(run_p))/N_run;
+      std_dev_runcost(run)$(ord(run) gt 1)= sqrt(       sum(run_p$(ord(run_p) le
+       N_run),     ( abs(  runcost(run_p)-mean_runcost(run) )**2)) /(N_run-1)   
+       );
+      delta_std_dev_runcost(run)$(ord(run) gt 2)=std_dev_runcost(run)/std_dev_ru
+      ncost(run-1)  - 1;
+      max_delta_std_dev_runcost(run)= sqrt( 1 + (1.96**2-1)/N_run ) -1;
+      *icdfnorm(0.95,0,1);
+      *************Stopping Criterion**************
+1263  );
+1264  ********************[End] runs loop **************************************
+      *
+1265   
+1266  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1267  PARAMETERS BS(i,j,h),start(i,j,h),Sinv(s,h),end(i,j,h),BO(s,h);
+1268  IF (0 eq 0,
+1269           loop((run,calc)$(ord(run) eq 1),
+1270             BS(i,j,h)$(ord(h) eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 
+      and ord(n)-1 eq 0),record_states(run,calc,'B',i,j,n,hbar));
+1271  *start(i,j,h)$(ord(h)eq ord(calc))=round(sum((hbar,n)$(ord(hbar)-1 eq 0 an
+      d ord(n)-1 eq 0),record_states(calc,'W',i,j,n,hbar)));
+1272             start(i,j,h)$(ord(h)eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 
+      0 and ord(n)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1273             Sinv(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_in
+      ventory(run,calc,s,n));
+1274             BO(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_back
+      log(run,calc,s,n));
+1275           );
+1276  ELSE
+1277  *Write OPEN loop static gantt chart %GanttChart_OPENLOOP% eq 1
+1278           loop((run,calc)$(ord(run) eq 1 and ord(calc) eq 1),
+1279             BS(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(n) 
+      eq ord(h))),record_states(run,calc,'B',i,j,n,hbar));
+1280             start(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(
+      n) eq ord(h))),record_states(run,calc,'W',i,j,n,hbar));
+1281             Sinv(s,h)=sum(n$(ord(n) eq ord(h)),record_inventory(run,calc,s,
+      n));
+1282             BO(s,h)=sum(n$(ord(n) eq ord(h)),record_backlog(run,calc,s,n));
+1283           );
+1284  );
+1285  *Have ending account for task delays
+1286  end(i,j,h) = start(i,j,h-pi_new(i))$(BS(i,j,h-pi_new(i))>0);
+1287  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1288   
+1289  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1290  SUCCESS=1;
+1291  EXECUTE_UNLOAD 'GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC
+      1_Profit.gdx';
+1292  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1293   
+1294  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1295  if(0 eq 1,
+1296  ************************************************
+1297  ********Closed-Loop GanttChartGeneration********
+1298  ************************************************
+1299  *Name of the excel file where the data will be exported
+1300  *$setglobal file %Results_FileName%_Gantt
+1301  *i = set of tasks
+1302  *j = set of units
+1303  *h = set of time points
+1304  *BS = batch size of task i starting in unit j at time t (must be indexed i
+      jt)
+1305  *start = binary variable that is 1 if task i starts in unit j at time t (m
+      ust be indexed ijt)
+1306  *Sinv = inventory level of material s at time t (must be indexed st)
+1307  *BO= backorder of state s at time t
+1308  *end =  binary variable that is 1 if task i ends in unit j at time t (must
+       be indexed ijt)
+1309   
+1310  *EXECUTE_UNLOAD '%Results_FileName%_Gantt.gdx' BS i j h  Sinv start end;
+1311   
+1312  *The first word of each line gives the type: set = set, var = variable, pa
+      r = parameter. This may need to be changed depending on your model
+1313  *The location of the output or the sheet names must not be changed
+1323   
+1324  *display BS,start,end,Sinv,BO;
+1325  EXECUTE 'gdxxrw Input=GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1
+      _S1_MC1_Profit.gdx Output=GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3
+      _DU1_S1_MC1_Profit_Gantt @GANTT_write.txt'
+1326  );
+1327  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1328   
+1329  *END OF MASTER FILE
+1330   
+1331   
+1332   
+1333   
+1334   
+1335   
+1336  *Watch out for overflow of solution for rolling horizon...ie the spilling 
+      over of
+1337  *rolling horizon beyond real horizon to get last implemented closed loop s
+      olution
+1338   
+1339   
+1340  *$set console
+1341  *$if %system.filesys% == UNIX  $set console /dev/tty
+1342  *$if %system.filesys% == DOS $set console con
+1343  *$if %system.filesys% == MS95  $set console con
+1344  *$if %system.filesys% == MSNT  $set console con
+1345  *$if "%console%." == "." abort "filesys not recognized";
+1346  *file screen / '%console%' /;
+1347  *file log /''/
+1348   
+1349   
+1350   
+1351   
+1352   
+1353   
+1354   
+1355   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 5
+State_Space_Model
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes_Onl
+                                          ineMethods\GAMS_Solution_Multiplicity\
+                                          GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_D
+                                          F3_DV1_DL3_DU1_S1_MC1_Profit.gms
+     2       21 INCLUDE        1      21  .C:\Users\dhruv\Box Sync\Work\Codes_On
+                                           lineMethods\GAMS_Solution_Multiplicit
+                                           y\ConfigurationFile.gms
+     3       90 INCLUDE        2      69  ..C:\Users\dhruv\Box Sync\Work\Codes_O
+                                            nlineMethods\GAMS_Solution_Multiplic
+                                            ity\MasterFile.gms
+     4      107 INCLUDE        3      17  ...C:\Users\dhruv\Box Sync\Work\Codes_
+                                             OnlineMethods\GAMS_Solution_Multipl
+                                             icity\NetworkN2.gms
+     5      215 INCLUDE        3      18  ...C:\Users\dhruv\Box Sync\Work\Codes_
+                                             OnlineMethods\GAMS_Solution_Multipl
+                                             icity\Model9.gms
+     6      727 GDXIN          5     512  ...C:\Users\dhruv\Box Sync\Work\Codes_
+                                             OnlineMethods\GAMS_Solution_Multipl
+                                             icity\BO1.gdx
+     7      904 INCLUDE        3     146  ...C:\Users\dhruv\Box Sync\Work\Codes_
+                                             OnlineMethods\GAMS_Solution_Multipl
+                                             icity\ModelSolution9.gms
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 6
+State_Space_Model
+Equation Listing    SOLVE MAX_PROFIT_2 Using MIP From line 1108
+
+
+---- numberOfBatches  =E=  
+
+numberOfBatches(T1,U1)..  NB(T1,U1) =E= 2 ; (LHS = 0, INFES = 2 ****)
+     
+numberOfBatches(T2,U2)..  NB(T2,U2) =E= 3 ; (LHS = 0, INFES = 3 ****)
+     
+numberOfBatches(T3,U2)..  NB(T3,U2) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+
+---- Allocation  =L=  
+
+                NONE
+
+
+---- UnitCapacityMax  =L=  
+
+                NONE
+
+
+---- UnitCapacityMin  =G=  
+
+                NONE
+
+
+---- InventoryBalance_MAX_PROFIT  =E=  
+
+InventoryBalance_MAX_PROFIT(M1,n0)..  Sst(M1,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n1)..  - Sst(M1,n1) + Sst(M1,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n2)..  - Sst(M1,n2) + Sst(M1,n3) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n3)..  - Sst(M1,n3) + Sst(M1,n4) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n4)..  - Sst(M1,n4) + Sst(M1,n5) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n5)..  - Sst(M1,n5) + Sst(M1,n6) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n6)..  - Sst(M1,n6) + Sst(M1,n7) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n7)..  - Sst(M1,n7) + Sst(M1,n8) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n8)..  - Sst(M1,n8) + Sst(M1,n9) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n9)..  - Sst(M1,n9) + Sst(M1,n10) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n10)..  - Sst(M1,n10) + Sst(M1,n11) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n11)..  - Sst(M1,n11) + Sst(M1,n12) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n0)..  Sst(M2,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n1)..  - Sst(M2,n1) + Sst(M2,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n2)..  - Sst(M2,n2) + Sst(M2,n3) =E= 10 ;
+     
+      (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M2,n3)..  - Sst(M2,n3) + Sst(M2,n4) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n4)..  - Sst(M2,n4) + Sst(M2,n5) =E= -10 ;
+     
+      (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M2,n5)..  - Sst(M2,n5) + Sst(M2,n6) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n6)..  - Sst(M2,n6) + Sst(M2,n7) =E= 20 ;
+     
+      (LHS = 0, INFES = 20 ****)
+     
+InventoryBalance_MAX_PROFIT(M2,n7)..  - Sst(M2,n7) + Sst(M2,n8) =E= -10 ;
+     
+      (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M2,n8)..  - Sst(M2,n8) + Sst(M2,n9) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n9)..  - Sst(M2,n9) + Sst(M2,n10) =E= -10 ;
+     
+      (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M2,n10)..  - Sst(M2,n10) + Sst(M2,n11) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n11)..  - Sst(M2,n11) + Sst(M2,n12) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n0)..  Sst(M3,n1) + Ship(M3,n0)
+     
+      + Ship_sales(M3,n0) =E= 12 ; (LHS = 0, INFES = 12 ****)
+     
+InventoryBalance_MAX_PROFIT(M3,n1)..  - Sst(M3,n1) + Sst(M3,n2) + Ship(M3,n1)
+     
+      + Ship_sales(M3,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n2)..  - Sst(M3,n2) + Sst(M3,n3) + Ship(M3,n2)
+     
+      + Ship_sales(M3,n2) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n3)..  - Sst(M3,n3) + Sst(M3,n4) + Ship(M3,n3)
+     
+      + Ship_sales(M3,n3) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n4)..  - Sst(M3,n4) + Sst(M3,n5) + Ship(M3,n4)
+     
+      + Ship_sales(M3,n4) =E= 10 ; (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M3,n5)..  - Sst(M3,n5) + Sst(M3,n6) + Ship(M3,n5)
+     
+      + Ship_sales(M3,n5) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n6)..  - Sst(M3,n6) + Sst(M3,n7) + Ship(M3,n6)
+     
+      + Ship_sales(M3,n6) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n7)..  - Sst(M3,n7) + Sst(M3,n8) + Ship(M3,n7)
+     
+      + Ship_sales(M3,n7) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n8)..  - Sst(M3,n8) + Sst(M3,n9) + Ship(M3,n8)
+     
+      + Ship_sales(M3,n8) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n9)..  - Sst(M3,n9) + Sst(M3,n10) + Ship(M3,n9)
+     
+      + Ship_sales(M3,n9) =E= 10 ; (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M3,n10)..  - Sst(M3,n10) + Sst(M3,n11)
+     
+      + Ship(M3,n10) + Ship_sales(M3,n10) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n11)..  - Sst(M3,n11) + Sst(M3,n12)
+     
+      + Ship(M3,n11) + Ship_sales(M3,n11) =E= 10 ; (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M4,n0)..  Sst(M4,n1) + Ship(M4,n0)
+     
+      + Ship_sales(M4,n0) =E= 12 ; (LHS = 0, INFES = 12 ****)
+     
+InventoryBalance_MAX_PROFIT(M4,n1)..  - Sst(M4,n1) + Sst(M4,n2) + Ship(M4,n1)
+     
+      + Ship_sales(M4,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n2)..  - Sst(M4,n2) + Sst(M4,n3) + Ship(M4,n2)
+     
+      + Ship_sales(M4,n2) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n3)..  - Sst(M4,n3) + Sst(M4,n4) + Ship(M4,n3)
+     
+      + Ship_sales(M4,n3) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n4)..  - Sst(M4,n4) + Sst(M4,n5) + Ship(M4,n4)
+     
+      + Ship_sales(M4,n4) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n5)..  - Sst(M4,n5) + Sst(M4,n6) + Ship(M4,n5)
+     
+      + Ship_sales(M4,n5) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n6)..  - Sst(M4,n6) + Sst(M4,n7) + Ship(M4,n6)
+     
+      + Ship_sales(M4,n6) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n7)..  - Sst(M4,n7) + Sst(M4,n8) + Ship(M4,n7)
+     
+      + Ship_sales(M4,n7) =E= 10 ; (LHS = 0, INFES = 10 ****)
+     
+InventoryBalance_MAX_PROFIT(M4,n8)..  - Sst(M4,n8) + Sst(M4,n9) + Ship(M4,n8)
+     
+      + Ship_sales(M4,n8) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n9)..  - Sst(M4,n9) + Sst(M4,n10) + Ship(M4,n9)
+     
+      + Ship_sales(M4,n9) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n10)..  - Sst(M4,n10) + Sst(M4,n11)
+     
+      + Ship(M4,n10) + Ship_sales(M4,n10) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n11)..  - Sst(M4,n11) + Sst(M4,n12)
+     
+      + Ship(M4,n11) + Ship_sales(M4,n11) =E= 0 ; (LHS = 0)
+     
+
+---- EndingInventory_MAX_PROFIT  =E=  
+
+EndingInventory_MAX_PROFIT(M1,n12)..  - Sst(M1,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M2,n12)..  - Sst(M2,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M3,n12)..  - Sst(M3,n12) + Ship(M3,n12)
+     
+      + Ship_sales(M3,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M4,n12)..  - Sst(M4,n12) + Ship(M4,n12)
+     
+      + Ship_sales(M4,n12) =E= 0 ; (LHS = 0)
+     
+
+---- BacklogBalance  =E=  
+
+BacklogBalance(M3,n0)..  Backlog(M3,n1) + Ship(M3,n0) =E= 1 ;
+     
+      (LHS = 0, INFES = 1 ****)
+     
+BacklogBalance(M3,n1)..  - Backlog(M3,n1) + Backlog(M3,n2) + Ship(M3,n1) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M3,n2)..  - Backlog(M3,n2) + Backlog(M3,n3) + Ship(M3,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M3,n3)..  - Backlog(M3,n3) + Backlog(M3,n4) + Ship(M3,n3) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M3,n4)..  - Backlog(M3,n4) + Backlog(M3,n5) + Ship(M3,n4) =E= 
+     3.27 ; (LHS = 0, INFES = 3.27 ****)
+     
+BacklogBalance(M3,n5)..  - Backlog(M3,n5) + Backlog(M3,n6) + Ship(M3,n5) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M3,n6)..  - Backlog(M3,n6) + Backlog(M3,n7) + Ship(M3,n6) =E= 
+     2.82 ; (LHS = 0, INFES = 2.82 ****)
+     
+BacklogBalance(M3,n7)..  - Backlog(M3,n7) + Backlog(M3,n8) + Ship(M3,n7) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M3,n8)..  - Backlog(M3,n8) + Backlog(M3,n9) + Ship(M3,n8) =E= 
+     2.97 ; (LHS = 0, INFES = 2.97 ****)
+     
+BacklogBalance(M3,n9)..  - Backlog(M3,n9) + Backlog(M3,n10) + Ship(M3,n9) =E= 0
+      ; (LHS = 0)
+     
+BacklogBalance(M3,n10)..  - Backlog(M3,n10) + Backlog(M3,n11) + Ship(M3,n10)
+      =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n11)..  - Backlog(M3,n11) + Backlog(M3,n12) + Ship(M3,n11)
+      =E= 3.06 ; (LHS = 0, INFES = 3.06 ****)
+     
+BacklogBalance(M4,n0)..  Backlog(M4,n1) + Ship(M4,n0) =E= 1 ;
+     
+      (LHS = 0, INFES = 1 ****)
+     
+BacklogBalance(M4,n1)..  - Backlog(M4,n1) + Backlog(M4,n2) + Ship(M4,n1) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M4,n2)..  - Backlog(M4,n2) + Backlog(M4,n3) + Ship(M4,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M4,n3)..  - Backlog(M4,n3) + Backlog(M4,n4) + Ship(M4,n3) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M4,n4)..  - Backlog(M4,n4) + Backlog(M4,n5) + Ship(M4,n4) =E= 
+     2.94 ; (LHS = 0, INFES = 2.94 ****)
+     
+BacklogBalance(M4,n5)..  - Backlog(M4,n5) + Backlog(M4,n6) + Ship(M4,n5) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M4,n6)..  - Backlog(M4,n6) + Backlog(M4,n7) + Ship(M4,n6) =E= 
+     2.76 ; (LHS = 0, INFES = 2.76 ****)
+     
+BacklogBalance(M4,n7)..  - Backlog(M4,n7) + Backlog(M4,n8) + Ship(M4,n7) =E= 0 ;
+     
+      (LHS = 0)
+     
+BacklogBalance(M4,n8)..  - Backlog(M4,n8) + Backlog(M4,n9) + Ship(M4,n8) =E= 
+     2.94 ; (LHS = 0, INFES = 2.94 ****)
+     
+BacklogBalance(M4,n9)..  - Backlog(M4,n9) + Backlog(M4,n10) + Ship(M4,n9) =E= 0
+      ; (LHS = 0)
+     
+BacklogBalance(M4,n10)..  - Backlog(M4,n10) + Backlog(M4,n11) + Ship(M4,n10)
+      =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n11)..  - Backlog(M4,n11) + Backlog(M4,n12) + Ship(M4,n11)
+      =E= 3.24 ; (LHS = 0, INFES = 3.24 ****)
+     
+
+---- EndingBacklog  =E=  
+
+EndingBacklog(M3,n12)..  - Backlog(M3,n12) + Ship(M3,n12) =E= 0 ; (LHS = 0)
+     
+EndingBacklog(M4,n12)..  - Backlog(M4,n12) + Ship(M4,n12) =E= 0 ; (LHS = 0)
+     
+
+---- LiftingW  =E=  
+
+                NONE
+
+
+---- LiftingB  =E=  
+
+                NONE
+
+
+---- Carryover_W  =E=  
+
+                NONE
+
+
+---- Carryover_B  =E=  
+
+                NONE
+
+
+---- objective_MAX_PROFIT  =E=  
+
+objective_MAX_PROFIT..  1000*Backlog(M3,n1) + 1000*Backlog(M3,n2)
+     
+      + 1000*Backlog(M3,n3) + 1000*Backlog(M3,n4) + 1000*Backlog(M3,n5)
+     
+      + 1000*Backlog(M3,n6) + 1000*Backlog(M3,n7) + 1000*Backlog(M3,n8)
+     
+      + 1000*Backlog(M3,n9) + 1000*Backlog(M3,n10) + 1000*Backlog(M3,n11)
+     
+      + 1000*Backlog(M3,n12) + 1000*Backlog(M4,n1) + 1000*Backlog(M4,n2)
+     
+      + 1000*Backlog(M4,n3) + 1000*Backlog(M4,n4) + 1000*Backlog(M4,n5)
+     
+      + 1000*Backlog(M4,n6) + 1000*Backlog(M4,n7) + 1000*Backlog(M4,n8)
+     
+      + 1000*Backlog(M4,n9) + 1000*Backlog(M4,n10) + 1000*Backlog(M4,n11)
+     
+      + 1000*Backlog(M4,n12) - 10*Ship_sales(M3,n0) - 10*Ship_sales(M3,n1)
+     
+      - 10*Ship_sales(M3,n2) - 10*Ship_sales(M3,n3) - 10*Ship_sales(M3,n4)
+     
+      - 10*Ship_sales(M3,n5) - 10*Ship_sales(M3,n6) - 10*Ship_sales(M3,n7)
+     
+      - 10*Ship_sales(M3,n8) - 10*Ship_sales(M3,n9) - 10*Ship_sales(M3,n10)
+     
+      - 10*Ship_sales(M3,n11) - 10*Ship_sales(M3,n12) - 10*Ship_sales(M4,n0)
+     
+      - 10*Ship_sales(M4,n1) - 10*Ship_sales(M4,n2) - 10*Ship_sales(M4,n3)
+     
+      - 10*Ship_sales(M4,n4) - 10*Ship_sales(M4,n5) - 10*Ship_sales(M4,n6)
+     
+      - 10*Ship_sales(M4,n7) - 10*Ship_sales(M4,n8) - 10*Ship_sales(M4,n9)
+     
+      - 10*Ship_sales(M4,n10) - 10*Ship_sales(M4,n11) - 10*Ship_sales(M4,n12)
+     
+      + obj_variable =E= -6 ; (LHS = 0, INFES = 6 ****)
+     
+
+---- Ship_constraint  =E=  
+
+Ship_constraint(M3,n1)..  Ship_sales(M3,n1) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n2)..  Ship_sales(M3,n2) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n3)..  Ship_sales(M3,n3) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n5)..  Ship_sales(M3,n5) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n7)..  Ship_sales(M3,n7) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n9)..  Ship_sales(M3,n9) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n10)..  Ship_sales(M3,n10) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n12)..  Ship_sales(M3,n12) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n1)..  Ship_sales(M4,n1) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n2)..  Ship_sales(M4,n2) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n3)..  Ship_sales(M4,n3) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n5)..  Ship_sales(M4,n5) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n7)..  Ship_sales(M4,n7) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n9)..  Ship_sales(M4,n9) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n10)..  Ship_sales(M4,n10) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n12)..  Ship_sales(M4,n12) =E= 0 ; (LHS = 0)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 7
+State_Space_Model
+Column Listing      SOLVE MAX_PROFIT_2 Using MIP From line 1108
+
+
+---- Sst  
+
+Sst(M1,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n0)
+       -1       InventoryBalance_MAX_PROFIT(M1,n1)
+
+Sst(M1,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n1)
+       -1       InventoryBalance_MAX_PROFIT(M1,n2)
+
+Sst(M1,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n2)
+       -1       InventoryBalance_MAX_PROFIT(M1,n3)
+
+Sst(M1,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n3)
+       -1       InventoryBalance_MAX_PROFIT(M1,n4)
+
+Sst(M1,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n4)
+       -1       InventoryBalance_MAX_PROFIT(M1,n5)
+
+Sst(M1,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n5)
+       -1       InventoryBalance_MAX_PROFIT(M1,n6)
+
+Sst(M1,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n6)
+       -1       InventoryBalance_MAX_PROFIT(M1,n7)
+
+Sst(M1,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n7)
+       -1       InventoryBalance_MAX_PROFIT(M1,n8)
+
+Sst(M1,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n8)
+       -1       InventoryBalance_MAX_PROFIT(M1,n9)
+
+Sst(M1,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n9)
+       -1       InventoryBalance_MAX_PROFIT(M1,n10)
+
+Sst(M1,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n10)
+       -1       InventoryBalance_MAX_PROFIT(M1,n11)
+
+Sst(M1,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M1,n11)
+       -1       EndingInventory_MAX_PROFIT(M1,n12)
+
+Sst(M2,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n0)
+       -1       InventoryBalance_MAX_PROFIT(M2,n1)
+
+Sst(M2,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n1)
+       -1       InventoryBalance_MAX_PROFIT(M2,n2)
+
+Sst(M2,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n2)
+       -1       InventoryBalance_MAX_PROFIT(M2,n3)
+
+Sst(M2,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n3)
+       -1       InventoryBalance_MAX_PROFIT(M2,n4)
+
+Sst(M2,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n4)
+       -1       InventoryBalance_MAX_PROFIT(M2,n5)
+
+Sst(M2,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n5)
+       -1       InventoryBalance_MAX_PROFIT(M2,n6)
+
+Sst(M2,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n6)
+       -1       InventoryBalance_MAX_PROFIT(M2,n7)
+
+Sst(M2,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n7)
+       -1       InventoryBalance_MAX_PROFIT(M2,n8)
+
+Sst(M2,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n8)
+       -1       InventoryBalance_MAX_PROFIT(M2,n9)
+
+Sst(M2,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n9)
+       -1       InventoryBalance_MAX_PROFIT(M2,n10)
+
+Sst(M2,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n10)
+       -1       InventoryBalance_MAX_PROFIT(M2,n11)
+
+Sst(M2,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n11)
+       -1       EndingInventory_MAX_PROFIT(M2,n12)
+
+Sst(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+       -1       InventoryBalance_MAX_PROFIT(M3,n1)
+
+Sst(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+       -1       InventoryBalance_MAX_PROFIT(M3,n2)
+
+Sst(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+       -1       InventoryBalance_MAX_PROFIT(M3,n3)
+
+Sst(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+       -1       InventoryBalance_MAX_PROFIT(M3,n4)
+
+Sst(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+       -1       InventoryBalance_MAX_PROFIT(M3,n5)
+
+Sst(M3,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+       -1       InventoryBalance_MAX_PROFIT(M3,n6)
+
+Sst(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+       -1       InventoryBalance_MAX_PROFIT(M3,n7)
+
+Sst(M3,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+       -1       InventoryBalance_MAX_PROFIT(M3,n8)
+
+Sst(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+       -1       InventoryBalance_MAX_PROFIT(M3,n9)
+
+Sst(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+       -1       InventoryBalance_MAX_PROFIT(M3,n10)
+
+Sst(M3,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+       -1       InventoryBalance_MAX_PROFIT(M3,n11)
+
+Sst(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+       -1       EndingInventory_MAX_PROFIT(M3,n12)
+
+Sst(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+       -1       InventoryBalance_MAX_PROFIT(M4,n1)
+
+Sst(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+       -1       InventoryBalance_MAX_PROFIT(M4,n2)
+
+Sst(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+       -1       InventoryBalance_MAX_PROFIT(M4,n3)
+
+Sst(M4,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+       -1       InventoryBalance_MAX_PROFIT(M4,n4)
+
+Sst(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+       -1       InventoryBalance_MAX_PROFIT(M4,n5)
+
+Sst(M4,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+       -1       InventoryBalance_MAX_PROFIT(M4,n6)
+
+Sst(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+       -1       InventoryBalance_MAX_PROFIT(M4,n7)
+
+Sst(M4,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+       -1       InventoryBalance_MAX_PROFIT(M4,n8)
+
+Sst(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+       -1       InventoryBalance_MAX_PROFIT(M4,n9)
+
+Sst(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+       -1       InventoryBalance_MAX_PROFIT(M4,n10)
+
+Sst(M4,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+       -1       InventoryBalance_MAX_PROFIT(M4,n11)
+
+Sst(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+       -1       EndingInventory_MAX_PROFIT(M4,n12)
+
+
+---- Backlog  
+
+Backlog(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n0)
+       -1       BacklogBalance(M3,n1)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n1)
+       -1       BacklogBalance(M3,n2)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n2)
+       -1       BacklogBalance(M3,n3)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n3)
+       -1       BacklogBalance(M3,n4)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n4)
+       -1       BacklogBalance(M3,n5)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n5)
+       -1       BacklogBalance(M3,n6)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n6)
+       -1       BacklogBalance(M3,n7)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n7)
+       -1       BacklogBalance(M3,n8)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n8)
+       -1       BacklogBalance(M3,n9)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n9)
+       -1       BacklogBalance(M3,n10)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n10)
+       -1       BacklogBalance(M3,n11)
+     1000       objective_MAX_PROFIT
+
+Backlog(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M3,n11)
+       -1       EndingBacklog(M3,n12)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n0)
+       -1       BacklogBalance(M4,n1)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n1)
+       -1       BacklogBalance(M4,n2)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n2)
+       -1       BacklogBalance(M4,n3)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n3)
+       -1       BacklogBalance(M4,n4)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n4)
+       -1       BacklogBalance(M4,n5)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n5)
+       -1       BacklogBalance(M4,n6)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n6)
+       -1       BacklogBalance(M4,n7)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n7)
+       -1       BacklogBalance(M4,n8)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n8)
+       -1       BacklogBalance(M4,n9)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n9)
+       -1       BacklogBalance(M4,n10)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n10)
+       -1       BacklogBalance(M4,n11)
+     1000       objective_MAX_PROFIT
+
+Backlog(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       BacklogBalance(M4,n11)
+       -1       EndingBacklog(M4,n12)
+     1000       objective_MAX_PROFIT
+
+
+---- Ship  
+
+Ship(M3,n0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+        1       BacklogBalance(M3,n0)
+
+Ship(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+        1       BacklogBalance(M3,n1)
+
+Ship(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+        1       BacklogBalance(M3,n2)
+
+Ship(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+        1       BacklogBalance(M3,n3)
+
+Ship(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+        1       BacklogBalance(M3,n4)
+
+Ship(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+        1       BacklogBalance(M3,n5)
+
+Ship(M3,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+        1       BacklogBalance(M3,n6)
+
+Ship(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+        1       BacklogBalance(M3,n7)
+
+Ship(M3,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+        1       BacklogBalance(M3,n8)
+
+Ship(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+        1       BacklogBalance(M3,n9)
+
+Ship(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+        1       BacklogBalance(M3,n10)
+
+Ship(M3,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+        1       BacklogBalance(M3,n11)
+
+Ship(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M3,n12)
+        1       EndingBacklog(M3,n12)
+
+Ship(M4,n0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+        1       BacklogBalance(M4,n0)
+
+Ship(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+        1       BacklogBalance(M4,n1)
+
+Ship(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+        1       BacklogBalance(M4,n2)
+
+Ship(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+        1       BacklogBalance(M4,n3)
+
+Ship(M4,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+        1       BacklogBalance(M4,n4)
+
+Ship(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+        1       BacklogBalance(M4,n5)
+
+Ship(M4,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+        1       BacklogBalance(M4,n6)
+
+Ship(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+        1       BacklogBalance(M4,n7)
+
+Ship(M4,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+        1       BacklogBalance(M4,n8)
+
+Ship(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+        1       BacklogBalance(M4,n9)
+
+Ship(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+        1       BacklogBalance(M4,n10)
+
+Ship(M4,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+        1       BacklogBalance(M4,n11)
+
+Ship(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M4,n12)
+        1       EndingBacklog(M4,n12)
+
+
+---- Ship_sales  
+
+Ship_sales(M3,n0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n1)
+
+Ship_sales(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n2)
+
+Ship_sales(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n3)
+
+Ship_sales(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n5)
+
+Ship_sales(M3,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n7)
+
+Ship_sales(M3,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n9)
+
+Ship_sales(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n10)
+
+Ship_sales(M3,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M3,n12)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n12)
+
+Ship_sales(M4,n0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n1)
+
+Ship_sales(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n2)
+
+Ship_sales(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n3)
+
+Ship_sales(M4,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n5)
+
+Ship_sales(M4,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n7)
+
+Ship_sales(M4,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n9)
+
+Ship_sales(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n10)
+
+Ship_sales(M4,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M4,n12)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n12)
+
+
+---- obj_variable  
+
+obj_variable
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objective_MAX_PROFIT
+
+
+---- NB  number of batches
+
+NB(T1,U1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       numberOfBatches(T1,U1)
+
+NB(T2,U2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       numberOfBatches(T2,U2)
+
+NB(T3,U2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       numberOfBatches(T3,U2)
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 8
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_2 Using MIP From line 1108
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          14     SINGLE EQUATIONS           98
+BLOCKS OF VARIABLES           6     SINGLE VARIABLES          128
+NON ZERO ELEMENTS           292     DISCRETE VARIABLES          3
+
+
+GENERATION TIME      =        0.047 SECONDS      7 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.140 SECONDS      7 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 9
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_2 Using MIP From line 1108
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_2        OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MAXIMIZE
+     SOLVER  CPLEX               FROM LINE  1108
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              374.0000
+
+ RESOURCE USAGE, LIMIT          0.016      3600.000
+ ITERATION COUNT, LIMIT        12    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.23 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.12 ticks)
+Proven optimal solution.
+
+MIP Solution:          374.000000    (7 iterations, 0 nodes)
+Final Solve:           374.000000    (5 iterations)
+
+Best possible:         374.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+---- EQU numberOfBatches  
+
+         LOWER     LEVEL     UPPER    MARGINAL
+
+T1.U1     2.000     2.000     2.000      .         
+T2.U2     3.000     3.000     3.000      .         
+T3.U2     1.000     1.000     1.000      .         
+
+---- EQU Allocation  
+
+                NONE
+
+
+---- EQU UnitCapacityMax  
+
+                NONE
+
+
+---- EQU UnitCapacityMin  
+
+                NONE
+
+
+---- EQU InventoryBalance_MAX_PROFIT  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n0       .         .         .         .         
+M1.n1       .         .         .         .         
+M1.n2       .         .         .         .         
+M1.n3       .         .         .         .         
+M1.n4       .         .         .         .         
+M1.n5       .         .         .         .         
+M1.n6       .         .         .         .         
+M1.n7       .         .         .         .         
+M1.n8       .         .         .         .         
+M1.n9       .         .         .         .         
+M1.n10      .         .         .         .         
+M1.n11      .         .         .         .         
+M2.n0       .         .         .         .         
+M2.n1       .         .         .         .         
+M2.n2     10.000    10.000    10.000      EPS       
+M2.n3       .         .         .         EPS       
+M2.n4    -10.000   -10.000   -10.000      .         
+M2.n5       .         .         .         .         
+M2.n6     20.000    20.000    20.000      EPS       
+M2.n7    -10.000   -10.000   -10.000      EPS       
+M2.n8       .         .         .         EPS       
+M2.n9    -10.000   -10.000   -10.000      .         
+M2.n10      .         .         .         .         
+M2.n11      .         .         .         .         
+M3.n0     12.000    12.000    12.000    10.000      
+M3.n1       .         .         .       10.000      
+M3.n2       .         .         .       10.000      
+M3.n3       .         .         .       10.000      
+M3.n4     10.000    10.000    10.000    10.000      
+M3.n5       .         .         .       10.000      
+M3.n6       .         .         .       10.000      
+M3.n7       .         .         .       10.000      
+M3.n8       .         .         .       10.000      
+M3.n9     10.000    10.000    10.000    10.000      
+M3.n10      .         .         .       10.000      
+M3.n11    10.000    10.000    10.000    10.000      
+M4.n0     12.000    12.000    12.000    10.000      
+M4.n1       .         .         .       10.000      
+M4.n2       .         .         .       10.000      
+M4.n3       .         .         .       10.000      
+M4.n4       .         .         .       10.000      
+M4.n5       .         .         .       10.000      
+M4.n6       .         .         .       10.000      
+M4.n7     10.000    10.000    10.000    10.000      
+M4.n8       .         .         .       10.000      
+M4.n9       .         .         .       10.000      
+M4.n10      .         .         .       10.000      
+M4.n11      .         .         .       10.000      
+
+---- EQU EndingInventory_MAX_PROFIT  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n12      .         .         .         .         
+M2.n12      .         .         .         .         
+M3.n12      .         .         .       10.000      
+M4.n12      .         .         .       10.000      
+
+---- EQU BacklogBalance  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0      1.000     1.000     1.000   -10.000      
+M3.n1       .         .         .      990.000      
+M3.n2       .         .         .     1990.000      
+M3.n3       .         .         .     2990.000      
+M3.n4      3.270     3.270     3.270   -10.000      
+M3.n5       .         .         .      990.000      
+M3.n6      2.820     2.820     2.820   -10.000      
+M3.n7       .         .         .      990.000      
+M3.n8      2.970     2.970     2.970   -10.000      
+M3.n9       .         .         .      990.000      
+M3.n10      .         .         .     1990.000      
+M3.n11     3.060     3.060     3.060   -10.000      
+M4.n0      1.000     1.000     1.000   -10.000      
+M4.n1       .         .         .      990.000      
+M4.n2       .         .         .     1990.000      
+M4.n3       .         .         .     2990.000      
+M4.n4      2.940     2.940     2.940   -10.000      
+M4.n5       .         .         .      990.000      
+M4.n6      2.760     2.760     2.760   -10.000      
+M4.n7       .         .         .      990.000      
+M4.n8      2.940     2.940     2.940   -10.000      
+M4.n9       .         .         .      990.000      
+M4.n10      .         .         .     1990.000      
+M4.n11     3.240     3.240     3.240   -10.000      
+
+---- EQU EndingBacklog  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n12      .         .         .      -10.000      
+M4.n12      .         .         .      -10.000      
+
+---- EQU LiftingW  
+
+                NONE
+
+
+---- EQU LiftingB  
+
+                NONE
+
+
+---- EQU Carryover_W  
+
+                NONE
+
+
+---- EQU Carryover_B  
+
+                NONE
+
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU objective~    -6.000    -6.000    -6.000     1.000      
+
+---- EQU Ship_constraint  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n1       .         .         .         .         
+M3.n2       .         .         .         .         
+M3.n3       .         .         .         .         
+M3.n5       .         .         .         .         
+M3.n7       .         .         .         .         
+M3.n9       .         .         .         .         
+M3.n10      .         .         .         .         
+M3.n12      .         .         .         .         
+M4.n1       .         .         .         .         
+M4.n2       .         .         .         .         
+M4.n3       .         .         .         .         
+M4.n5       .         .         .         .         
+M4.n7       .         .         .         .         
+M4.n9       .         .         .         .         
+M4.n10      .         .         .         .         
+M4.n12      .         .         .         .         
+
+---- VAR Sst  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n1       .         .        +INF       EPS       
+M1.n2       .         .        +INF       EPS       
+M1.n3       .         .        +INF       EPS       
+M1.n4       .         .        +INF       EPS       
+M1.n5       .         .        +INF       EPS       
+M1.n6       .         .        +INF       EPS       
+M1.n7       .         .        +INF       EPS       
+M1.n8       .         .        +INF       EPS       
+M1.n9       .         .        +INF       EPS       
+M1.n10      .         .        +INF       EPS       
+M1.n11      .         .        +INF       EPS       
+M1.n12      .         .        +INF       EPS       
+M2.n1       .         .        +INF       EPS       
+M2.n2       .         .        +INF       EPS       
+M2.n3       .       10.000     +INF       .         
+M2.n4       .       10.000     +INF       .         
+M2.n5       .         .        +INF       EPS       
+M2.n6       .         .        +INF       EPS       
+M2.n7       .       20.000     +INF       .         
+M2.n8       .       10.000     +INF       .         
+M2.n9       .       10.000     +INF       .         
+M2.n10      .         .        +INF       EPS       
+M2.n11      .         .        +INF       EPS       
+M2.n12      .         .        +INF       EPS       
+M3.n1       .         .        +INF       .         
+M3.n2       .         .        +INF       .         
+M3.n3       .         .        +INF       .         
+M3.n4       .         .        +INF       EPS       
+M3.n5       .        6.730     +INF       .         
+M3.n6       .        6.730     +INF       .         
+M3.n7       .        3.910     +INF       .         
+M3.n8       .        3.910     +INF       .         
+M3.n9       .         .        +INF       EPS       
+M3.n10      .       10.000     +INF       .         
+M3.n11      .       10.000     +INF       .         
+M3.n12      .         .        +INF       .         
+M4.n1       .       11.000     +INF       .         
+M4.n2       .       11.000     +INF       .         
+M4.n3       .       11.000     +INF       .         
+M4.n4       .       11.000     +INF       .         
+M4.n5       .        8.060     +INF       .         
+M4.n6       .        8.060     +INF       .         
+M4.n7       .         .        +INF       EPS       
+M4.n8       .       10.000     +INF       .         
+M4.n9       .        7.060     +INF       .         
+M4.n10      .        7.060     +INF       .         
+M4.n11      .        7.060     +INF       .         
+M4.n12      .         .        +INF       .         
+
+---- VAR Backlog  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n1       .         .        +INF       .         
+M3.n2       .         .        +INF       .         
+M3.n3       .         .        +INF       .         
+M3.n4       .         .        +INF  -4000.000      
+M3.n5       .         .        +INF       .         
+M3.n6       .         .        +INF  -2000.000      
+M3.n7       .         .        +INF       .         
+M3.n8       .         .        +INF  -2000.000      
+M3.n9       .         .        +INF       .         
+M3.n10      .         .        +INF       .         
+M3.n11      .         .        +INF  -3000.000      
+M3.n12      .         .        +INF  -1000.000      
+M4.n1       .         .        +INF       .         
+M4.n2       .         .        +INF       .         
+M4.n3       .         .        +INF       .         
+M4.n4       .         .        +INF  -4000.000      
+M4.n5       .         .        +INF       .         
+M4.n6       .         .        +INF  -2000.000      
+M4.n7       .         .        +INF       .         
+M4.n8       .         .        +INF  -2000.000      
+M4.n9       .         .        +INF       .         
+M4.n10      .         .        +INF       .         
+M4.n11      .         .        +INF  -3000.000      
+M4.n12      .         .        +INF  -1000.000      
+
+---- VAR Ship  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0       .        1.000     +INF       .         
+M3.n1       .         .        +INF  -1000.000      
+M3.n2       .         .        +INF  -2000.000      
+M3.n3       .         .        +INF  -3000.000      
+M3.n4       .        3.270     +INF       .         
+M3.n5       .         .        +INF  -1000.000      
+M3.n6       .        2.820     +INF       .         
+M3.n7       .         .        +INF  -1000.000      
+M3.n8       .        2.970     +INF       .         
+M3.n9       .         .        +INF  -1000.000      
+M3.n10      .         .        +INF  -2000.000      
+M3.n11      .        3.060     +INF       .         
+M3.n12      .         .        +INF       .         
+M4.n0       .        1.000     +INF       .         
+M4.n1       .         .        +INF  -1000.000      
+M4.n2       .         .        +INF  -2000.000      
+M4.n3       .         .        +INF  -3000.000      
+M4.n4       .        2.940     +INF       .         
+M4.n5       .         .        +INF  -1000.000      
+M4.n6       .        2.760     +INF       .         
+M4.n7       .         .        +INF  -1000.000      
+M4.n8       .        2.940     +INF       .         
+M4.n9       .         .        +INF  -1000.000      
+M4.n10      .         .        +INF  -2000.000      
+M4.n11      .        3.240     +INF       .         
+M4.n12      .         .        +INF       .         
+
+---- VAR Ship_sales  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0       .       11.000     +INF       .         
+M3.n1       .         .        +INF       EPS       
+M3.n2       .         .        +INF       EPS       
+M3.n3       .         .        +INF       EPS       
+M3.n4       .         .        +INF       EPS       
+M3.n5       .         .        +INF       EPS       
+M3.n6       .         .        +INF       EPS       
+M3.n7       .         .        +INF       EPS       
+M3.n8       .        0.940     +INF       .         
+M3.n9       .         .        +INF       EPS       
+M3.n10      .         .        +INF       EPS       
+M3.n11      .       16.940     +INF       .         
+M3.n12      .         .        +INF       EPS       
+M4.n0       .         .        +INF       EPS       
+M4.n1       .         .        +INF       EPS       
+M4.n2       .         .        +INF       EPS       
+M4.n3       .         .        +INF       EPS       
+M4.n4       .         .        +INF       EPS       
+M4.n5       .         .        +INF       EPS       
+M4.n6       .        5.300     +INF       .         
+M4.n7       .         .        +INF       EPS       
+M4.n8       .         .        +INF       EPS       
+M4.n9       .         .        +INF       EPS       
+M4.n10      .         .        +INF       EPS       
+M4.n11      .        3.820     +INF       .         
+M4.n12      .         .        +INF       EPS       
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR obj_varia~     -INF    374.000     +INF       .         
+
+---- VAR NB  number of batches
+
+         LOWER     LEVEL     UPPER    MARGINAL
+
+T1.U1      .        2.000     +INF       EPS       
+T2.U2      .        3.000     +INF       EPS       
+T3.U2      .        1.000     +INF       EPS       
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 10
+State_Space_Model
+Equation Listing    SOLVE MAX_PROFIT_2 Using MIP From line 1183
+
+
+---- numberOfBatches  =E=  
+
+numberOfBatches(T1,U1)..  NB(T1,U1) =E= 2 ; (LHS = 2)
+     
+numberOfBatches(T2,U2)..  NB(T2,U2) =E= 3 ; (LHS = 3)
+     
+numberOfBatches(T3,U2)..  NB(T3,U2) =E= 1 ; (LHS = 1)
+     
+
+---- Allocation  =L=  
+
+                NONE
+
+
+---- UnitCapacityMax  =L=  
+
+                NONE
+
+
+---- UnitCapacityMin  =G=  
+
+                NONE
+
+
+---- InventoryBalance_MAX_PROFIT  =E=  
+
+InventoryBalance_MAX_PROFIT(M1,n0)..  Sst(M1,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n1)..  - Sst(M1,n1) + Sst(M1,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n2)..  - Sst(M1,n2) + Sst(M1,n3) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n3)..  - Sst(M1,n3) + Sst(M1,n4) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n4)..  - Sst(M1,n4) + Sst(M1,n5) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n5)..  - Sst(M1,n5) + Sst(M1,n6) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n6)..  - Sst(M1,n6) + Sst(M1,n7) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n7)..  - Sst(M1,n7) + Sst(M1,n8) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n8)..  - Sst(M1,n8) + Sst(M1,n9) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n9)..  - Sst(M1,n9) + Sst(M1,n10) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n10)..  - Sst(M1,n10) + Sst(M1,n11) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M1,n11)..  - Sst(M1,n11) + Sst(M1,n12) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n0)..  Sst(M2,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n1)..  - Sst(M2,n1) + Sst(M2,n2) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n2)..  - Sst(M2,n2) + Sst(M2,n3) =E= 10 ;
+     
+      (LHS = 10)
+     
+InventoryBalance_MAX_PROFIT(M2,n3)..  - Sst(M2,n3) + Sst(M2,n4) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n4)..  - Sst(M2,n4) + Sst(M2,n5) =E= -10 ;
+     
+      (LHS = -10)
+     
+InventoryBalance_MAX_PROFIT(M2,n5)..  - Sst(M2,n5) + Sst(M2,n6) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n6)..  - Sst(M2,n6) + Sst(M2,n7) =E= 20 ;
+     
+      (LHS = 20)
+     
+InventoryBalance_MAX_PROFIT(M2,n7)..  - Sst(M2,n7) + Sst(M2,n8) =E= -10 ;
+     
+      (LHS = -10)
+     
+InventoryBalance_MAX_PROFIT(M2,n8)..  - Sst(M2,n8) + Sst(M2,n9) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n9)..  - Sst(M2,n9) + Sst(M2,n10) =E= -10 ;
+     
+      (LHS = -10)
+     
+InventoryBalance_MAX_PROFIT(M2,n10)..  - Sst(M2,n10) + Sst(M2,n11) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M2,n11)..  - Sst(M2,n11) + Sst(M2,n12) =E= 0 ;
+     
+      (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n0)..  Sst(M3,n1) + Ship(M3,n0)
+     
+      + Ship_sales(M3,n0) =E= 12 ; (LHS = 12)
+     
+InventoryBalance_MAX_PROFIT(M3,n1)..  - Sst(M3,n1) + Sst(M3,n2) + Ship(M3,n1)
+     
+      + Ship_sales(M3,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n2)..  - Sst(M3,n2) + Sst(M3,n3) + Ship(M3,n2)
+     
+      + Ship_sales(M3,n2) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n3)..  - Sst(M3,n3) + Sst(M3,n4) + Ship(M3,n3)
+     
+      + Ship_sales(M3,n3) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n4)..  - Sst(M3,n4) + Sst(M3,n5) + Ship(M3,n4)
+     
+      + Ship_sales(M3,n4) =E= 10 ; (LHS = 10)
+     
+InventoryBalance_MAX_PROFIT(M3,n5)..  - Sst(M3,n5) + Sst(M3,n6) + Ship(M3,n5)
+     
+      + Ship_sales(M3,n5) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n6)..  - Sst(M3,n6) + Sst(M3,n7) + Ship(M3,n6)
+     
+      + Ship_sales(M3,n6) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n7)..  - Sst(M3,n7) + Sst(M3,n8) + Ship(M3,n7)
+     
+      + Ship_sales(M3,n7) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n8)..  - Sst(M3,n8) + Sst(M3,n9) + Ship(M3,n8)
+     
+      + Ship_sales(M3,n8) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n9)..  - Sst(M3,n9) + Sst(M3,n10) + Ship(M3,n9)
+     
+      + Ship_sales(M3,n9) =E= 10 ; (LHS = 10)
+     
+InventoryBalance_MAX_PROFIT(M3,n10)..  - Sst(M3,n10) + Sst(M3,n11)
+     
+      + Ship(M3,n10) + Ship_sales(M3,n10) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M3,n11)..  - Sst(M3,n11) + Sst(M3,n12)
+     
+      + Ship(M3,n11) + Ship_sales(M3,n11) =E= 10 ; (LHS = 10)
+     
+InventoryBalance_MAX_PROFIT(M4,n0)..  Sst(M4,n1) + Ship(M4,n0)
+     
+      + Ship_sales(M4,n0) =E= 12 ; (LHS = 12)
+     
+InventoryBalance_MAX_PROFIT(M4,n1)..  - Sst(M4,n1) + Sst(M4,n2) + Ship(M4,n1)
+     
+      + Ship_sales(M4,n1) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n2)..  - Sst(M4,n2) + Sst(M4,n3) + Ship(M4,n2)
+     
+      + Ship_sales(M4,n2) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n3)..  - Sst(M4,n3) + Sst(M4,n4) + Ship(M4,n3)
+     
+      + Ship_sales(M4,n3) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n4)..  - Sst(M4,n4) + Sst(M4,n5) + Ship(M4,n4)
+     
+      + Ship_sales(M4,n4) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n5)..  - Sst(M4,n5) + Sst(M4,n6) + Ship(M4,n5)
+     
+      + Ship_sales(M4,n5) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n6)..  - Sst(M4,n6) + Sst(M4,n7) + Ship(M4,n6)
+     
+      + Ship_sales(M4,n6) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n7)..  - Sst(M4,n7) + Sst(M4,n8) + Ship(M4,n7)
+     
+      + Ship_sales(M4,n7) =E= 10 ; (LHS = 10)
+     
+InventoryBalance_MAX_PROFIT(M4,n8)..  - Sst(M4,n8) + Sst(M4,n9) + Ship(M4,n8)
+     
+      + Ship_sales(M4,n8) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n9)..  - Sst(M4,n9) + Sst(M4,n10) + Ship(M4,n9)
+     
+      + Ship_sales(M4,n9) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n10)..  - Sst(M4,n10) + Sst(M4,n11)
+     
+      + Ship(M4,n10) + Ship_sales(M4,n10) =E= 0 ; (LHS = 0)
+     
+InventoryBalance_MAX_PROFIT(M4,n11)..  - Sst(M4,n11) + Sst(M4,n12)
+     
+      + Ship(M4,n11) + Ship_sales(M4,n11) =E= 0 ; (LHS = 0)
+     
+
+---- EndingInventory_MAX_PROFIT  =E=  
+
+EndingInventory_MAX_PROFIT(M1,n12)..  - Sst(M1,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M2,n12)..  - Sst(M2,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M3,n12)..  - Sst(M3,n12) + Ship(M3,n12)
+     
+      + Ship_sales(M3,n12) =E= 0 ; (LHS = 0)
+     
+EndingInventory_MAX_PROFIT(M4,n12)..  - Sst(M4,n12) + Ship(M4,n12)
+     
+      + Ship_sales(M4,n12) =E= 0 ; (LHS = 0)
+     
+
+---- BacklogBalance  =E=  
+
+BacklogBalance(M3,n0)..  Ship(M3,n0) =E= 1 ; (LHS = 1)
+     
+BacklogBalance(M3,n1)..  Ship(M3,n1) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n2)..  Ship(M3,n2) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n3)..  Ship(M3,n3) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n4)..  Ship(M3,n4) =E= 3.27 ; (LHS = 3.27)
+     
+BacklogBalance(M3,n5)..  Ship(M3,n5) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n6)..  Ship(M3,n6) =E= 2.82 ; (LHS = 2.82)
+     
+BacklogBalance(M3,n7)..  Ship(M3,n7) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n8)..  Ship(M3,n8) =E= 2.97 ; (LHS = 2.97)
+     
+BacklogBalance(M3,n9)..  Ship(M3,n9) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n10)..  Ship(M3,n10) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M3,n11)..  Ship(M3,n11) =E= 3.06 ; (LHS = 3.06)
+     
+BacklogBalance(M4,n0)..  Ship(M4,n0) =E= 1 ; (LHS = 1)
+     
+BacklogBalance(M4,n1)..  Ship(M4,n1) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n2)..  Ship(M4,n2) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n3)..  Ship(M4,n3) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n4)..  Ship(M4,n4) =E= 2.94 ; (LHS = 2.94)
+     
+BacklogBalance(M4,n5)..  Ship(M4,n5) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n6)..  Ship(M4,n6) =E= 2.76 ; (LHS = 2.76)
+     
+BacklogBalance(M4,n7)..  Ship(M4,n7) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n8)..  Ship(M4,n8) =E= 2.94 ; (LHS = 2.94)
+     
+BacklogBalance(M4,n9)..  Ship(M4,n9) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n10)..  Ship(M4,n10) =E= 0 ; (LHS = 0)
+     
+BacklogBalance(M4,n11)..  Ship(M4,n11) =E= 3.24 ; (LHS = 3.24)
+     
+
+---- EndingBacklog  =E=  
+
+EndingBacklog(M3,n12)..  Ship(M3,n12) =E= 0 ; (LHS = 0)
+     
+EndingBacklog(M4,n12)..  Ship(M4,n12) =E= 0 ; (LHS = 0)
+     
+
+---- LiftingW  =E=  
+
+                NONE
+
+
+---- LiftingB  =E=  
+
+                NONE
+
+
+---- Carryover_W  =E=  
+
+                NONE
+
+
+---- Carryover_B  =E=  
+
+                NONE
+
+
+---- objective_MAX_PROFIT  =E=  
+
+objective_MAX_PROFIT..  - 10*Ship_sales(M3,n0) - 10*Ship_sales(M3,n1)
+     
+      - 10*Ship_sales(M3,n2) - 10*Ship_sales(M3,n3) - 10*Ship_sales(M3,n4)
+     
+      - 10*Ship_sales(M3,n5) - 10*Ship_sales(M3,n6) - 10*Ship_sales(M3,n7)
+     
+      - 10*Ship_sales(M3,n8) - 10*Ship_sales(M3,n9) - 10*Ship_sales(M3,n10)
+     
+      - 10*Ship_sales(M3,n11) - 10*Ship_sales(M3,n12) - 10*Ship_sales(M4,n0)
+     
+      - 10*Ship_sales(M4,n1) - 10*Ship_sales(M4,n2) - 10*Ship_sales(M4,n3)
+     
+      - 10*Ship_sales(M4,n4) - 10*Ship_sales(M4,n5) - 10*Ship_sales(M4,n6)
+     
+      - 10*Ship_sales(M4,n7) - 10*Ship_sales(M4,n8) - 10*Ship_sales(M4,n9)
+     
+      - 10*Ship_sales(M4,n10) - 10*Ship_sales(M4,n11) - 10*Ship_sales(M4,n12)
+     
+      + obj_variable =E= -6 ; (LHS = -5.99999999999994)
+     
+
+---- Ship_constraint  =E=  
+
+Ship_constraint(M3,n1)..  Ship_sales(M3,n1) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n2)..  Ship_sales(M3,n2) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n3)..  Ship_sales(M3,n3) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n5)..  Ship_sales(M3,n5) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n7)..  Ship_sales(M3,n7) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n9)..  Ship_sales(M3,n9) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n10)..  Ship_sales(M3,n10) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M3,n12)..  Ship_sales(M3,n12) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n1)..  Ship_sales(M4,n1) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n2)..  Ship_sales(M4,n2) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n3)..  Ship_sales(M4,n3) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n5)..  Ship_sales(M4,n5) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n7)..  Ship_sales(M4,n7) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n9)..  Ship_sales(M4,n9) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n10)..  Ship_sales(M4,n10) =E= 0 ; (LHS = 0)
+     
+Ship_constraint(M4,n12)..  Ship_sales(M4,n12) =E= 0 ; (LHS = 0)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 11
+State_Space_Model
+Column Listing      SOLVE MAX_PROFIT_2 Using MIP From line 1183
+
+
+---- Sst  
+
+Sst(M1,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n0)
+       -1       InventoryBalance_MAX_PROFIT(M1,n1)
+
+Sst(M1,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n1)
+       -1       InventoryBalance_MAX_PROFIT(M1,n2)
+
+Sst(M1,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n2)
+       -1       InventoryBalance_MAX_PROFIT(M1,n3)
+
+Sst(M1,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n3)
+       -1       InventoryBalance_MAX_PROFIT(M1,n4)
+
+Sst(M1,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n4)
+       -1       InventoryBalance_MAX_PROFIT(M1,n5)
+
+Sst(M1,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n5)
+       -1       InventoryBalance_MAX_PROFIT(M1,n6)
+
+Sst(M1,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n6)
+       -1       InventoryBalance_MAX_PROFIT(M1,n7)
+
+Sst(M1,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n7)
+       -1       InventoryBalance_MAX_PROFIT(M1,n8)
+
+Sst(M1,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n8)
+       -1       InventoryBalance_MAX_PROFIT(M1,n9)
+
+Sst(M1,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n9)
+       -1       InventoryBalance_MAX_PROFIT(M1,n10)
+
+Sst(M1,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n10)
+       -1       InventoryBalance_MAX_PROFIT(M1,n11)
+
+Sst(M1,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M1,n11)
+       -1       EndingInventory_MAX_PROFIT(M1,n12)
+
+Sst(M2,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n0)
+       -1       InventoryBalance_MAX_PROFIT(M2,n1)
+
+Sst(M2,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n1)
+       -1       InventoryBalance_MAX_PROFIT(M2,n2)
+
+Sst(M2,n3)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n2)
+       -1       InventoryBalance_MAX_PROFIT(M2,n3)
+
+Sst(M2,n4)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n3)
+       -1       InventoryBalance_MAX_PROFIT(M2,n4)
+
+Sst(M2,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n4)
+       -1       InventoryBalance_MAX_PROFIT(M2,n5)
+
+Sst(M2,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n5)
+       -1       InventoryBalance_MAX_PROFIT(M2,n6)
+
+Sst(M2,n7)
+                (.LO, .L, .UP, .M = 0, 20, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n6)
+       -1       InventoryBalance_MAX_PROFIT(M2,n7)
+
+Sst(M2,n8)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n7)
+       -1       InventoryBalance_MAX_PROFIT(M2,n8)
+
+Sst(M2,n9)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M2,n8)
+       -1       InventoryBalance_MAX_PROFIT(M2,n9)
+
+Sst(M2,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n9)
+       -1       InventoryBalance_MAX_PROFIT(M2,n10)
+
+Sst(M2,n11)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n10)
+       -1       InventoryBalance_MAX_PROFIT(M2,n11)
+
+Sst(M2,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M2,n11)
+       -1       EndingInventory_MAX_PROFIT(M2,n12)
+
+Sst(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+       -1       InventoryBalance_MAX_PROFIT(M3,n1)
+
+Sst(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+       -1       InventoryBalance_MAX_PROFIT(M3,n2)
+
+Sst(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+       -1       InventoryBalance_MAX_PROFIT(M3,n3)
+
+Sst(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+       -1       InventoryBalance_MAX_PROFIT(M3,n4)
+
+Sst(M3,n5)
+                (.LO, .L, .UP, .M = 0, 6.73, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+       -1       InventoryBalance_MAX_PROFIT(M3,n5)
+
+Sst(M3,n6)
+                (.LO, .L, .UP, .M = 0, 6.73, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+       -1       InventoryBalance_MAX_PROFIT(M3,n6)
+
+Sst(M3,n7)
+                (.LO, .L, .UP, .M = 0, 3.91, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+       -1       InventoryBalance_MAX_PROFIT(M3,n7)
+
+Sst(M3,n8)
+                (.LO, .L, .UP, .M = 0, 3.91, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+       -1       InventoryBalance_MAX_PROFIT(M3,n8)
+
+Sst(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+       -1       InventoryBalance_MAX_PROFIT(M3,n9)
+
+Sst(M3,n10)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+       -1       InventoryBalance_MAX_PROFIT(M3,n10)
+
+Sst(M3,n11)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+       -1       InventoryBalance_MAX_PROFIT(M3,n11)
+
+Sst(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+       -1       EndingInventory_MAX_PROFIT(M3,n12)
+
+Sst(M4,n1)
+                (.LO, .L, .UP, .M = 0, 11, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+       -1       InventoryBalance_MAX_PROFIT(M4,n1)
+
+Sst(M4,n2)
+                (.LO, .L, .UP, .M = 0, 11, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+       -1       InventoryBalance_MAX_PROFIT(M4,n2)
+
+Sst(M4,n3)
+                (.LO, .L, .UP, .M = 0, 11, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+       -1       InventoryBalance_MAX_PROFIT(M4,n3)
+
+Sst(M4,n4)
+                (.LO, .L, .UP, .M = 0, 11, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+       -1       InventoryBalance_MAX_PROFIT(M4,n4)
+
+Sst(M4,n5)
+                (.LO, .L, .UP, .M = 0, 8.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+       -1       InventoryBalance_MAX_PROFIT(M4,n5)
+
+Sst(M4,n6)
+                (.LO, .L, .UP, .M = 0, 8.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+       -1       InventoryBalance_MAX_PROFIT(M4,n6)
+
+Sst(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+       -1       InventoryBalance_MAX_PROFIT(M4,n7)
+
+Sst(M4,n8)
+                (.LO, .L, .UP, .M = 0, 10, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+       -1       InventoryBalance_MAX_PROFIT(M4,n8)
+
+Sst(M4,n9)
+                (.LO, .L, .UP, .M = 0, 7.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+       -1       InventoryBalance_MAX_PROFIT(M4,n9)
+
+Sst(M4,n10)
+                (.LO, .L, .UP, .M = 0, 7.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+       -1       InventoryBalance_MAX_PROFIT(M4,n10)
+
+Sst(M4,n11)
+                (.LO, .L, .UP, .M = 0, 7.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+       -1       InventoryBalance_MAX_PROFIT(M4,n11)
+
+Sst(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+       -1       EndingInventory_MAX_PROFIT(M4,n12)
+
+
+---- Ship  
+
+Ship(M3,n0)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+        1       BacklogBalance(M3,n0)
+
+Ship(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+        1       BacklogBalance(M3,n1)
+
+Ship(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -2000)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+        1       BacklogBalance(M3,n2)
+
+Ship(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -3000)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+        1       BacklogBalance(M3,n3)
+
+Ship(M3,n4)
+                (.LO, .L, .UP, .M = 0, 3.27, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+        1       BacklogBalance(M3,n4)
+
+Ship(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+        1       BacklogBalance(M3,n5)
+
+Ship(M3,n6)
+                (.LO, .L, .UP, .M = 0, 2.82, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+        1       BacklogBalance(M3,n6)
+
+Ship(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+        1       BacklogBalance(M3,n7)
+
+Ship(M3,n8)
+                (.LO, .L, .UP, .M = 0, 2.97, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+        1       BacklogBalance(M3,n8)
+
+Ship(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+        1       BacklogBalance(M3,n9)
+
+Ship(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -2000)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+        1       BacklogBalance(M3,n10)
+
+Ship(M3,n11)
+                (.LO, .L, .UP, .M = 0, 3.06, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+        1       BacklogBalance(M3,n11)
+
+Ship(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M3,n12)
+        1       EndingBacklog(M3,n12)
+
+Ship(M4,n0)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+        1       BacklogBalance(M4,n0)
+
+Ship(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+        1       BacklogBalance(M4,n1)
+
+Ship(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -2000)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+        1       BacklogBalance(M4,n2)
+
+Ship(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -3000)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+        1       BacklogBalance(M4,n3)
+
+Ship(M4,n4)
+                (.LO, .L, .UP, .M = 0, 2.94, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+        1       BacklogBalance(M4,n4)
+
+Ship(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+        1       BacklogBalance(M4,n5)
+
+Ship(M4,n6)
+                (.LO, .L, .UP, .M = 0, 2.76, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+        1       BacklogBalance(M4,n6)
+
+Ship(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+        1       BacklogBalance(M4,n7)
+
+Ship(M4,n8)
+                (.LO, .L, .UP, .M = 0, 2.94, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+        1       BacklogBalance(M4,n8)
+
+Ship(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -1000)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+        1       BacklogBalance(M4,n9)
+
+Ship(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, -2000)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+        1       BacklogBalance(M4,n10)
+
+Ship(M4,n11)
+                (.LO, .L, .UP, .M = 0, 3.24, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+        1       BacklogBalance(M4,n11)
+
+Ship(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       EndingInventory_MAX_PROFIT(M4,n12)
+        1       EndingBacklog(M4,n12)
+
+
+---- Ship_sales  
+
+Ship_sales(M3,n0)
+                (.LO, .L, .UP, .M = 0, 11, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n0)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n1)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n1)
+
+Ship_sales(M3,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n2)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n2)
+
+Ship_sales(M3,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n3)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n3)
+
+Ship_sales(M3,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n4)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n5)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n5)
+
+Ship_sales(M3,n6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n6)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n7)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n7)
+
+Ship_sales(M3,n8)
+                (.LO, .L, .UP, .M = 0, 0.94, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n8)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n9)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n9)
+
+Ship_sales(M3,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M3,n10)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n10)
+
+Ship_sales(M3,n11)
+                (.LO, .L, .UP, .M = 0, 16.94, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M3,n11)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M3,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       EndingInventory_MAX_PROFIT(M3,n12)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M3,n12)
+
+Ship_sales(M4,n0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n0)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n1)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n1)
+
+Ship_sales(M4,n2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n2)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n2)
+
+Ship_sales(M4,n3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n3)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n3)
+
+Ship_sales(M4,n4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n4)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n5)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n5)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n5)
+
+Ship_sales(M4,n6)
+                (.LO, .L, .UP, .M = 0, 5.3, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n6)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n7)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n7)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n7)
+
+Ship_sales(M4,n8)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n8)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n9)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n9)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n9)
+
+Ship_sales(M4,n10)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       InventoryBalance_MAX_PROFIT(M4,n10)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n10)
+
+Ship_sales(M4,n11)
+                (.LO, .L, .UP, .M = 0, 3.82, +INF, 0)
+        1       InventoryBalance_MAX_PROFIT(M4,n11)
+      -10       objective_MAX_PROFIT
+
+Ship_sales(M4,n12)
+                (.LO, .L, .UP, .M = 0, 0, +INF, EPS)
+        1       EndingInventory_MAX_PROFIT(M4,n12)
+      -10       objective_MAX_PROFIT
+        1       Ship_constraint(M4,n12)
+
+
+---- obj_variable  
+
+obj_variable
+                (.LO, .L, .UP, .M = -INF, 374, +INF, 0)
+        1       objective_MAX_PROFIT
+
+
+---- NB  number of batches
+
+NB(T1,U1)
+                (.LO, .L, .UP, .M = 0, 2, +INF, EPS)
+        1       numberOfBatches(T1,U1)
+
+NB(T2,U2)
+                (.LO, .L, .UP, .M = 0, 3, +INF, EPS)
+        1       numberOfBatches(T2,U2)
+
+NB(T3,U2)
+                (.LO, .L, .UP, .M = 0, 1, +INF, EPS)
+        1       numberOfBatches(T3,U2)
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 12
+State_Space_Model
+Model Statistics    SOLVE MAX_PROFIT_2 Using MIP From line 1183
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          14     SINGLE EQUATIONS           98
+BLOCKS OF VARIABLES           5     SINGLE VARIABLES          104
+NON ZERO ELEMENTS           220     DISCRETE VARIABLES          3
+
+
+GENERATION TIME      =        0.031 SECONDS      6 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      6 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 13
+State_Space_Model
+Solution Report     SOLVE MAX_PROFIT_2 Using MIP From line 1183
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MAX_PROFIT_2        OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MAXIMIZE
+     SOLVER  CPLEX               FROM LINE  1183
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              374.0000
+
+ RESOURCE USAGE, LIMIT          0.031      3600.000
+ ITERATION COUNT, LIMIT         0    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 0.09 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+Proven optimal solution.
+
+MIP Solution:          374.000000    (0 iterations, 0 nodes)
+Final Solve:           374.000000    (0 iterations)
+
+Best possible:         374.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+---- EQU numberOfBatches  
+
+         LOWER     LEVEL     UPPER    MARGINAL
+
+T1.U1     2.000     2.000     2.000      .         
+T2.U2     3.000     3.000     3.000      .         
+T3.U2     1.000     1.000     1.000      .         
+
+---- EQU Allocation  
+
+                NONE
+
+
+---- EQU UnitCapacityMax  
+
+                NONE
+
+
+---- EQU UnitCapacityMin  
+
+                NONE
+
+
+---- EQU InventoryBalance_MAX_PROFIT  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n0       .         .         .         .         
+M1.n1       .         .         .         .         
+M1.n2       .         .         .         .         
+M1.n3       .         .         .         .         
+M1.n4       .         .         .         .         
+M1.n5       .         .         .         .         
+M1.n6       .         .         .         .         
+M1.n7       .         .         .         .         
+M1.n8       .         .         .         .         
+M1.n9       .         .         .         .         
+M1.n10      .         .         .         .         
+M1.n11      .         .         .         .         
+M2.n0       .         .         .         .         
+M2.n1       .         .         .         .         
+M2.n2     10.000    10.000    10.000      EPS       
+M2.n3       .         .         .         EPS       
+M2.n4    -10.000   -10.000   -10.000      .         
+M2.n5       .         .         .         .         
+M2.n6     20.000    20.000    20.000      EPS       
+M2.n7    -10.000   -10.000   -10.000      EPS       
+M2.n8       .         .         .         EPS       
+M2.n9    -10.000   -10.000   -10.000      .         
+M2.n10      .         .         .         .         
+M2.n11      .         .         .         .         
+M3.n0     12.000    12.000    12.000    10.000      
+M3.n1       .         .         .       10.000      
+M3.n2       .         .         .       10.000      
+M3.n3       .         .         .       10.000      
+M3.n4     10.000    10.000    10.000    10.000      
+M3.n5       .         .         .       10.000      
+M3.n6       .         .         .       10.000      
+M3.n7       .         .         .       10.000      
+M3.n8       .         .         .       10.000      
+M3.n9     10.000    10.000    10.000    10.000      
+M3.n10      .         .         .       10.000      
+M3.n11    10.000    10.000    10.000    10.000      
+M4.n0     12.000    12.000    12.000    10.000      
+M4.n1       .         .         .       10.000      
+M4.n2       .         .         .       10.000      
+M4.n3       .         .         .       10.000      
+M4.n4       .         .         .       10.000      
+M4.n5       .         .         .       10.000      
+M4.n6       .         .         .       10.000      
+M4.n7     10.000    10.000    10.000    10.000      
+M4.n8       .         .         .       10.000      
+M4.n9       .         .         .       10.000      
+M4.n10      .         .         .       10.000      
+M4.n11      .         .         .       10.000      
+
+---- EQU EndingInventory_MAX_PROFIT  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n12      .         .         .         .         
+M2.n12      .         .         .         .         
+M3.n12      .         .         .         .         
+M4.n12      .         .         .         .         
+
+---- EQU BacklogBalance  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0      1.000     1.000     1.000   -10.000      
+M3.n1       .         .         .         .         
+M3.n2       .         .         .         .         
+M3.n3       .         .         .         .         
+M3.n4      3.270     3.270     3.270   -10.000      
+M3.n5       .         .         .         .         
+M3.n6      2.820     2.820     2.820   -10.000      
+M3.n7       .         .         .         .         
+M3.n8      2.970     2.970     2.970   -10.000      
+M3.n9       .         .         .         .         
+M3.n10      .         .         .         .         
+M3.n11     3.060     3.060     3.060   -10.000      
+M4.n0      1.000     1.000     1.000   -10.000      
+M4.n1       .         .         .         .         
+M4.n2       .         .         .         .         
+M4.n3       .         .         .         .         
+M4.n4      2.940     2.940     2.940   -10.000      
+M4.n5       .         .         .         .         
+M4.n6      2.760     2.760     2.760   -10.000      
+M4.n7       .         .         .         .         
+M4.n8      2.940     2.940     2.940   -10.000      
+M4.n9       .         .         .         .         
+M4.n10      .         .         .         .         
+M4.n11     3.240     3.240     3.240   -10.000      
+
+---- EQU EndingBacklog  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n12      .         .         .         .         
+M4.n12      .         .         .         .         
+
+---- EQU LiftingW  
+
+                NONE
+
+
+---- EQU LiftingB  
+
+                NONE
+
+
+---- EQU Carryover_W  
+
+                NONE
+
+
+---- EQU Carryover_B  
+
+                NONE
+
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU objective~    -6.000    -6.000    -6.000     1.000      
+
+---- EQU Ship_constraint  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n1       .         .         .         .         
+M3.n2       .         .         .         .         
+M3.n3       .         .         .         .         
+M3.n5       .         .         .         .         
+M3.n7       .         .         .         .         
+M3.n9       .         .         .         .         
+M3.n10      .         .         .         .         
+M3.n12      .         .         .       10.000      
+M4.n1       .         .         .         .         
+M4.n2       .         .         .         .         
+M4.n3       .         .         .         .         
+M4.n5       .         .         .         .         
+M4.n7       .         .         .         .         
+M4.n9       .         .         .         .         
+M4.n10      .         .         .         .         
+M4.n12      .         .         .       10.000      
+
+---- VAR Sst  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M1.n1       .         .        +INF       EPS       
+M1.n2       .         .        +INF       EPS       
+M1.n3       .         .        +INF       EPS       
+M1.n4       .         .        +INF       EPS       
+M1.n5       .         .        +INF       EPS       
+M1.n6       .         .        +INF       EPS       
+M1.n7       .         .        +INF       EPS       
+M1.n8       .         .        +INF       EPS       
+M1.n9       .         .        +INF       EPS       
+M1.n10      .         .        +INF       EPS       
+M1.n11      .         .        +INF       EPS       
+M1.n12      .         .        +INF       EPS       
+M2.n1       .         .        +INF       EPS       
+M2.n2       .         .        +INF       EPS       
+M2.n3       .       10.000     +INF       .         
+M2.n4       .       10.000     +INF       .         
+M2.n5       .         .        +INF       EPS       
+M2.n6       .         .        +INF       EPS       
+M2.n7       .       20.000     +INF       .         
+M2.n8       .       10.000     +INF       .         
+M2.n9       .       10.000     +INF       .         
+M2.n10      .         .        +INF       EPS       
+M2.n11      .         .        +INF       EPS       
+M2.n12      .         .        +INF       EPS       
+M3.n1       .       11.000     +INF       .         
+M3.n2       .       11.000     +INF       .         
+M3.n3       .       11.000     +INF       .         
+M3.n4       .       11.000     +INF       .         
+M3.n5       .       17.730     +INF       .         
+M3.n6       .       17.730     +INF       .         
+M3.n7       .        2.970     +INF       .         
+M3.n8       .        2.970     +INF       .         
+M3.n9       .         .        +INF       EPS       
+M3.n10      .       10.000     +INF       .         
+M3.n11      .       10.000     +INF       .         
+M3.n12      .         .        +INF    -10.000      
+M4.n1       .       11.000     +INF       .         
+M4.n2       .       11.000     +INF       .         
+M4.n3       .       11.000     +INF       .         
+M4.n4       .       11.000     +INF       .         
+M4.n5       .        8.060     +INF       .         
+M4.n6       .        8.060     +INF       .         
+M4.n7       .         .        +INF       EPS       
+M4.n8       .       10.000     +INF       .         
+M4.n9       .        3.240     +INF       .         
+M4.n10      .        3.240     +INF       .         
+M4.n11      .        3.240     +INF       .         
+M4.n12      .         .        +INF    -10.000      
+
+---- VAR Ship  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0       .        1.000     +INF       .         
+M3.n1       .         .        +INF    -10.000      
+M3.n2       .         .        +INF    -10.000      
+M3.n3       .         .        +INF    -10.000      
+M3.n4       .        3.270     +INF       .         
+M3.n5       .         .        +INF    -10.000      
+M3.n6       .        2.820     +INF       .         
+M3.n7       .         .        +INF    -10.000      
+M3.n8       .        2.970     +INF       .         
+M3.n9       .         .        +INF    -10.000      
+M3.n10      .         .        +INF    -10.000      
+M3.n11      .        3.060     +INF       .         
+M3.n12      .         .        +INF       EPS       
+M4.n0       .        1.000     +INF       .         
+M4.n1       .         .        +INF    -10.000      
+M4.n2       .         .        +INF    -10.000      
+M4.n3       .         .        +INF    -10.000      
+M4.n4       .        2.940     +INF       .         
+M4.n5       .         .        +INF    -10.000      
+M4.n6       .        2.760     +INF       .         
+M4.n7       .         .        +INF    -10.000      
+M4.n8       .        2.940     +INF       .         
+M4.n9       .         .        +INF    -10.000      
+M4.n10      .         .        +INF    -10.000      
+M4.n11      .        3.240     +INF       .         
+M4.n12      .         .        +INF       EPS       
+
+---- VAR Ship_sales  
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+M3.n0       .         .        +INF       EPS       
+M3.n1       .         .        +INF       EPS       
+M3.n2       .         .        +INF       EPS       
+M3.n3       .         .        +INF       EPS       
+M3.n4       .         .        +INF       EPS       
+M3.n5       .         .        +INF       EPS       
+M3.n6       .       11.940     +INF       .         
+M3.n7       .         .        +INF       EPS       
+M3.n8       .         .        +INF       EPS       
+M3.n9       .         .        +INF       EPS       
+M3.n10      .         .        +INF       EPS       
+M3.n11      .       16.940     +INF       .         
+M3.n12      .         .        +INF       .         
+M4.n0       .         .        +INF       EPS       
+M4.n1       .         .        +INF       EPS       
+M4.n2       .         .        +INF       EPS       
+M4.n3       .         .        +INF       EPS       
+M4.n4       .         .        +INF       EPS       
+M4.n5       .         .        +INF       EPS       
+M4.n6       .        5.300     +INF       .         
+M4.n7       .         .        +INF       EPS       
+M4.n8       .        3.820     +INF       .         
+M4.n9       .         .        +INF       EPS       
+M4.n10      .         .        +INF       EPS       
+M4.n11      .         .        +INF       EPS       
+M4.n12      .         .        +INF       .         
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR obj_varia~     -INF    374.000     +INF       .         
+
+---- VAR NB  number of batches
+
+         LOWER     LEVEL     UPPER    MARGINAL
+
+T1.U1      .        2.000     +INF       EPS       
+T2.U2      .        3.000     +INF       EPS       
+T3.U2      .        1.000     +INF       EPS       
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 03/04/16 22:20:36 Page 14
+State_Space_Model
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.015 SECONDS      6 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Pr
+           ofit.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Solution_Multip
+           licity\GREEDY0_BO1_SHIP1_Z_N2_MH12_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Pr
+           ofit.lst

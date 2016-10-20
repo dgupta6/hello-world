@@ -1,0 +1,241 @@
+
+--- Job Z_N3_MotivatingExample_Cos_OL.gms Start 04/20/16 17:28:32 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- Z_N3_MotivatingExample_Cos_OL.gms(21) 2 Mb
+--- .ConfigurationFile.gms(69) 2 Mb
+--- ..MasterFile.gms(17) 3 Mb
+--- ...NetworkN3.gms(109) 3 Mb
+--- ..MasterFile.gms(18) 3 Mb
+--- ...Model9.gms(523) 3 Mb
+--- ..MasterFile.gms(149) 3 Mb
+--- ...ModelSolution9.gms(289) 3 Mb
+--- ..MasterFile.gms(301) 3 Mb
+--- .ConfigurationFile.gms(76) 3 Mb
+--- Z_N3_MotivatingExample_Cos_OL.gms(21) 3 Mb
+--- Starting execution: elapsed 0:00:00.009
+--- Z_N3_MotivatingExample_Cos_OL.gms(851) 4 Mb
+--- Generating MIP model MIN_COST
+--- Z_N3_MotivatingExample_Cos_OL.gms(1069) 5 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   1,356 rows  1,340 columns  3,843 non-zeroes
+---   555 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.134
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.07 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 356 rows and 368 columns.
+Aggregator did 588 substitutions.
+Reduced MIP has 412 rows, 384 columns, and 1350 nonzeros.
+Reduced MIP has 140 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (2.47 ticks)
+Found incumbent of value 921600.000000 after 0.00 sec. (3.22 ticks)
+Probing fixed 0 vars, tightened 175 bounds.
+Probing time = 0.00 sec. (0.90 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 412 rows, 384 columns, and 1350 nonzeros.
+Reduced MIP has 140 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.76 ticks)
+Probing fixed 0 vars, tightened 26 bounds.
+Probing time = 0.00 sec. (0.70 ticks)
+Clique table members: 197.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 120 rows and 4 columns.
+Aggregator did 120 substitutions.
+Reduced LP has 172 rows, 260 columns, and 856 nonzeros.
+Presolve time = 0.00 sec. (0.31 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =       -172798.400000
+Iteration:    62   Dual objective     =         27008.800000
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.88 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                       921600.0000  -116800.0000           112.67%
+Found incumbent of value 921600.000000 after 0.08 sec. (6.93 ticks)
+      0     0    27009.0000    32   921600.0000    27009.0000       64   97.07%
+*     0+    0                       225456.0000    27009.0000            88.02%
+Found incumbent of value 225456.000000 after 0.08 sec. (8.25 ticks)
+      0     0    31440.2329    50   225456.0000      Cuts: 50      182   86.05%
+*     0+    0                       168711.0000    31440.2329            81.36%
+Found incumbent of value 168711.000000 after 0.09 sec. (13.49 ticks)
+      0     0    33347.1018    56   168711.0000      Cuts: 96      298   80.23%
+*     0+    0                       135213.0000    33347.1018            75.34%
+Found incumbent of value 135213.000000 after 0.11 sec. (26.53 ticks)
+      0     0    33894.7731    60   135213.0000      Cuts: 74      366   74.93%
+*     0+    0                       120911.0000    33894.7731            71.97%
+Found incumbent of value 120911.000000 after 0.11 sec. (33.59 ticks)
+      0     0    34328.7775    59   120911.0000      Cuts: 59      413   71.61%
+*     0+    0                        89814.0000    34328.7775            61.78%
+Found incumbent of value 89814.000000 after 0.13 sec. (40.12 ticks)
+      0     0    34443.2013    65    89814.0000      Cuts: 40      445   61.65%
+      0     0    34856.6882    63    89814.0000      Cuts: 40      510   61.19%
+*     0+    0                        88263.0000    34856.6882            60.51%
+Found incumbent of value 88263.000000 after 0.14 sec. (53.92 ticks)
+      0     0    35035.9216    60    88263.0000      Cuts: 50      545   60.31%
+      0     0    35082.2641    64    88263.0000      Cuts: 29      568   60.25%
+      0     0    35132.3673    62    88263.0000      Cuts: 21      595   60.20%
+      0     0    35228.8854    63    88263.0000      Cuts: 19      618   60.09%
+      0     0    35250.2104    64    88263.0000      Cuts: 25      635   60.06%
+      0     0    35273.7438    62    88263.0000      Cuts: 17      651   60.04%
+      0     0    35341.0275    60    88263.0000      Cuts: 22      664   59.96%
+      0     0    35411.1292    58    88263.0000      Cuts: 29      697   59.88%
+      0     0    35432.7632    61    88263.0000      Cuts: 18      711   59.86%
+      0     0    35497.8406    66    88263.0000      Cuts: 28      740   59.78%
+      0     0    35595.1315    58    88263.0000      Cuts: 21      765   59.67%
+      0     0    35635.9135    66    88263.0000      Cuts: 16      782   59.63%
+      0     0    35650.0206    69    88263.0000      Cuts: 16      793   59.61%
+      0     0    35664.9449    71    88263.0000       Cuts: 8      804   59.59%
+      0     0    35729.7286    70    88263.0000       Cuts: 6      822   59.52%
+      0     0    35833.8273    66    88263.0000      Cuts: 15      842   59.40%
+      0     0    35847.1809    64    88263.0000      Cuts: 24      865   59.39%
+      0     0    35858.1052    66    88263.0000      Cuts: 14      896   59.37%
+      0     0    35942.2005    59    88263.0000      Cuts: 21      921   59.28%
+      0     0    35986.0989    64    88263.0000       Cuts: 9      943   59.23%
+      0     0    36037.8316    62    88263.0000      Cuts: 15      957   59.17%
+      0     0    36072.9988    63    88263.0000      Cuts: 10      973   59.13%
+      0     0    36073.0834    65    88263.0000       Cuts: 7      980   59.13%
+      0     0    36131.1997    58    88263.0000    MIRcuts: 2      991   59.06%
+      0     0    36132.5487    62    88263.0000      Cuts: 24     1000   59.06%
+*     0+    0                        67811.0000    36132.5487            46.72%
+Found incumbent of value 67811.000000 after 0.38 sec. (211.58 ticks)
+*     0+    0                        67810.9999    36132.5487            46.72%
+Found incumbent of value 67810.999940 after 0.39 sec. (228.51 ticks)
+      0     2    36132.5487    61    67810.9999    36138.3351     1000   46.71%
+Elapsed time = 0.39 sec. (230.50 ticks, tree = 0.00 MB, solutions = 9)
+*    20+   18                        58713.0000    36321.2595            38.14%
+Found incumbent of value 58713.000000 after 0.42 sec. (260.34 ticks)
+*    37    32      integral     0    57714.0000    36321.2595     2076   37.07%
+Found incumbent of value 57714.000000 after 0.42 sec. (267.20 ticks)
+*   120+   28                        53614.0000    38269.9518            28.62%
+                                                     Cuts: 16                  
+Found incumbent of value 53614.000000 after 0.50 sec. (358.24 ticks)
+*   130+   31                        52213.0000    38269.9518            26.70%
+Found incumbent of value 52213.000000 after 0.50 sec. (362.39 ticks)
+*   170+   50                        50866.0000    39319.4403            22.70%
+Found incumbent of value 50866.000000 after 0.53 sec. (384.46 ticks)
+*   184    60      integral     0    50714.0000    39319.4403     4827   22.47%
+Found incumbent of value 50714.000000 after 0.53 sec. (388.96 ticks)
+*   310+   96                        50414.0000    45305.0163            10.13%
+                                                     Cuts: 12                  
+Found incumbent of value 50414.000000 after 0.59 sec. (455.62 ticks)
+    861   315    48138.7050    13    50414.0000    46876.6800    11143    7.02%
+                                                     Cuts: 10                  
+    862   314        cutoff          50414.0000    46876.6800    11146    7.02%
+    863   313        cutoff          50414.0000    46876.6800    11162    7.02%
+    864   312        cutoff          50414.0000    46944.5300    11176    6.88%
+    865   311        cutoff          50414.0000    46947.3471    11195    6.88%
+    866   310        cutoff          50414.0000    46965.3000    11210    6.84%
+    867   311    50163.5500     4    50414.0000    47033.7274    11234    6.71%
+    868   311    50413.8000     2    50414.0000    47033.7274    11239    6.71%
+    869   310    50413.8000     2    50414.0000    47033.7274    11240    6.71%
+*  2060+  366                        50413.9998    49814.5000             1.19%
+Found incumbent of value 50413.999784 after 1.31 sec. (1263.54 ticks)
+
+Flow cuts applied:  17
+Mixed integer rounding cuts applied:  51
+Lift and project cuts applied:  7
+
+Root node processing (before b&c):
+  Real time             =    0.39 sec. (230.64 ticks)
+Sequential b&c:
+  Real time             =    1.34 sec. (1536.26 ticks)
+                          ------------
+Total (root+branch&cut) =    1.73 sec. (1766.91 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 1.73sec (det. 1766.91 ticks)
+Fixing integer variables, and solving final LP...
+Bound infeasibility column 'Bbar(T1.U1.n6.h0)'.
+Presolve time = 0.00 sec. (0.18 ticks)
+Fixed MIP status(3): infeasible
+Cplex Time: 0.00sec (det. 0.18 ticks)
+Rerunning with presolve turned off and solving with LPMETHOD=0
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =             0.000000
+Iteration:     2   Dual objective     =          6414.000000
+Iteration:   134   Dual objective     =         36314.000027
+Fixed MIP status(3): infeasible
+Cplex Time: 0.00sec (det. 3.08 ticks)
+Final solve did not return an optimal solution.
+Returning a primal only solution to GAMS (marginals all set to NA).
+
+Proven optimal solution.
+
+MIP Solution:        50413.999784    (23626 iterations, 2514 nodes)
+Best possible:       50413.999784
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N3_MotivatingExample_Cos_OL.gms(1069) 3 Mb
+--- Reading solution for model MIN_COST
+***
+*** Solver did not provide marginals for model MIN_COST
+***
+--- Executing after solve: elapsed 0:00:01.939
+--- Z_N3_MotivatingExample_Cos_OL.gms(851) 3 Mb
+--- Generating RMIP model MIN_COST
+--- Z_N3_MotivatingExample_Cos_OL.gms(1142) 4 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   1,356 rows  1,340 columns  3,843 non-zeroes
+---   555 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.013
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.07 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 512 rows and 502 columns.
+Aggregator did 482 substitutions.
+Reduced LP has 362 rows, 356 columns, and 1258 nonzeros.
+Presolve time = 0.00 sec. (0.84 ticks)
+
+Iteration log . . .
+Iteration:     1   Scaled dual infeas =          6693.000000
+Iteration:    76   Scaled dual infeas =          6618.000000
+Iteration:    98   Dual objective     =         12800.000000
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 3.03 ticks)
+
+Optimal solution found.
+Objective :       27009.000000
+
+--- Restarting execution
+--- Z_N3_MotivatingExample_Cos_OL.gms(1142) 3 Mb
+--- Reading solution for model MIN_COST
+--- Executing after solve: elapsed 0:00:02.075
+--- Z_N3_MotivatingExample_Cos_OL.gms(1251) 4 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N3_MotivatingExample_Cost.gdx
+--- Z_N3_MotivatingExample_Cos_OL.gms(1255) 4 Mb
+
+GDXXRW           24.5.6 r55090 Released Nov 27, 2015 VS8 x86 32bit/MS Windows 
+Input file : C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N3_MotivatingExample_Cost.gdx
+Output file: C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N3_MotivatingExample_Cost_Gantt_OL_1.xlsx
+Total time = 375 Ms
+*** Status: Normal completion
+--- Job Z_N3_MotivatingExample_Cos_OL.gms Stop 04/20/16 17:28:35 elapsed 0:00:02.611

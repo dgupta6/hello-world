@@ -1,0 +1,2092 @@
+
+--- Job Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms Start 05/08/16 21:32:11 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(21) 2 Mb
+--- .ConfigurationFile.gms(69) 2 Mb
+--- ..MasterFile.gms(17) 3 Mb
+--- ...NetworkN6.gms(98) 3 Mb
+--- ..MasterFile.gms(18) 3 Mb
+--- ...Model9.gms(556) 3 Mb
+--- ..MasterFile.gms(149) 3 Mb
+--- ...ModelSolution9.gms(289) 3 Mb
+--- ..MasterFile.gms(301) 3 Mb
+--- .ConfigurationFile.gms(76) 3 Mb
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(21) 3 Mb
+--- Starting execution: elapsed 0:00:00.008
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 4 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 4 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.096
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          265.000000    (0 iterations, 0 nodes)
+Final Solve:           265.000000    (0 iterations)
+
+Best possible:         265.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.193
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc0
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.203
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         265.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.313
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc1
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.324
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.05 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.429
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc1
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.439
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.546
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc2
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.556
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.664
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc2
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.674
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.803
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc3
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.816
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.03 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:00.907
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc3
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:00.916
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.020
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc4
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.031
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.164
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc4
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.172
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.276
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc5
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.285
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.05 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.394
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc5
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.402
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.510
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.518
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.630
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc6
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.638
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.769
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc7
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.778
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.06 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.882
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc7
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:01.890
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:01.995
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc8
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.003
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.116
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc8
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.125
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.230
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc9
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.239
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.06 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.353
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc9
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.363
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.464
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc10
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.473
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.616
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc10
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.631
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.716
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc11
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.725
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.06 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.833
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc11
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.841
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:02.946
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc12
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:02.955
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.086
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc12
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.096
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.181
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc13
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.189
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.05 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.298
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc13
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.307
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.414
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc14
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.423
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.530
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc14
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.538
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.672
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc15
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.689
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.03 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.03 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.786
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc15
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.796
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:03.898
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc16
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:03.907
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.015
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc16
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.024
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.131
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc17
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.140
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.06 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.06 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.251
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc17
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.259
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.366
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc18
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.374
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.484
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc18
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.493
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.611
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc19
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.623
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.05 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.760
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc19
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.781
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.851
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc20
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:04.860
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:04.967
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc20
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.045
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.124
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc21
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.186
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.317
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc21
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.325
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.429
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc22
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.437
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.546
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc22
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.555
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.685
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc23
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.701
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Found incumbent of value 100.000000 after 0.00 sec. (0.01 ticks)
+Tried aggregator 3 times.
+MIP Presolve eliminated 47 rows and 53 columns.
+Aggregator did 15 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.05 sec. (0.08 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.05 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.05 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          398.000000    (0 iterations, 0 nodes)
+Final Solve:           398.000000    (0 iterations)
+
+Best possible:         398.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.796
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc23
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.805
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 53 rows and 59 columns.
+Aggregator did 9 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         398.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:05.911
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating MIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 3 Mb
+--- LOOPS run = run1
+---       calc = calc24
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:05.920
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 3 times.
+MIP Presolve eliminated 44 rows and 50 columns.
+Aggregator did 18 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.09 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.10 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.10 ticks)
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 0.10 ticks)
+Fixing integer variables, and solving final LP...
+Tried aggregator 1 time.
+LP Presolve eliminated 62 rows and 68 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.03 ticks)
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.04 ticks)
+
+Proven optimal solution.
+
+MIP Solution:          448.000000    (0 iterations, 0 nodes)
+Final Solve:           448.000000    (0 iterations)
+
+Best possible:         448.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1091) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:06.029
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(873) 3 Mb
+--- Generating RMIP model MAX_PROFIT_SellAnytime_Greedy
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 3 Mb
+--- LOOPS run = run1
+---       calc = calc24
+---   62 rows  68 columns  164 non-zeroes
+---   19 discrete-columns
+--- Executing CPLEX: elapsed 0:00:06.037
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+Cplex 12.6.2.0
+
+Reading data...
+Starting Cplex...
+Space for names approximately 0.00 Mb
+Use option 'names no' to turn use of names off
+Tried aggregator 1 time.
+LP Presolve eliminated 51 rows and 57 columns.
+Aggregator did 11 substitutions.
+All rows and columns eliminated.
+Presolve time = 0.02 sec. (0.04 ticks)
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.07 ticks)
+
+Optimal solution found.
+Objective :         448.000000
+
+--- Restarting execution
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1164) 2 Mb
+--- Reading solution for model MAX_PROFIT_SellAnytime_Greedy
+--- Executing after solve: elapsed 0:00:06.145
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1273) 3 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gdx
+--- Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms(1277) 3 Mb
+
+GDXXRW           24.5.6 r55090 Released Nov 27, 2015 VS8 x86 32bit/MS Windows 
+Input file : C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gdx
+Output file: C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit_Gantt_CL.xlsx
+Total time = 343 Ms
+*** Status: Normal completion
+--- Job Z_N6_MH5_RF1_OPT1_DF1_DV0_DL0_DU0_S1_MC1_Profit.gms Stop 05/08/16 21:32:17 elapsed 0:00:06.591

@@ -1,0 +1,132 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/18/16 12:18:56 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets     i tasks  /T1*T3/
+   2           s states /M1*M4/
+   3           j units  /U1*U2/
+   4           u utilities /manpower/
+   5   
+   6  *         Ki(j,i) set of equipments(units) suitable for task i
+   7  *         /(Reactor1).(TA,TB),Heater.Heating/
+   8           Ij(i,j) set of equipments(units) suitable for task i
+   9           /T1.U1,(T2,T3).U2/
+  10   
+  11           FIS(s) States with Finite Intermediate Storage /M2/
+  12           product_states(s) Product States/M3*M4/
+  13           feed_states(s) Feed States/M1/
+  14   
+  15           UtilInt Intervals for utility /Int1/
+  16           UnitInt Intervals for unit-unavailability /Int1/
+  17   
+  18           Attributes/magnitude, starttime, price/
+  19  ;
+  20   
+  21  Table UtilData(UtilInt,u,Attributes)
+  22               manpower.starttime            manpower.magnitude      manpowe
+      r.price
+  23  Int1                    0                         10                     0
+  24  ;
+  25   
+  26  *Availability of unit  0=available, 1=not available
+  27  Table UnitData(UnitInt,j,Attributes)
+  28                U1.magnitude         U1.starttime
+  29  Int1              0                     0
+  30  ;
+  31   
+  32  Parameters rho(i,s) proportion of input of task i from states s
+  33             /T1.M1 1,(T2,T3).M2 1/
+  34             rhobar(i,s) proportion of ouput of task i to state s
+  35             /T1.M2 1, T2.(M3 0.79,M2 0.21), T3.M4 1/
+  36  *           /T1.M2 1, T2.M3 1, T3.M4 1/
+  37   
+  38             pis(i,s) processing time for output of task i into state s
+  39             /T1.M2 2,T2.M3 2,T2.M2 2, T3.M4 3/
+  40             pi(i) maximum processing time in task i for any stage produced 
+      by it
+  41   
+  42             alpha(u,i) fixed utility demand by task i throughout its run
+  43             /manpower.(T1*T2) 0/
+  44             beta(u,i) "variable utility demand by task i throughout its run
+      (te/hr)"
+  45             /manpower.(T1*T2) 0/
+  46   
+  47             vmaxij(i,j)  Maximum capacity of unit j when used for task i
+  48             /T1.U1 20, (T2,T3).U2 10/
+  49             vminij(i,j)  Minimum capacity of unit j when used for task i
+  50             /T1.U1 10, (T2,T3).U2 5/
+  51             Cs(s) maximum storage capacity for stage s  /(M1*M4) 99999/
+  52             Cst(s) unit price of s/M1 1, M2 5, M3 10, M4 10/
+  53  ;
+  54  *pis(i,s)=5;
+  55  pi(i)=smax(s,pis(i,s));
+  56   
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      set         o orders /o1*o%H%/;
+      parameter deliveries_time(o);
+      deliveries_time(o)=demand_cycletime*ord(o);
+      deliveries_time(o)=deliveries_time(o)+UniformInt(-demand_variation,demand_
+      variation);
+      parameter deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+  68   
+  69  *END OF INSTANCE FILE
+  70   
+  71   
+  72   
+  73   
+  74   
+  75   
+  76   
+  77   
+  78   
+  79   
+  80   
+  81   
+  82   
+  83   
+  84   
+  85   
+      Table deliveries(o,s)
+              SA      SB
+      o1      5       5
+      o2      5       5
+      o3      5       5
+      o4      5       5
+      o5      5       5
+      o6      5       5
+      o7      5       5
+      o8      5       5;
+  98   
+  99   
+      For debugging/testing utility formulas
+      Table UtilData(UtilInt,u,Attributes)
+                   manpower.starttime            manpower.magnitude      manpowe
+      r.price
+      Int1                    0                         1                     1
+      Int2                    1.5                       0                     0
+      Int3                    3.5                       1                     1
+      Int4                    6.1                       0                     0;
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/18/16 12:18:56 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.000 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\NetworkN4.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\NetworkN4.lst

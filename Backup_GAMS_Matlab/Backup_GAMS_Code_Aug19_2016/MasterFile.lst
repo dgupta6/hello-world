@@ -1,0 +1,1402 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/21/16 11:33:11 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *Change this to name of the instance
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/21/16 11:33:11 Page 2
+MasterFile
+C o m p i l a t i o n
+
+
+   7  *$OFFLISTING
+   8  OPTIONS limrow = 0, limcol = 0, solprint = off;
+   9   
+  10  execseed=SEED_VALUE;
+****                    $140
+  11   
+  13  SCALAR KillLength /2/;
+  14   
+  15  SET run /run1*run%N_runs%/;
+****                  $763,508
+  16   
+  17  $include Network%NetworkNumber%.gms
+****                                    $282
+  18  $include Model%ModelNumber%.gms
+****                                $282
+  19   
+  20   
+  21  PARAMETER runcost(run) cost of implemented closed loop
+  22           runcost_Inv(run) Inventory cost,runcost_BO(run) Backlog cost, run
+      cost_W(run) start_cost_of_tasks
+  23           runprofit(run) closed loop profit in MAX_profit;
+  24           runcost_Inv(run)=0;runcost_BO(run)=0; runcost_W(run)=0;runcost(ru
+      n)=0; runprofit(run)=0;
+  25   
+  26  PARAMETER modelStat(calc,run)     Should be 1 for successful optimization
+****                         $120
+  27  *Correct code to get appropriate values
+  28            Est_modelGap1(calc,run)  Estimated optimality gap by CPLEX (obj.
+      val in denominator)
+  29            Est_modelGap2(calc,run)  Estimated optimality gap by CPLEX (obj.
+      Est in denominator)
+  30  *Yet to implement code to get this value
+  31            True_modelGap(calc,run) True optimality gap obtained by solving 
+      to optcr=0
+  32            ETSolve(calc,run)
+  33            ETSolver(calc,run)
+  34            iterUsd(calc,run)
+  35            nodUsd(calc,run)
+  36            resUsd(calc,run)
+  37            numDVar(calc,run)
+  38            numEqu(calc,run)
+  39            numInfes(calc,run)
+  40            numNZ(calc,run)
+  41            numVar(calc,run)
+  42            solveStat(calc,run)
+  43            Suboptimal_objective /0/;
+  44   
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      SET         o orders /o1*o%H%/;
+      PARAMETER deliveries_time(o,run);
+      deliveries_time(o,run)=demand_cycletime*ord(o);
+      PARAMETER deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+       
+      PARAMETER Dst_full(s,h);
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+       
+      PARAMETER Dst_full_realization(s,h,run);
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+       
+      *IF(%Demand_Disturbance_flag% eq 1,
+               LOOP(run,
+                  deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+                  Dst_full_realization(s,h,run)=(Dst_full(s,h)+Dst_full(s,h)*uni
+      formInt(-lambda_Demand,lambda_Demand)  )$(Dst_full(s,h) gt 0);
+               );
+      *);
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+  70  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+  71  ******DEMAND INFORMATION*****************************
+  72  *Each order for all products
+  73  SET         o orders /o1*o%H%/;
+****                           $763,508
+  74  PARAMETER deliveries_time(o,run);
+  75  deliveries_time(o,run)=demand_cycletime*ord(o);
+****                                        $140
+  76  PARAMETER deliveries(o,s);
+****                         $120
+  77  deliveries(o,s)$(product_states(s))=demand_magnitude;
+****                                $140                 $140
+  78  ******DEMAND INFORMATION*****************************
+  79   
+  80  PARAMETER Dst_full_realization(s,h,run),Dst_full(s,h);
+****                                   $120
+  81   
+  82  *IF(%Demand_Disturbance_flag% eq 1,
+  83           LOOP(run,
+  84              deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+****             $140
+  85              Dst_full_realization(s,h,run)=sum(o,deliveries(o,s)$(ord(h)-1 
+      eq floor(deliveries_time(o,run)/%delta%)));
+****                                  $119 $140,8,767,408,408,408
+  86              Dst_full_realization(s,h,run)=(Dst_full_realization(s,h,run)+D
+      st_full_realization(s,h,run)/100*uniformInt(-lambda_Demand*100,lambda_Dema
+****                                                           $140
+      nd*100)  )$(Dst_full_realization(s,h,run) gt 0);
+  87           );
+****           $408
+  88  *);
+  89  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+  90   
+  91   
+  92  PARAMETER ClosedLoopINV(run,s,h),ClosedLoopBO(run,s,h),ClosedLoopShip(run,
+      s,h),ClosedLoopStart(run,h);
+  93  ClosedLoopINV(run,s,h)=0;
+  94  ClosedLoopBO(run,s,h)=0;
+  95  ClosedLoopShip(run,s,h)=0;
+  96  ClosedLoopStart(run,h)=0;
+  97   
+  98  *This parameter switches to 1 at end of this file
+  99  *indicating a succesful run(sweep of code) throughout
+ 100  PARAMETER SUCCESS /0/;
+ 101   
+      $set console
+      $if %system.filesys% == UNIX  $set console /dev/tty
+      $if %system.filesys% == DOS $set console con
+      $if %system.filesys% == MS95  $set console con
+      $if %system.filesys% == MSNT  $set console con
+      $if "%console%." == "." abort "filesys not recognized";
+      file screen / '%console%' /;
+      file log /''/
+ 112   
+ 113  PARAMETER timeLeft /0/;
+ 114  PARAMETER endingSeed /0/;
+ 115  *PARAMETER sample /0/;
+ 116   
+ 117  ********************STOPPING CRITERION*************
+      PARAMETER mean_runcost(run), std_dev_runcost(run), delta_std_dev_runcost(r
+      un), max_delta_std_dev_runcost(run), N_run count of runs;
+      mean_runcost(run)=0;
+      std_dev_runcost(run)=0;
+      delta_std_dev_runcost(run)=0;
+      max_delta_std_dev_runcost(run)=0;
+      N_run=0;
+      ALIAS(run,run_p);
+      ********************STOPPING CRITERION*************
+ 128   
+ 129  ********************[Start] Evaluations Runs *****************************
+      **********
+ 130  loop(run,
+      put screen;
+      put 'I am on run ' run.tl;
+      putclose;
+      put log;
+      put 'I am on run ' run.tl;
+      putclose;
+ 139   
+ 140  *We need to reset Dst_full(s,h) with each run to nominal values
+ 141  *and then as MH goes forward, Dst_full slowly takes the value of Dst_full_
+      realization
+ 142  *for that particular run, after which here we need to refresh it to nomina
+      l values
+ 143  Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o,r
+      un)/%delta%)));
+****      $119  $8,767,408,408,408
+ 144   
+ 145  if(%robust% eq 1,
+****     $119  $140,10,8,409
+ 146  abort$1 "Look into robust case demand generation in MasterFile and make su
+      re its correct";
+ 147           Dst_full(s,h)=Dst_full(s,h)*(1+ lambda_Demand);
+ 148  );
+****  $408
+ 149  *this time sample is equal to 1, so we are in evaluation mode
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Code_Paper1\Mod
+           elSolution9.gms
+ 151  loop(calc,
+ 152  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+ 153  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+ 154  *abort$1 "stopped for debugging";
+ 155   
+ 156  *********VARIABLE RESCHEDULING FREQUENCY********
+ 157  *resetting old parameter values
+ 158  WbarInfo(i,j,n,hbar)=0;
+****         $140,120,120,120,120
+**** LINE      8 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 159  BbarInfo(i,j,n,hbar)=0;
+****         $140
+**** LINE      9 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 160   
+ 161  *DEMAND SAMPLING
+ 162  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+ 163          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+****                                                                           $
+      ))) )=Dst_full_realization(s,h,run);
+      140                               $149
+**** LINE     13 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 164  *Now allocating demands to the rolling horizon calculation
+ 165          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+****            $140
+      ));
+**** LINE     15 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 166   
+ 167  * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+ 168  *are wrongly fixed)
+ 169  if (re_freq=0,
+****            $140
+**** LINE     19 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 170  *Reschedule flag is 1 for first optimization
+ 171          reschedule_flag=0;
+****                        $140
+**** LINE     21 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 172  *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+ 173          reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+ 174  *Also do find schedule for the very first optimization
+ 175          reschedule_flag$(ord(calc)-1 eq 0)=1;
+ 176  *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+ 177          if (reschedule_flag=1,
+ 178  *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+ 179                  fixed_decisions=0;
+****                                $140
+**** LINE     29 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 180          else
+ 181  *Forced to follow previous fixed (planned) decisions
+ 182                  fixed_decisions=card(n)-1;
+ 183          );
+ 184  else
+ 185          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+ 186          reschedule_flag=0;
+ 187          reschedule_flag$(fixed_decisions=0)=1;
+ 188  );
+ 189  record_fixed_decision(calc)=fixed_decisions;
+****                      $140
+**** LINE     39 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 190  record_reschedule_flag(calc,run)=reschedule_flag;
+****                       $140
+**** LINE     40 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 191   
+ 192  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+****                                                                         $8,
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      36           $767         $409
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+**** LINE     42 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 193  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+****                                                                         $8,
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      36           $409
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+**** LINE     43 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 194  *********VARIABLE RESCHEDULING FREQUENCY********
+ 195   
+ 196  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+ 197  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+****       $140                                  $140 $149 $149                 
+      ntory(s)$(ord(calc)-1 eq 0);
+          $140         $154
+**** LINE     47 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 198  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+****           $140                                $140 $149 $149               
+      cklog(s)$(ord(calc)-1 eq 0);
+          $140         $154
+**** LINE     48 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 199   
+ 200   
+ 201  *Fix backlogs to zero if corresponding flag is 0
+ 202  if(%Backlog_Flag% eq 0,
+****     $119        $140,10,8,409
+**** LINE     52 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 203  Backlog.fx(s,n)=0;
+ 204  BacklogTerminal.fx(s)=0;
+****                   $140
+**** LINE     54 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 205  );
+****  $408
+**** LINE     55 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 206   
+ 207   
+ 208  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 209  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+ 210  *if(%Demand_Disturbance_Flag% eq 1,
+ 211  *);
+ 212   
+ 213  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+ 214  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+ 215  *Now allocating demands to the rolling horizon calculation
+ 216  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+ 217  **UNCOMMENT HERE TO HERE
+ 218  *Display Dst_full;
+ 219   
+ 220   
+ 221  *UnitBreakdown disturbance
+ 222  *First breakdown unit for whole horizon and then sample after 1 time step
+ 223  *when it is coming back
+ 224  UnitBroken(j,n)=0;
+****           $140
+**** LINE     74 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 225  Zhat(i,j,n,hbar)=0;
+****     $140
+**** LINE     75 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 226  if(%UnitBreakdown_Disturbance_flag% eq 1 and ord(calc)-1 ge 2,
+****     $119                          $140,10,8,409
+**** LINE     76 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 227           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown
+      (calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,
+      j,n,hbar-1)) gt 0));
+ 228   
+ 229  *If there is a delay ongoing then sample this breakdown
+ 230           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+****                   $140               $140                        $8,36     
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) gt 0.9 and Duration_breakdown(c
+                                $409
+      alc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,
+      n,hbar)) gt 0));
+**** LINE     80 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 231   
+ 232  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+ 233  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+ 234   
+ 235  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+ 236  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+ 237  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+ 238           Duration_breakdown(calc,j)=2$(sum((hbar,i)$(Ij(i,j) and ord(hbar)
+****                            $140                                            
+      -1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 and Duration_breakdown(calc-
+              $8,10,148,8,409
+      1,j) eq (card(h)))
+**** LINE     88 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 239                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+ 240                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+ 241  *display Breakdown,duration_breakdown;
+ 242   
+ 243           UnitBroken(j,n)=0;
+ 244           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+****                                                               $149
+**** LINE     94 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 245   
+ 246           Zhat(i,j,n,hbar)=0;
+ 247           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+****                                                             $149
+      )=1;
+**** LINE     97 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 248   
+ 249  );
+****  $408
+**** LINE     99 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 250   
+ 251   
+ 252   
+ 253  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+ 254  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+ 255  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+ 256  *was already over in the last horizon
+ 257  if(%TaskDelay_Disturbance_flag% eq 1,
+****     $119                      $140,10,8,409
+**** LINE    107 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 258  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+ 259  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+ 260            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+ 261            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+****                $140                                           $8,36        
+      (calc-1,i,j,hbar) eq 0)=2$(uniform(0,1) ge 0.6 and (sum(n$(ord(n)-1 eq 0),
+                             $409
+      record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and Delay(calc-1,i,j,hbar
+      -1) eq 0));
+**** LINE    111 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 262  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+ 263  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+ 264   
+ 265  *display Delay;
+ 266  *Wipes out previous Yhats
+ 267            Yhat(i,j,n,hbar)=0;
+****               $140
+**** LINE    117 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 268  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+ 269            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+ 270  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+ 271            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+****                                                                $149        
+      1$(Delay(calc,i,j,hbar) gt 0);
+                   $149
+**** LINE    121 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 272   
+ 273  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+ 274  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+ 275  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+ 276  );
+****  $408
+**** LINE    126 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 277   
+ 278  *display Yhat;
+ 279  *display WbarInfo;
+ 280  *display BbarInfo;
+ 281   
+ 282   
+ 283  *Introducing disturbance in material handling(loading/unloading)
+ 284  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+ 285  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+ 286  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+ 287  if(%YieldLoss_Disturbance_flag% eq 1,
+****     $119                      $140,10,8,409
+**** LINE    137 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 288  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+ 289  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+ 290  *wipes out previous parameter values
+ 291  betaHatProd(i,j,s,n)=0;
+ 292  betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-0
+****            $140            $140                                            
+      .1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yhat
+                                            $140
+      (i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+**** LINE    142 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 293  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+ 294  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+ 295  );
+****  $408
+**** LINE    145 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 296  *Display betaHatProd;
+ 297   
+ 298   
+ 299  *Correct allocation constraint
+ 300  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+ 301  KillOccupy(j,n)=0;
+****           $140
+**** LINE    151 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 302  KillDuration(i,j)$Ij(i,j)=KillLength$(0);
+****             $140
+**** LINE    152 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 303  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+ 304  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+ 305  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+****              $140                        $140
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+**** LINE    155 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 306  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+ 307  if(0 eq 0,
+ 308     T.fx(i,j,hbar)=0;
+ 309  );
+ 310  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+ 311  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 312   
+ 313  ***************UTILITIES**************************************************
+      ******
+ 314  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+****       $140,120                                     $154             $140
+      ;
+**** LINE    164 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 315  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+****                $140                                         $154           
+      ailable_full(j,h));
+                 $140
+**** LINE    165 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 316  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+****    $140                                         $154          $140
+**** LINE    166 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 317  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+ 318  *This correction is needed in model file
+ 319  ***************UTILITIES**************************************************
+      ******
+ 320  *Display Dst;
+ 321   
+ 322  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+ 323  *Solve optimization horizon
+ 324   
+ 325  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+ 326  %MODEL_NAME%.optcr = optcr_value;
+****  $409
+**** LINE    176 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 327  %MODEL_NAME%.reslim = timelimit;
+****  $409
+**** LINE    177 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 328  %MODEL_NAME%.holdFixed=1;
+****  $409
+**** LINE    178 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 329  solve %MODEL_NAME% using MIP %OPTIMIZATION_DIRECTION% obj_variable;
+****        $2        $140,241,812
+**** LINE    179 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 330   
+ 331  modelStat(calc,run)=%MODEL_NAME%.ModelStat;
+****                      $119      $143,409
+**** LINE    181 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 332  *Watch out what should be denominator, Relaxed or Best found solution
+ 333  Est_modelGap1(calc,run)=abs((%MODEL_NAME%.objEst-%MODEL_NAME%.objVal)/(%MO
+****                               $119      $143,8,409
+      DEL_NAME%.objVal+1E-10));
+**** LINE    183 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 334  Est_modelGap2(calc,run)=abs((%MODEL_NAME%.objEst-%MODEL_NAME%.objVal)/(%MO
+****                               $119      $143,8,409
+      DEL_NAME%.objEst+1E-10));
+**** LINE    184 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 335  Suboptimal_objective=%MODEL_NAME%.objVal;
+****                       $119      $143,409
+**** LINE    185 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 336   
+ 337  ETSolve(calc,run)=%MODEL_NAME%.etSolve;
+****                    $119      $143,409
+**** LINE    187 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 338  ETSolver(calc,run)=%MODEL_NAME%.etSolver;
+****                     $119      $143,409
+**** LINE    188 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 339  iterUsd(calc,run)=%MODEL_NAME%.iterUsd;
+****                    $119      $143,409
+**** LINE    189 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 340  nodUsd(calc,run)=%MODEL_NAME%.nodUsd;
+****                   $119      $143,409
+**** LINE    190 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 341  resUsd(calc,run)=%MODEL_NAME%.resUsd;
+****                   $119      $143,409
+**** LINE    191 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 342  numDVar(calc,run)=%MODEL_NAME%.numDVar;
+****                    $119      $143,409
+**** LINE    192 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 343  numEqu(calc,run)=%MODEL_NAME%.numEqu;
+****                   $119      $143,409
+**** LINE    193 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 344  numInfes(calc,run)=%MODEL_NAME%.numInfes;
+****                     $119      $143,409
+**** LINE    194 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 345  numNZ(calc,run)=%MODEL_NAME%.numNZ;
+****                  $119      $143,409
+**** LINE    195 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 346  numVar(calc,run)=%MODEL_NAME%.numVar;
+****                   $119      $143,409
+**** LINE    196 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 347  solveStat(calc,run)=%MODEL_NAME%.solveStat;
+****                      $119      $143,409
+**** LINE    197 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 348   
+ 349  *Recording optimized variables for each optimization horizon
+ 350  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+****                  $140                                         $8,36        
+      j))= Bbar.l(i,j,n,hbar);
+         $409
+**** LINE    200 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 351  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+****                                                               $8,36        
+      j))= Wbar.l(i,j,n,hbar);
+         $409
+**** LINE    201 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 352  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+****              $140                                         $8,36           $
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      409
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+**** LINE    202 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 353  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+****                                                           $8,36           $
+       round(Wbar.l(i,j,n,hbar));
+      409
+**** LINE    203 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 354  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+****         $140                                   $8,36           $409
+      ar);
+**** LINE    204 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 355  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+ 356  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+ 357  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+****                     $140
+**** LINE    207 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 358  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+****                   $140
+**** LINE    208 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 359  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+****                 $140
+**** LINE    209 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 360  record_objective(run,calc)=obj_variable.l;
+****                 $140                     $140
+**** LINE    210 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 361  record_utility(run,calc,u,n)=Uut.l(u,n);
+****               $140                $140
+**** LINE    211 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 362  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+****                         $140                      $140
+**** LINE    212 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 363  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+****                       $140
+**** LINE    213 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 364  record_shipment(run,calc,s,n)=Ship.l(s,n);
+****                $140                 $140
+**** LINE    214 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 365  record_demands(run,calc,s,n)=Dst(s,n);
+****               $140
+**** LINE    215 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 366  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+****                           $140
+**** LINE    216 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 367   
+ 368  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+****                $140
+**** LINE    218 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 369  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+****                $140
+**** LINE    219 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 370   
+ 371  *display ship.l;
+ 372   
+ 373  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+ 374  IF(%MODEL_NAME%.optcr <> 0,
+****     $119      $143,10,8,409
+**** LINE    224 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+ 380  %MODEL_NAME%.optcr=0;
+ 381  solve %MODEL_NAME% using MIP %OPTIMIZATION_DIRECTION% obj_variable;
+****        $2        $241,812
+**** LINE    231 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 382  True_modelGap(calc,run)=(Suboptimal_objective-%MODEL_NAME%.objVal)/(Subopt
+****                                                $119      $143,8,409
+      imal_objective+1E-10);
+**** LINE    232 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 383  );
+****  $408
+**** LINE    233 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 384  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+ 385   
+ 386  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+ 387  );
+****  $408
+**** LINE    237 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 388  **END OF CALC LOOP HERE
+ 389   
+ 390   
+ 391  *display obj1.l,Uut.l,B.l,Bbar.l,W.l,Z.l,Wbar.l,Sst.l;
+ 392  *display Duration_breakdown,Delay,record_states,record_inventory,record_ba
+      cklog,record_yieldloss,record_shipment,record_T,record_utility,record_inve
+      ntoryTerminal,record_backlogTerminal;
+ 393   
+ 394  *display Dst_full;
+ 395   
+ 396  *******************GANTT CHART PARAMETERS*********************************
+      ****
+ 397  loop(calc,
+ 398  BS(i,j,h)$(ord(h) eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 and ord(n)-
+****   $140                                                                     
+      1 eq 0),record_states(run,calc,'B',i,j,n,hbar));
+                               $149
+**** LINE    248 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 399  *start(i,j,h)$(ord(h)eq ord(calc))=round(sum((hbar,n)$(ord(hbar)-1 eq 0 an
+      d ord(n)-1 eq 0),record_states(calc,'W',i,j,n,hbar)));
+ 400  start(i,j,h)$(ord(h)eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 and ord(n
+****      $140                                                                  
+      )-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+                                 $149
+**** LINE    250 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 401  Sinv(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_inventory(run
+****     $140                                                                   
+      ,calc,s,n));
+      $149
+**** LINE    251 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 402  BO(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_backlog(run,cal
+****   $140                                                                 $149
+      c,s,n));
+**** LINE    252 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 403  );
+ 404  *Have ending account for task delays
+ 405  end(i,j,h) = start(i,j,h-pi_new(i))$(BS(i,j,h-pi_new(i))>0);
+****    $140                        $140
+**** LINE    255 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 406   
+ 407  if(%GanttChart% eq 1,
+****     $119      $140,10,8,409
+**** LINE    257 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 408  ************************************************
+ 409  ********Closed-Loop GanttChartGeneration********
+ 410  ************************************************
+ 411  *Name of the excel file where the data will be exported
+ 413  *i = set of tasks
+ 414  *j = set of units
+ 415  *h = set of time points
+ 416  *BS = batch size of task i starting in unit j at time t (must be indexed i
+      jt)
+ 417  *start = binary variable that is 1 if task i starts in unit j at time t (m
+      ust be indexed ijt)
+ 418  *Sinv = inventory level of material s at time t (must be indexed st)
+ 419  *BO= backorder of state s at time t
+ 420  *end =  binary variable that is 1 if task i ends in unit j at time t (must
+       be indexed ijt)
+ 421   
+ 422   
+ 423  EXECUTE_UNLOAD 'gdxData.gdx' BS i j h  Sinv start end;
+****                                $572        $572  $572$572
+**** LINE    273 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 424   
+ 425  *The first word of each line gives the type: set = set, var = variable, pa
+      r = parameter. This may need to be changed depending on your model
+ 426  *The location of the output or the sheet names must not be changed
+ 436   
+ 437  *display BS,start,end,Sinv,BO;
+ 438  EXECUTE 'gdxxrw Input=gdxData.gdx Output=Results_GanttChart @GANTT_write.t
+      xt'
+ 439  );
+****  $408
+**** LINE    289 INCLUDE     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\ModelSolution9.gms
+**** LINE    150 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 440   
+ 441   
+ 442  *END OF SOLUTION FILE
+ 443   
+ 444   
+ 445   
+ 446   
+ 447  *RESCHEDULING FREQUENCY
+ 448  *BbarInfo(i,j,n,hbar)$(ord(n)-1 eq 0)=record_states(calc-1,'B',i,j,n,hbar-
+      1)+record_states(calc-1,'B',i,j,n,hbar)*Yhat(i,j,n,hbar)+InitialBbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0);
+ 449  *BbarInfo(i,j,n,hbar)$(ord(n)-1 eq 0)=record_states(calc-1,'B',i,j,n,hbar-
+      1)+record_states(calc-1,'B',i,j,n,hbar)*(Yhat(i,j,n,hbar)-T.l(i,j,hbar+1)$
+      Yhat(i,j,n,hbar))+InitialBbar(i,j,n,hbar)$(ord(calc)-1 eq 0);
+ 450  *Wbar.fx(i,j,n,hbar)$(ord(n)-1 eq 0 and ord(hbar)-1 ge 1 and ord(hbar)-1 l
+      e pi(i) and Ij(i,j))=record_states(calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,
+      j,n,hbar)$(ord(calc)-1 eq 0);
+ 451  *Bbar.fx(i,j,n,hbar)$(ord(n)-1 eq 0 and ord(hbar)-1 ge 1 and (ord(hbar)-1 
+      le pi(i)) and Ij(i,j))=record_states(calc-1,'B',i,j,n,hbar-1)+record_state
+      s(calc-1,'B',i,j,n,hbar)*Yhat(i,j,n,hbar)+InitialBbar(i,j,n,hbar)$(ord(cal
+      c)-1 eq 0);
+ 452  *WbarInfo(i,j,n,hbar)$(ord(n)-1 eq 0)=record_states(calc-1,'W',i,j,n,hbar-
+      1)+InitialWbar(i,j,n,hbar)$(ord(calc)-1 eq 0);
+ 453  *fixed_decisions=re_freq-mod(ord(calc)-1+re_freq,re_freq+1);
+ 454  *fixed_decisions=0;
+      if(re_freq=1,
+      fixed_decisions=0;
+      else
+      fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+      );
+ 462   
+ 463  loop((n,calc)$(ord(n)-1 eq 0),
+ 464           ClosedLoopINV(run,s,h)$(ord(h) eq ord(calc))=record_inventory(run
+      ,calc,s,n);
+ 465           ClosedLoopBO(run,s,h)$(ord(h) eq ord(calc))=record_backlog(run,ca
+      lc,s,n);
+ 466           ClosedLoopShip(run,s,h)$(ord(h) eq ord(calc))=record_shipment(run
+      ,calc,s,n);
+ 467           ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=sum((i,j,hbar)$(Ij(i
+      ,j) AND ord(hbar)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+ 468  *         ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=0;
+ 469  );
+ 470           runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*Sinv(s,h
+****                                                    $140       $140
+      ));
+**** LINE    159 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 471           runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*BO(s,h));
+ 472           runcost_W(run)=sum(h$closed_loop(h),ClosedLoopStart(run,h));
+ 473  *         runcost_W(run)=0;
+ 474   
+ 475           runcost(run)=runcost_Inv(run)+runcost_BO(run)+runcost_W(run);
+ 476           runprofit(run)=sum((s,h)$(product_states(s) and closed_loop(h)),C
+      st_new(s)*ClosedLoopShip(run,s,h))+runcost_W(run);
+ 477  *         runprofit(run)=runcost_Inv(run)-runcost_BO(run)
+ 478  *                        +1E1*sum((s,h)$(product_states(s) and closed_loop
+      (h)),Cst_new(s)*ClosedLoopShip(run,s,h));
+ 479   
+ 480  *Does not include cost of Terminal BO and inventory but thats okay because
+       they are irrelevant when some extra horizon is allowed for getting comple
+      te closed loop rolling horizon solution
+ 481  ************[Start]Information to get very crude estimate for running time
+       left**************
+ 482  timeLeft=%MODEL_NAME%.etSolve*(card(run)-ord(run))*card(calc);
+****           $119      $143,409
+**** LINE    171 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+      put screen;
+      put 'Time for run ' P1.etSolve;
+      put ' Estimated Time Left ' timeLeft;
+      putclose;
+ 489  *************[End]Information to get very crude estimate for running time 
+      left***************
+ 490   
+      *************Stopping Criterion**************
+      N_run=ord(run);
+      mean_runcost(run)=sum(run_p$(ord(run_p) le N_run),runcost(run_p))/N_run;
+      std_dev_runcost(run)$(ord(run) gt 1)= sqrt(       sum(run_p$(ord(run_p) le
+       N_run),     ( abs(  runcost(run_p)-mean_runcost(run) )**2)) /(N_run-1)   
+       );
+      delta_std_dev_runcost(run)$(ord(run) gt 2)=std_dev_runcost(run)/std_dev_ru
+      ncost(run-1)  - 1;
+      max_delta_std_dev_runcost(run)= sqrt( 1 + (1.96**2-1)/N_run ) -1;
+      *icdfnorm(0.95,0,1);
+      *************Stopping Criterion**************
+ 501  );
+****  $408
+**** LINE    190 INPUT       C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GA
+                             MS_Code_Paper1\MasterFile.gms
+ 502  ********************[End] runs loop **************************************
+      *
+ 503  *modelStat(calc,run)=0;runcost(run)=0;runcost_Inv(run)=0;runcost_BO(run)=0
+      ;
+ 504   
+ 505   
+ 506  *display runcost;
+ 507  endingSeed=execSeed;
+ 508  *display endingSeed;
+      put screen;
+      put 'EndingSeed value ' endingSeed;
+      putclose;
+       
+      put log;
+      put 'EndingSeed value ' endingSeed;
+      putclose;
+ 518  *display modelStat;
+ 519   
+ 520   
+ 521   
+ 522  SUCCESS=1;
+ 523  EXECUTE_UNLOAD '%Results_FileName%.gdx';
+ 524   
+ 525  *END OF MASTER FILE
+ 526   
+ 527   
+ 528   
+ 529  *Writing results to an Excel File
+      $onecho > writeresults.txt
+      par = modelStat rng = modelStat!A1
+      par=Est_modelGap1 rng=Est_modelGap1!A1
+      par=Est_modelGap2 rng=Est_modelGap2!A1
+      par = True_modelGap  rng = True_modelGap!A1
+      par = runcost_Inv  rng = runCost_Inv!A1
+      par = runcost_BO  rng = runCost_BO!A1
+      par=Dst_full_realization rng=Dst_full_realization!A1
+      $offecho
+       
+      *EXECUTE 'gdxxrw Input=gdxData.gdx Output=%File4% @writeresults.txt'
+       
+      *Watch out for overflow of solution for rolling horizon...ie the spilling 
+      over of
+      *rolling horizon beyond real horizon to get last implemented closed loop s
+      olution
+ 546   
+ 547   
+ 548   
+ 549   
+ 550   
+ 551   
+ 552   
+ 553   
+ 554   
+ 555   
+ 556   
+ 557   
+ 558   
+ 559   
+ 560   
+ 561   
+ 562   
+               $SETGLOBAL file2 objective_results
+               $SETGLOBAL file3 robust_objective_results
+               $SETGLOBAL file4 OPTCR_study_results
+               $SETGLOBAL file4 rescheduling_frequency_result
+ 569   
+ 570   
+ 571   
+ 572   
+ 573   
+ 574   
+ 575   
+ 576   
+      if(%robust% eq 0,
+      EXECUTE 'gdxxrw Input=gdxData.gdx Output=%File2% @writeresults.txt'
+      );
+      if(%robust% eq 1,
+      EXECUTE 'gdxxrw Input=gdxData.gdx Output=%File3% @writeresults.txt'
+      );
+ 585   
+ 586   
+ 587  *         runcost_Inv(run)=1E1*sum((s,h)$(ord(h) gt 0 and ord(h) le card(c
+      alc)),Cst_new(s)*Sinv(s,h));
+ 588  *         runcost_BO(run)=1E2*sum((s,h)$(ord(h) gt 0 and ord(h) le card(ca
+      lc)),Cst_new(s)*BO(s,h));
+ 589  *         runcost_Inv(run)=1E1*sum((s,h)$(ord(h) gt 2*demand_cycletime and
+       ord(h) le card(calc)),Cst_new(s)*Sinv(s,h));
+ 590  *         runcost_BO(run)=1E2*sum((s,h)$(ord(h) gt 2*demand_cycletime and 
+      ord(h) le card(calc)),Cst_new(s)*BO(s,h));
+ 591  *runcost(run)=obj1.l;
+ 592   
+ 593   
+ 594  *rescheduling frequency is variable
+ 595  *STUDY FOR varying OPTCR for nominal demand case
+ 596  *demand is hardcode so be careful when changing instance/network
+ 597   
+ 598  *$funclibin stolib stodclib
+ 599  *function cdfnorm     /stolib.cdfnormal    /
+ 600  *         icdfnorm    /stolib.icdfnormal   /;
+ 601  *Consider drawing diagrams using asterisks in instance files to show the S
+      TN network(use cartesian coordinates for diagrams the way they are made in
+       linux terminal)
+ 602   
+ 603   
+ 604  *These settings are now part of instance files
+ 605  *$SETGLOBAL delta 1
+ 606  *Rolling Horizon
+ 607  *$SETGLOBAL MH 7
+ 608   
+ 609  *$SETGLOBAL Changeovers_Flag 0
+ 610   
+ 611  *Now solving the robust case
+ 612  *We simply assume all demands to be at their upper bounds for generating s
+      olution
+ 613  *$ontext
+ 614  *$EvalGlobal MH %H%
+ 615  *$include Model%ModelNumber%.gms
+ 616  *Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)
+      /%delta%)))*1.5; !!Increased demand for robust case
+ 617  *$include ModelSolution%ModelNumber%.gms
+ 618   
+ 619  *Wbar.fx(i,j,n,hbar)$(ord(hbar)-1 eq 0)=sum(h$(ord(h) eq ord(n)),start(i,j
+      ,h));
+ 620  *Bbar.fx(i,j,n,hbar)$(ord(hbar)-1 eq 0)=sum(h$(ord(h) eq ord(n)),BS(i,j,h)
+      );
+ 621  *$offtext
+ 622   
+      ********************[Start] LoadFactor Loop ******************************
+      **********
+      loop(loadFactor,
+      deliveries(o,s)$(product_states(s))=30*Demand_LoadFactor(loadFactor);
+       
+       
+      put 'I am on LoadFactor ' loadFactor.tl;
+      put ' ';
+      putclose;
+       
+      ********************DEMAND SAMPLING ************************
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+      if(%Demand_Disturbance_flag% eq 1,
+      loop(run,
+         Dst_full_realization(s,h,run)=(  Dst_full(s,h)+Dst_full(s,h)/100*unifor
+      mInt(-100*fractionUncertainty,100*fractionUncertainty)  )$(Dst_full(s,h) g
+      t 0);
+      );
+      );
+       
+       
+       
+       
+      ********************[Start] Studies Loop *********************************
+      **********
+      loop(studies,
+      p1.optcr = OPTCRs(studies);
+       
+      put 'I am on study ' studies.tl;
+      put ' ';
+      putclose;
+       );
+      ********************[End] Studies loop ***********************************
+      ********
+      );
+      ********************[End] LoadFactor loop ********************************
+      ***********
+       
+       
+       
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+      if(%robust% eq 1,
+      Dst_full(s,h)=Dst_full(s,h)*1.5;
+       $include ModelSolutionDeterm.gms
+      sample=1;
+      Wbar.fx(i,j,n,hbar)=Wbar.l(i,j,n,hbar);
+      Bbar.fx(i,j,n,hbar)=Bbar.l(i,j,n,hbar);
+      );
+       
+       
+      ********************STUDY FOR varying OPTCR for nominal demand case*******
+      **********
+      set studies /study1*study1/
+      set loadFactor/load1*load1/;
+      PARAMETER OPTCRs(studies);
+      * /study1 0, study2 0.005, study3 0.025, study4 0.05, study5 0.75/;
+      PARAMETER Demand_LoadFactor(loadFactor);
+      */load1 1, load2 1.2, load3 1.5, load4 2, load5 2.5/;
+      OPTCRs(studies)=0.025*(ord(studies)-1);
+      *OPTCRs(studies)=0.05*(ord(studies)-1);
+      Demand_LoadFactor(loadFactor)=3+3*(ord(loadFactor)-1);
+       
+      $ontext
+      set studies /study1*study2/
+      set loadFactor/load1*load2/;
+      PARAMETER OPTCRs(studies) /study1 0.2, study2 0.5/;
+      PARAMETER Demand_LoadFactor(loadFactor)/load1 1, load2 1.2/;
+       
+      *PARAMETER Demand_LoadFactor(studies)/study1 1, study2 1.2, study3 1.5, st
+      udy4 2, study5 2.5/
+      PARAMETER studycost(run,loadFactor,studies),studycost_Inv(run,loadFactor,s
+      tudies),studycost_BO(run,loadFactor,studies);
+      Studycost(run,loadFactor,studies)=0;studycost_Inv(run,loadFactor,studies)=
+      0;studycost_BO(run,loadFactor,studies)=0;
+      PARAMETER StudyModelStat(run,loadFactor,studies,calc),StudyModelGap1(run,l
+      oadFactor,studies,calc),StudyModelGap2(run,loadFactor,studies,calc);
+      StudyModelStat(run,loadFactor,studies,calc)=0;
+      StudyModelGap1(run,loadFactor,studies,calc)=0;
+      StudyModelGap2(run,loadFactor,studies,calc)=0;
+      PARAMETER Demand_in_each_study(run,loadFactor,s,h);
+      Demand_in_each_study(run,loadFactor,s,h)=0;
+       
+      *we need to reset demand to original nominal(because each run overwrites t
+      he demand PARAMETER)
+      Demand_in_each_study(run,loadFactor,s,h)=Dst_full(s,h);
+       
+      studycost(run,loadFactor,studies)=runcost(run);
+      studycost_Inv(run,loadFactor,studies)=runcost_Inv(run);
+      studycost_BO(run,loadFactor,studies)=runcost_BO(run);
+      StudyModelStat(run,loadFactor,studies,calc)=modelStat(calc,run);
+      StudyModelGap1(run,loadFactor,studies,calc)=modelGap1(calc,run);
+      StudyModelGap2(run,loadFactor,studies,calc)=modelGap2(calc,run);
+      Demand_in_each_study(run,loadFactor,s,h)=Dst_full_realization(s,h,run);
+      *flush recorded values
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/21/16 11:33:11 Page 3
+MasterFile
+Error Messages
+
+
+  2  Identifier expected
+  8  ')' expected
+ 10  ',' expected
+ 36  '=' or '..' or ':=' or '$=' operator expected
+     rest of statement ignored
+119  Number (primary) expected
+120  Unknown identifier entered as set
+140  Unknown symbol
+143  A suffix is missing
+148  Dimension different - The symbol is referenced with more/less
+        indices as declared
+149  Uncontrolled set entered as constant
+154  Set for 'ord' is not controlled
+241  Model has not been defined
+282  Unable to open include file
+408  Too many ),] or }
+409  Unrecognizable item - skip to find a new statement
+       looking for a ';' or a key word to get started again
+508  Blank needed between element and text
+       (-or- illegal character in element)
+572  Cannot GDX load/unload this type - only sets, parameters
+        equations and variables can be used
+763  Numeric field missing in <element> * <element> list
+767  Unexpected symbol will terminate the loop - symbol replaced by )
+812  Solve keys expected - USING MAX/MIN SCENARIO
+
+**** 260 ERROR(S)   0 WARNING(S)
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/21/16 11:33:11 Page 4
+MasterFile
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes_Onl
+                                          ineMethods\GAMS_Code_Paper1\MasterFile
+                                          .gms
+     2      150 INCLUDE        1     150  .C:\Users\dhruv\Box Sync\Work\Codes_On
+                                           lineMethods\GAMS_Code_Paper1\ModelSol
+                                           ution9.gms
+
+
+COMPILATION TIME     =        0.531 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Code_Paper1\Mas
+           terFile.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Code_Paper1\Mas
+           terFile.lst
+
+**** USER ERROR(S) ENCOUNTERED

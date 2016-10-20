@@ -1,0 +1,31 @@
+MODEL MAX_PROFIT_1 /
+numberOfBatches,
+Allocation,
+UnitCapacityMax,
+UnitCapacityMin,
+Carryover_B
+InventoryBalance_MAX_PROFIT,
+LiftingW,
+BacklogBalance
+LiftingB,
+Carryover_W,
+objective_MAX_PROFIT
+Ship_constraint
+EndingInventory_MAX_PROFIT,
+EndingBacklog/;
+
+MODEL MAX_PROFIT_2 /
+numberOfBatches,
+Allocation,
+UnitCapacityMax,
+UnitCapacityMin,
+InventoryBalance_MAX_PROFIT,
+EndingInventory_MAX_PROFIT,
+BacklogBalance,
+EndingBacklog,
+LiftingW,
+LiftingB,
+Carryover_W,
+Carryover_B,
+objective_MAX_PROFIT
+Ship_constraint/;

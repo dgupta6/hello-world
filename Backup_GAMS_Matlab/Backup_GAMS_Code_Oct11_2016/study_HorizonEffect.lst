@@ -1,0 +1,177 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 10/05/16 16:59:14 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+   2  *MH      Moving Horizon Length           /MH0 6,MH1001 9, MH1 12, MH2 15, 
+      MH3 18, MH4 21, MH5 24, MH6 30, MH7 36, MH8 42, MH9 48/;
+   3  SETS
+   4  *DESIGN PARAMETERS
+   5  MH      Moving Horizon Length           /MH1*MH24/
+   6  RF      Rescheduling Frequency          /RF1*RF8/
+   7  OPT     Optimality gap                  /OPT1*OPT5/
+   8  *TESTING OVER SPACE OF
+   9  N       Network                         /N2/
+  10  DF      Demand Freq                     /DF1*DF3/
+  11  *Variation in temporal position of demand
+  12  DV      Demand Variation                /DV1/
+  13  DL      Demand Load                     /DL1*DL3/
+  14  *Uncertainty in magnitude of demand
+  15  DU      Demand Uncertainty              /DU1/
+  16  MC      Monte Carlo Run#                /MC1*MC100/
+  17  S       surprise                        /S1/
+  18  *S       surprise                        /S0 0,S1 0.25/
+  19  Obj     MinCost or MaxProfit            /Cost,Profit/;
+  20   
+  21   
+  22  *Testing space
+  23  *The demand here does not matter since what we are using is a custom deman
+      d in masterfile.gms
+  24  TABLE par_DF(N,DF)
+  25          DF1     DF2     DF3
+  26  N2      3       6       12;
+  27  TABLE par_DV(DF,DV)
+  28          DV1
+  29  DF1     1
+  30  DF2     1
+  31  DF3     3;
+  32   
+  33  *DEMAND MAGNITUDE
+  34  *APPROX 50%, 80% and 100% load
+  35  PARAMETER
+      par_DM(N,DF,DL)  /N1.DF1.(DL1 1,DL2 3,DL3 5),
+                        N2.DF1.(DL1 3,DL2 4,DL3 5),
+                        N3.DF1.(DL1 1,DL2 3,DL3 5),
+                        N4.DF1.(DL1 1,DL2 2,DL3 3),
+                        N4.DF2.(DL1 2,DL2 3,DL3 5),
+                        N4.DF3.(DL1 4,DL2 6,DL3 8),
+                        N4.DF4.(DL1 5,DL2 8,DL3 10)/;
+  45  par_DM(N,DF,DL)  /(N2).DF1.(DL1 3,DL2 4,DL3 5)/;
+  46  par_DM(N,DF,DL)= par_DM(N,'DF1',DL)*(par_DF(N,DF)/par_DF(N,'DF1'));
+  47   
+  48   
+  49   
+  50  *Demand magnitude uncertainty
+  51  PARAMETER par_DU(DL,DU),par_S(S);
+  52  par_DU(DL,DU)=0.1;
+  53  par_S(S)=0;
+  54  *Now setting seed for each demand monte carlo sample
+  55  PARAMETER seed(MC);
+  56  loop MC do seed(MC)=UniformInt(1,card(MC)*999); endloop
+****        $7 $10                                          $140
+  57  display seed;
+****        $36
+  58   
+  59  *Design decisions
+  60  PARAMETER
+****          $349
+  61  par_MH(N,DF,MH)
+  62  par_RF(N,DF,RF)
+  63  par_OPT(N,OPT);
+  64   
+  65  *par_MH(N,DF,MH)= 12+3*(ord(MH)-1)$(ord(MH) le 3)+6*(ord(MH)-2)$(ord(MH) g
+      e 4);
+  66  par_MH(N,DF,MH)= 8+(ord(MH)-1);
+  67  *par_RF(N,DF,RF)= 3*(ord(RF)-1);par_RF(N,DF,RF)$(ord(RF) eq 1)= ord(RF);
+  68  par_RF(N,DF,RF)= ord(RF);
+  69  par_OPT(N,OPT)=0.025*(ord(OPT)-1);
+  70   
+  71  *MH_max is important because it ensures that we consistently sample the sa
+      me demands through MakeBatchFiles
+  72  MH_max=smax((N,DF,MH),par_MH(N,DF,MH));
+****       $140
+  73  *N       Network                         /N1 1,N2 2,N3 3/
+  74  *RF      Rescheduling Frequency          /RF0 0,RF1 1, RF2 3, RF3 6/
+  75  *OPT     Optimality gap                  /OPT0 0, OPT1 0.025, OPT2 0.05, O
+      PT3 0.075, OPT4 0.1/;
+  76   
+  77   
+  78  *Due to difference in complexities we only want certain combinations of N,
+      MH
+  79  SET N_DL_combination(N,DL);
+****    $349
+  80  N_DL_combination(N,DL)=no;
+  81  N_DL_combination(N,DL)=yes;
+  82   
+  83  SET N_MH_combination(N,MH);
+****    $349
+  84  N_MH_combination(N,MH)=no;
+  85  *N_MH_combination(N,MH)=yes$( (ord(N) eq 1 and ord(MH) le 3) OR (ord(N) gt
+       1 and ord(MH) gt 1));
+  86  N_MH_combination(N,MH)=yes;
+  87  display N_MH_combination;
+  88   
+  89  SET Demand_combination(DF,DV,DL,DU,S);
+****    $349
+  90  Demand_combination(DF,DV,DL,DU,S)=no;
+  91  Demand_combination(DF,DV,DL,DU,S)$(ord(DF) eq 1 AND ord(DL) eq 1 AND ord(D
+      U) eq 1 AND ord(S) eq 1)=yes;
+  92  display Demand_combination;
+  93   
+  94  SET N_Obj_combination(N,OBJ);
+****    $349
+  95  N_Obj_combination(N,OBJ)=no;
+  96  N_Obj_combination(N,OBJ)$(ord(OBJ) eq 1)=yes;
+  97   
+  98  SET comb_OBJ_DL(OBJ,DL);
+****    $349
+  99  comb_OBJ_DL(OBJ,DL)=no;
+ 100  comb_OBJ_DL(OBJ,DL)$(ord(OBJ) eq 1)=yes;
+ 101  *comb_OBJ_DL(OBJ,DL)$(ord(OBJ) eq 2 AND ord(DL) eq 1)=yes;
+ 102   
+ 103   
+ 104  SET comb(N,MH,RF,OPT);
+****    $349
+ 105  comb(N,MH,RF,OPT)= no;
+ 106  comb(N,MH,RF,OPT)$(ord(OPT) eq 1)= yes;
+ 107   
+ 108  SET Allowed_MC(MC);
+****    $349
+ 109  Allowed_MC(MC)=no;
+ 110  Allowed_MC(MC)$(ord(MC) le 1)=yes;
+ 111  *Allowed_MC(MC)$(ord(MC) ge 26 AND ord(MC) le 50)=yes;
+ 112  *Allowed_MC(MC)$(ord(MC) ge 51 AND ord(MC) le 75)=yes;
+ 113  *Allowed_MC(MC)$(ord(MC) ge 76 AND ord(MC) le 100)=yes;
+ 114   
+ 115   
+ 116  *comb(N,MH,RF,DL,OPT)$(ord(N) ge 1 and ord(MH) eq 1 and Ord(RF) eq 1 and O
+      Rd(DL) eq 2 and ord(OPT) eq 1)= yes;
+ 117  *comb(N,MH,RF,L,OPT)$(ord(OPT) eq 1)= yes;
+ 118  *comb(N,MH,RF)$(ord(N) eq 1 and ord(MH) eq 1)= yes;
+ 119  *comb(N,MH,RF,OPT)$(ord(N) eq 1 AND ord(MH) eq 1 AND ord(RF) eq 1 AND ord(
+      OPT) eq 1)= yes;
+ 120  *Only allowing certain combinations of Networks and Moving horizons
+ 121  *comb(N,MH,RF,DL,OPT)$(NOT N_MH_combination(N,MH))=no;
+****  $767,299  UNEXPECTED END OF FILE (1)
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 10/05/16 16:59:14 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Error Messages
+
+
+  7  '(' expected
+ 10  ',' expected
+ 36  '=' or '..' or ':=' or '$=' operator expected
+     rest of statement ignored
+140  Unknown symbol
+299  Unexpected end of file
+349  Declaration not allowed inside a LOOP or IF statement
+767  Unexpected symbol will terminate the loop - symbol replaced by )
+
+**** 15 ERROR(S)   0 WARNING(S)
+
+
+COMPILATION TIME     =        0.125 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Medium MUD - 10 User License                   G160923:1323AO-GEN
+      University of Wisconsin - Madison, Department of Chemical &DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\study_HorizonEffect.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\study_HorizonEffect.lst
+
+**** USER ERROR(S) ENCOUNTERED

@@ -1,0 +1,2516 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   3  SCALAR re_freq                    /1/;
+   4  PARAMETER demand_cycletime        /12/;
+   5  PARAMETER demand_variation        /0/;
+   6  PARAMETER demand_magnitude        /12/;
+   7  PARAMETER lambda_Demand           /0.00/;
+   8  SCALAR surprise                   /0.00/;
+   9  SCALAR optcr_value                /0/;
+  10  PARAMETER SEED_VALUE              /1716/;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ConfigurationFile.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 2
+CONFIGURATION_FILE
+C o m p i l a t i o n
+
+
+  23   
+  24  *$SETGLOBAL OPTIMIZATION_DIRECTION  maximizing
+  25  *$SETGLOBAL MODEL_NAME MAX_PROFIT
+  26  *$SETGLOBAL InitialInventoryFlag 1
+  27   
+  28  *$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing
+  29  *$SETGLOBAL MODEL_NAME MIN_COST
+  30  *$SETGLOBAL InitialInventoryFlag 0
+  31  *******HORIZON********
+  32  *$SETGLOBAL H 192
+  34  *$SETGLOBAL MH 20
+  35  *SCALAR re_freq /1/;
+  36  *Used in chopping off initial transient in closed loop cost evaluation
+  37  *$SETGLOBAL Transient_H 48
+  38  *$SETGLOBAL Transient_H 0
+  39  *We do Closed_Loop_Upper # of calc and record closed loop solution only ti
+      ll there
+  40  *$SETGLOBAL Closed_Loop_Upper 168
+  41  *$SETGLOBAL Closed_Loop_Upper 192
+  42  *******HORIZON********
+  43   
+  44  *******NETWORK AND MODEL********
+  45  *$SETGLOBAL NetworkNumber 1
+  48  *******NETWORK AND MODEL********
+  49   
+  50  *******DEMAND LOAD********
+  51  *PARAMETER demand_cycletime /12/;
+  52  *PARAMETER demand_variation /3/;
+  53  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+  54  *******DEMAND LOAD********
+  55   
+  56  ******DISTURBANCES********************
+  57  *$SETGLOBAL Demand_Disturbance_flag 0
+  61  *Parameters for demand uncertainty
+  62  *What fraction ahead of rolling Horizon does demand forecast changes'
+  63  *SCALAR surprise /0.34/;
+  64  *Magnitude of Uncertainties
+  65  *PARAMETER lambda_Demand /0.2/;
+  66  *Yet to replace these names in ModelSolution9 file
+  67  *and these values are hardcoded right now (look into code again)
+  68  PARAMETER lambda_TaskDelay /0.2/;
+  69  PARAMETER default_delay_length /1/;
+  70  PARAMETER lambda_UnitBreakdown /0.2/;
+  71  PARAMETER time_to_bring_unit_back_online /2/;
+  72  PARAMETER lambda_Handling /0.2/;
+  73  ******DISTURBANCES********************
+  74   
+  75  *******OPTIMIZATION OPTIONS****
+  76  *SCALAR   optcr_value /0/;
+  77  SCALAR   timelimit /600/;
+  78  *******OPTIMIZATION OPTIONS****
+  79   
+  80  *******EVALUATION********
+  81  *$SETGLOBAL N_runs 1
+  82  *******EVALUATION********
+  83   
+  84  *******REPORTING********
+  87  *$SETGLOBAL Results_FileName Config_Results
+  88  *******REPORTING********
+  89   
+  90  *Run the closed loop and generate results
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\MasterFile.gms
+  92  *Change this to name of the instance
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 3
+MasterFile
+C o m p i l a t i o n
+
+
+  98  *$OFFLISTING
+  99   
+ 100  execseed=SEED_VALUE;
+ 101  *parameter cc /0/;
+ 102   
+ 104  SCALAR KillLength /2/;
+ 105   
+ 106  SET run /run1*run1/;
+ 107   
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\NetworkN2.gms
+ 109  Sets     i tasks  /T1*T3/
+ 110           s states /M1*M4/
+ 111           j units  /U1*U2/
+ 112           u utilities /manpower/
+ 113   
+ 114  *         Ki(j,i) set of equipments(units) suitable for task i
+ 115  *         /(Reactor1).(TA,TB),Heater.Heating/
+ 116           Ij(i,j) set of equipments(units) suitable for task i
+ 117           /T1.U1,(T2,T3).U2/
+ 118   
+ 119           FIS(s) States with Finite Intermediate Storage /M2/
+ 120           product_states(s) Product States/M3*M4/
+ 121           feed_states(s) Feed States/M1/
+ 122   
+ 123           UtilInt Intervals for utility /Int1/
+ 124           UnitInt Intervals for unit-unavailability /Int1/
+ 125   
+ 126           Attributes/magnitude, starttime, price/
+ 127  ;
+ 128   
+ 129  Table UtilData(UtilInt,u,Attributes)
+ 130               manpower.starttime            manpower.magnitude      manpowe
+      r.price
+ 131  Int1                    0                         10                     0
+ 132  ;
+ 133   
+ 134  *Availability of unit  0=available, 1=not available
+ 135  Table UnitData(UnitInt,j,Attributes)
+ 136                U1.magnitude         U1.starttime
+ 137  Int1              0                     0
+ 138  ;
+ 139   
+ 140  Parameters rho(i,s) proportion of input of task i from states s
+ 141             /T1.M1 1,(T2,T3).M2 1/
+ 142             rhobar(i,s) proportion of ouput of task i to state s
+ 143             /T1.M2 1, T2.M3 1, T3.M4 1/
+ 144   
+ 145             pis(i,s) processing time for output of task i into state s
+ 146             /T1.M2 2,T2.M3 2, T3.M4 3/
+ 147             pi(i) maximum processing time in task i for any stage produced 
+      by it
+ 148   
+ 149             alpha(u,i) fixed utility demand by task i throughout its run
+ 150             /manpower.(T1*T2) 0/
+ 151             beta(u,i) "variable utility demand by task i throughout its run
+      (te/hr)"
+ 152             /manpower.(T1*T2) 0/
+ 153   
+ 154             vmaxij(i,j)  Maximum capacity of unit j when used for task i
+ 155             /T1.U1 20, (T2,T3).U2 10/
+ 156             vminij(i,j)  Minimum capacity of unit j when used for task i
+ 157             /T1.U1 10, (T2,T3).U2 5/
+ 158             Cs(s) maximum storage capacity for stage s  /(M1*M4) 99999/
+ 159             Cst(s) unit price of s/M1 1, M2 5, M3 10, M4 10/
+ 160  ;
+ 161  *pis(i,s)=5;
+ 162  pi(i)=smax(s,pis(i,s));
+ 163   
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      set         o orders /o1*o%H%/;
+      parameter deliveries_time(o);
+      deliveries_time(o)=demand_cycletime*ord(o);
+      deliveries_time(o)=deliveries_time(o)+UniformInt(-demand_variation,demand_
+      variation);
+      parameter deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+ 175   
+ 176  *END OF INSTANCE FILE
+ 177   
+ 178   
+ 179   
+ 180   
+ 181   
+ 182   
+ 183   
+ 184   
+ 185   
+ 186   
+ 187   
+ 188   
+ 189   
+ 190   
+ 191   
+ 192   
+      Table deliveries(o,s)
+              SA      SB
+      o1      5       5
+      o2      5       5
+      o3      5       5
+      o4      5       5
+      o5      5       5
+      o6      5       5
+      o7      5       5
+      o8      5       5;
+ 205   
+ 206   
+      For debugging/testing utility formulas
+      Table UtilData(UtilInt,u,Attributes)
+                   manpower.starttime            manpower.magnitude      manpowe
+      r.price
+      Int1                    0                         1                     1
+      Int2                    1.5                       0                     0
+      Int3                    3.5                       1                     1
+      Int4                    6.1                       0                     0;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Model9.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 4
+State_Space_Model
+C o m p i l a t i o n
+
+
+ 218   
+ 219  PARAMETER Small_number /1E-2/;
+ 220  *used for rounding W,B in recordstates in modelsolution file
+ 221   
+ 222  *Now generating time grid using delta
+ 225  *$EvalGlobal calculations (%horizon%-%window%)
+ 229   
+ 230  set h time(multiples of delta) /h0*h216/
+ 231      n time window   /n0*n16/
+ 232      calc #of windows /calc0*calc6/
+ 233   
+ 234      closed_loop(h) horizon points for which we calculate closed loop cost
+ 235   
+ 236      Sbari(s,i)  materials produced by task i
+ 237      Si(s,i)     materials consumed by task i
+ 238      Tbars(i,s)    Tasks producing material s
+ 239      Ts(i,s) Tasks consuming material s;
+ 240   
+ 241  Sbari(s,i)=1$(rhobar(i,s) gt 0);
+ 242  Si(s,i)=1$(rho(i,s) gt 0);
+ 243  *Ij(i,j)=Ki(j,i);
+ 244  Tbars(i,s)=Sbari(s,i);
+ 245  Ts(i,s)=Si(s,i);
+ 246   
+ 247  closed_loop(h)=0;
+ 248  closed_loop(h)$(ord(h)-1 ge 0 and ord(h)-1 le 6)=1;
+ 249   
+ 250   
+ 251  alias(i,ip)
+ 252  alias(j,jp)
+ 253  alias(s,sp)
+ 254  alias(n,np)
+ 255  alias(h,hbar);
+ 256   
+ 257  set     UnitUnavailable_full(j,h)
+ 258  UnitUnavailable(j,n);
+ 259   
+ 260  parameter Uutmax_full(u,h),Cut_full(u,h) utility price;
+ 261   
+ 262  parameters Dst(s,n),Uutmax(u,n),Cut(u,n);
+ 263   
+ 264   
+ 265  parameter pis_new(i,s),pi_new(i);
+ 266  *tau_new(j,k,kp);
+ 267  pis_new(i,s)=ceil(pis(i,s)/1);
+ 268  pi_new(i)=ceil(pi(i)/1);
+ 269   
+ 270  parameter alpha_new(u,i),beta_new(u,i),Cst_new(s);
+ 271   
+ 272  alpha_new(u,i)=alpha(u,i);
+ 273   
+ 274  beta_new(u,i)=beta(u,i);
+ 275   
+ 276  Cst_new(s)=Cst(s);
+ 277   
+ 278   
+ 279   
+ 280   
+ 281  *UTILITY CALCULATIONS NEED TO BE CORRECTED
+ 282  *RIGHT NOW THERE IS BUG THAT IF THERE IS MORE THAN ONE CHANGE
+ 283  *WITHIN AN INTERVAL THEN THE CODE TAKES FIRST CHANGE ONLY
+ 284  *AND IGNORES THE SECOND CHANGE
+ 285  loop(UtilInt,
+ 286  *Maximum available utility
+ 287  Uutmax_full(u,h)$(ord(UtilInt) eq 1 and
+ 288                   ord(h) ge 1 and
+ 289                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 290                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 291                  =  UtilData(UtilInt,u,"magnitude");
+ 292   
+ 293   
+ 294   
+ 295   
+ 296  Uutmax_full(u,h)$((ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt)) an
+      d
+ 297                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 298                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 299                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 300                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 301                  =  UtilData(UtilInt,u,"magnitude");
+ 302   
+ 303   
+ 304   
+ 305  Uutmax_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 306                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 307                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 308                   ord(h) le card(h))
+ 309                  =  UtilData(UtilInt,u,"magnitude");
+ 310   
+ 311   
+ 312  *Utility Price
+ 313  Cut_full(u,h)$(ord(UtilInt) eq 1 and
+ 314            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 315            =  UtilData(UtilInt,u,"price");
+ 316   
+ 317  Cut_full(u,h)$(ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt) and
+ 318            ord(h)-1 gt (floor(UtilData(UtilInt,u,"starttime")/1)) and
+ 319            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 320            =  UtilData(UtilInt,u,"price");
+ 321   
+ 322  Cut_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 323            ord(h)-1 gt floor(UtilData(UtilInt,u,"starttime")/1) and
+ 324            ord(h) le card(h)   )
+ 325            =  UtilData(UtilInt,u,"price");
+ 326   
+ 327  Cut_full(u,h)$(ord(UtilInt) gt 1 and
+ 328           ord(h)-1 eq floor(UtilData(UtilInt,u,"starttime")/1))
+ 329           =(   UtilData(UtilInt-1,u,"price")*(UtilData(UtilInt,u,"starttime
+      ")-(ord(h)-1)* 1 )
+ 330                +UtilData(UtilInt,u,"price")*(ord(h)*1-UtilData(UtilInt,u,"s
+      tarttime"))   )/1;
+ 331  *Bug in cost calculation: what if there are 3 cost levels within one time 
+      grid?
+ 332  )
+ 333   
+ 334   
+ 335  *UnitUnavailabality(note the difference in inequalities as opposed to Util
+      ity....1=>unit not available so more magnitude is bad)
+ 336  loop(UnitInt,
+ 337  Unitunavailable_full(j,h)$(ord(UnitInt) eq 1 and
+ 338                   ord(h)-1 ge 0 and
+ 339                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 340                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 341                  =  UnitData(UnitInt,j,"magnitude");
+ 342   
+ 343   
+ 344   
+ 345   
+ 346  Unitunavailable_full(j,h)$((ord(UnitInt) gt 1 and ord(UnitInt) lt card(Uni
+      tInt)) and
+ 347                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 348                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 349                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 350                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 351                  =  UnitData(UnitInt,j,"magnitude");
+ 352   
+ 353   
+ 354   
+ 355  Unitunavailable_full(j,h)$(ord(UnitInt) eq card(UnitInt) and
+ 356                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 357                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 358                   ord(h) le card(h))
+ 359                  =  UnitData(UnitInt,j,"magnitude");
+ 360  )
+ 361   
+ 362   
+ 363   
+ 364  *display UnitUnavailable_full,Uutmax_full,Cut_full,Sbari,Si,rhobar,rho,Tba
+      rs,Ts,calc;
+ 365   
+ 366  *Ijk,tauChangeMax
+ 367   
+ 368   
+ 369   
+ 370  *Disturbance parameter for loading/unloading of materials
+ 371  parameters betaHatProd(i,j,s,n),betaHatCons(i,j,s,n);
+ 372  betaHatProd(i,j,s,n)=0;
+ 373  betaHatCons(i,j,s,n)=0;
+ 374   
+ 375   
+ 376  *Disturbance parameter for task delays
+ 377  parameters
+ 378  Yhat(i,j,n,hbar)
+ 379  Delay(calc,i,j,hbar)
+ 380  Zhat(i,j,n,hbar)
+ 381  Breakdown(calc,i,j,hbar)
+ 382  Duration_breakdown(calc,j)
+ 383  UnitBroken(j,n)
+ 384  WbarInfo(i,j,n,hbar)
+ 385  BbarInfo(i,j,n,hbar)
+ 386  KillDuration(i,j)
+ 387  KillDurationCountdown(i,j)
+ 388  KillOccupy(j,n)
+ 389  KillCountdown(j);
+ 390   
+ 391  *Initializing parameters
+ 392  Yhat(i,j,n,hbar)=0;
+ 393  Delay(calc,i,j,hbar)=0;
+ 394  Zhat(i,j,n,hbar)=0;
+ 395  Breakdown(calc,i,j,hbar)=0;
+ 396  Duration_breakdown(calc,j)=0;
+ 397  UnitBroken(j,n)=0;
+ 398  WbarInfo(i,j,n,hbar)=0;
+ 399  BbarInfo(i,j,n,hbar)=0;
+ 400  KillDuration(i,j)=0;
+ 401  KillDurationCountdown(i,j)=0;
+ 402  KillOccupy(j,n)=0;
+ 403  KillCountdown(j)=0;
+ 404   
+ 405  *hbar are the time points for lifting of variables
+ 406  *binary variables W(i,j,n),Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 407  binary variables Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 408  positive variable Bbar(i,j,n,hbar),Sst(s,n),Backlog(s,n),Ship(s,n),Ship_sa
+      les(s,n),Uut(u,n),Rst(s,n),SstTerminal(s),BacklogTerminal(s);
+ 409  variables obj_variable;
+ 410  integer variable NB(i,j) number of batches;
+ 411  *Assigning values to variables that might not participate in optimization
+ 412  Uut.l(u,n)=0;
+ 413  Ship_sales.l(s,n)=0;
+ 414   
+ 415  Equations
+ 416  numberOfBatches,
+ 417  Allocation,
+ 418  UnitCapacityMax,UnitCapacityMin,
+ 419  InventoryLimit,
+ 420  InventoryBalance,
+ 421  EndingInventory,
+ 422  BacklogBalance,
+ 423  EndingBacklog,
+ 424  UtilityLimit,
+ 425  UtilityBalance,
+ 426  objective_MIN_COST,
+ 427  objective_MAX_PROFIT,
+ 428  objective_MAX_PROFIT_Greedy
+ 429  UnitUnavailabality,
+ 430  *CorrectHolding(i,j,n),
+ 431  LiftingW,
+ 432  *LiftingW0,
+ 433  LiftingB,
+ 434  *LiftingB0,
+ 435  Carryover_W,Carryover_B,
+ 436  InventoryBalance_MAX_PROFIT,
+ 437  EndingInventory_MAX_PROFIT
+ 438  Ship_constraint(s,n)
+ 439  NoShip(s,n)
+ 440  NoTaskStart;
+ 441  *SHIPMENT;
+ 442  *NoTaskRunningAtEndOfHorizon;
+ 443   
+ 444  numberOfBatches(i,j)$Ij(i,j).. NB(i,j)=E=sum((n,hbar)$(ord(hbar)-1 eq 0),W
+      bar(i,j,n,hbar));
+ 445   
+ 446  *scalar ord_calc /0/;
+ 447  SCALAR fixed_decisions /0/;
+ 448  SCALAR reschedule_flag /0/;
+ 449  *re_freq-1-mod(ord_calc-1+re_freq-1,re_freq)  is zero for calc0
+ 450  Carryover_W(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Wbar(i,j,n,hbar)=E=WbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 451  Carryover_B(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Bbar(i,j,n,hbar)=E=BbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 452   
+ 453  *LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 454  *         Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,
+      j,n,hbar-1)-Zhat(i,j,n,hbar-1);
+ 455  *LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 456  *         Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1)
+ 457   
+ 458  LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 459           Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,j
+      ,n,hbar-1);
+ 460   
+ 461  LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 462           Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,j
+      ,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 463  Allocation(j,n).. sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 le (pi_new(i)-1)
+      ) ), Wbar(i,j,n,hbar))=L=1-sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 eq pi_n
+      ew(i)) ) , Yhat(i,j,n,hbar))-UnitBroken(j,n)
+ 464                        -sum((i,hbar)$(Ij(i,j) and ord(hbar)-1 ge 1 and ord(
+      hbar)-1 le pi(i)),T(i,j,hbar)$(ord(n)-1 lt KillDuration(i,j)))-KillOccupy(
+      j,n);
+ 465  *ord(np)-1=0 => Wbar0 which is also included in the above sum, so we dont 
+      have to explicitly sum over W now since W0 is also there
+ 466   
+ 467  UnitCapacityMax(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=L=Wbar(i,j,n,hbar)*vmaxij(i,j);
+ 468   
+ 469  UnitCapacityMin(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=G=Wbar(i,j,n,hbar)*vminij(i,j);
+ 470   
+ 471  InventoryLimit(s,n)$(FIS(s)).. Sst(s,n)=L=Cs(s);
+ 472   
+ 473  *Watch out for brackets in betahatCons and betaHatProd. One has multiplica
+      tion with rho other does not
+ 474  InventoryBalance(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,n)+sum((i,j
+      ,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhobar(
+      i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatProd(i
+      ,j,s,n)))
+ 475                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(produc
+      t_states(s))+Rst(s,n)$(feed_states(s));
+ 476  EndingInventory(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst(s,n)+sum((
+      i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhob
+      ar(i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatPro
+      d(i,j,s,n)))
+ 477                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(product
+      _states(s))+Rst(s,n)$(feed_states(s));
+ 478   
+ 479  ********
+ 480  *Inventory at point 2 means, inventory level infinitesimal time just befor
+      e point 2, ie 2-, need to define extra ending inventory variable SstTermin
+      al(s)
+ 481  *Deliveries are point functions like B, W while inventory is interval func
+      tion
+ 482  *Kondili has convention that inventory at point 2 is 2+, so has to define 
+      extra initial inventory parameter Sst0(s)
+ 483   
+ 484   
+ 485  ***********Backlogs******
+ 486  BacklogBalance(s,n)$(product_states(s) and ord(n) lt card(n)).. Backlog(s,
+      n+1)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 487  EndingBacklog(s,n)$(product_states(s) and ord(n) eq card(n)).. BacklogTerm
+      inal(s)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 488   
+ 489  ***********UtilityBalance******
+ 490  UtilityLimit(u,n).. Uut(u,n)=L=Uutmax(u,n);
+ 491  UtilityBalance(u,n).. Uut(u,n)=E=sum((i,j,hbar)$(Ij(i,j) and (ord(hbar)-1 
+      le pi_new(i)-1)),alpha_new(u,i)*Wbar(i,j,n,hbar)+beta_new(u,i)*Bbar(i,j,n,
+      hbar)  );
+ 492   
+ 493  UnitUnavailabality(i,j,n)$(UnitUnavailable(j,n) and Ij(i,j)).. sum((hbar)$
+      (ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 494   
+ 495  *Utility cost: sum((u,n),Cut(u,n)*Uut(u,n))
+ 496  *objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s
+      )) +1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 497  *                                 +1E2*sum((s,n)$(product_states(s)),Cst_n
+      ew(s)*Backlog(s,n))+1E2*sum(s$(product_states(s)),Cst_new(s)*BacklogTermin
+      al(s))
+ 498  *                                 +sum((i,j,hbar)$Ij(i,j),T(i,j,hbar));
+ 499  objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s)
+      ) + 1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 500                                   +1E2*sum((s,n)$(product_states(s)),Cst_ne
+      w(s)*Backlog(s,n))
+ 501                                   +1E2*sum(s$(product_states(s)),Cst_new(s)
+      *BacklogTerminal(s))
+ 502                                   +sum((i,j,n,hbar)$(Ij(i,j) AND ord(hbar)-
+      1 eq 0),Wbar(i,j,n,hbar));
+ 503   
+ 504   
+ 505  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum(s$(product_states(s)),Cst
+      _new(s)*SstTerminal(s))+1E1*sum((s,n)$(product_states(s)),Cst_new(s)*Ship(
+      s,n))
+ 506  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s) );
+ 507   
+ 508  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Sst(s,n))+1E1*sum(s$(product_states(s)),Cst_new(s)*SstTerminal
+      (s))
+ 509  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s))
+ 510  *                                       +1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Ship(s,n));
+ 511   
+ 512  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n))-sum((i,j,n,hbar)$(Ij(i,j) AND
+       ord(hbar)-1 eq 0),Wbar(i,j,n,hbar));
+ 513   
+ 514  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)))
+ 515  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)+Ship(s,n)))
+ 516  objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst_
+      new(s)*(Ship_sales(s,n)))
+ 517                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 518                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 519                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 520   
+ 521  objective_MAX_PROFIT_Greedy.. obj_variable =E= sum((s,n)$(product_states(s
+      )),round(2-(ord(n)/card(n)),2)*Cst_new(s)*(Ship(s,n)+Ship_sales(s,n)))
+ 522                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 523                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 524                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 525   
+ 526  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n));
+ 527   
+ 528  *SHIPMENT(s,n).. Ship(s,n)=L=Dst(s,n)  ;
+ 529  InventoryBalance_MAX_PROFIT(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,
+      n)
+ 530                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 531                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 532                           -Ship_sales(s,n)$(product_states(s))-Ship(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 533   
+ 534  EndingInventory_MAX_PROFIT(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst
+      (s,n)
+ 535                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 536                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 537                           -Ship(s,n)$(product_states(s))-Ship_sales(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 538   
+ 539  *Ship_constraint(s,n)$(ord(n) gt 1 AND ord(n) lt card(n) ).. Ship(s,n)=E=0
+      ;
+ 540  *Ship_constraint(s,n)$(Dst(s,n) eq 0).. Ship_sales(s,n)=E=0;
+ 541  Ship_constraint(s,n)$(NOT Dst(s,n) gt 0).. Ship_sales(s,n)=E=0;
+ 542   
+ 543  *NoTaskRunningAtEndOfHorizon(i,j,n)$(ord(n) eq card(n) and Ij(i,j))..   su
+      m(hbar$(ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 544  NoShip(s,n)$(ord(n) lt card(n)/2 and sameas(s,'M4')).. Ship_sales(s,n)=E=0
+      ;
+ 545  *NoShip(s,n)$(ord(n) lt card(n)/2).. Ship_sales(s,n)=E=0;
+ 546   
+ 547  NoTaskStart(i,j,n,hbar)$(ord(n)-1 eq 0 AND ord(hbar)-1 eq 0).. Wbar(i,j,n,
+      hbar)=E=0;
+ 548   
+ 549  *****************
+ 550  *DISTURBANCE VARIABLES
+ 551  *Build feature rich instances and do rigorous testing
+ 552  *****************
+ 553   
+ 554  SET attributes_states /W,B/;
+ 555  PARAMETERS
+ 556  record_states_raw(run,calc,attributes_states,i,j,n,hbar),
+ 557  record_states(run,calc,attributes_states,i,j,n,hbar),
+ 558  record_objective(run,calc),
+ 559  record_utility(run,calc,u,n),
+ 560  record_inventory(run,calc,s,n),
+ 561  record_inventory_raw(run,calc,s,n),
+ 562  record_backlog(run,calc,s,n),
+ 563  record_backlog_raw(run,calc,s,n),
+ 564  record_inventoryTerminal(run,calc,s),
+ 565  record_backlogTerminal(run,calc,s)
+ 566  record_T(run,calc,i,j,hbar)
+ 567  record_shipment(run,calc,s,n)
+ 568  record_shipment_sales(run,calc,s,n)
+ 569  record_shipment_sales_raw(run,calc,s,n)
+ 570  record_Rst(run,calc,s,n)
+ 571  record_shipment_raw(run,calc,s,n)
+ 572  record_Rst_raw(run,calc,s,n)
+ 573  record_yieldloss(run,calc,i,j,s,n)
+ 574  record_demands(run,calc,s,n)
+ 575  record_WbarInfo(run,calc,i,j,n,hbar)
+ 576  record_BbarInfo(run,calc,i,j,n,hbar)
+ 577  record_Demands_realization(run,s,h)
+ 578  record_fixed_decision(calc)
+ 579  record_reschedule_flag(calc,run)
+ 580  record_relaxed_objective(run,calc) Objective from solving RMIP
+ 581  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar) states from s
+      olving RMIP
+ 582  record_relaxed_shipment(run,calc,s,n)
+ 583  record_relaxed_shipment_sales(run,calc,s,n)
+ 584  record_relaxed_backlog(run,calc,s,n);
+ 585   
+ 586  record_states_raw(run,calc,attributes_states,i,j,n,hbar)=0;
+ 587  record_states(run,calc,'B',i,j,n,hbar)=0;
+ 588  record_states(run,calc,'W',i,j,n,hbar)=0;
+ 589  record_inventory(run,calc,s,n)=0;
+ 590  record_inventory_raw(run,calc,s,n)=0;
+ 591  record_backlog(run,calc,s,n)=0;
+ 592  record_backlog_raw(run,calc,s,n)=0;
+ 593  record_T(run,calc,i,j,hbar)=0;
+ 594  record_shipment(run,calc,s,n)=0 ;
+ 595  record_Rst(run,calc,s,n)=0;
+ 596  record_shipment_raw(run,calc,s,n)=0;
+ 597  record_shipment_sales_raw(run,calc,s,n)=0;
+ 598  record_shipment_sales(run,calc,s,n)=0;
+ 599  record_Rst_raw(run,calc,s,n)=0;
+ 600  record_yieldloss(run,calc,i,j,s,n)=0;
+ 601  record_demands(run,calc,s,n)=0;
+ 602  record_WbarInfo(run,calc,i,j,n,hbar)=0;
+ 603  record_BbarInfo(run,calc,i,j,n,hbar)=0;
+ 604  record_Demands_realization(run,s,h)=0;
+ 605  record_fixed_decision(calc)=0;
+ 606  record_reschedule_flag(calc,run)=0;
+ 607  record_relaxed_objective(run,calc)=0;
+ 608  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar)=0;
+ 609  record_relaxed_shipment(run,calc,s,n)=0;
+ 610  record_relaxed_shipment_sales(run,calc,s,n)=0;
+ 611  record_relaxed_backlog(run,calc,s,n)=0;
+ 612   
+ 613  *Initial conditions for first optimization horizon
+ 614  PARAMETERS InitialBbar(i,j,n,hbar),InitialWbar(i,j,n,hbar),InitialInventor
+      y(s),InitialBacklog(s);
+ 615  InitialBbar(i,j,n,hbar)=0;
+ 616  InitialWbar(i,j,n,hbar)=0;
+ 617  InitialInventory(s)=0;
+ 618  InitialBacklog(s)=0;
+ 619   
+ 620  *if (%InitialInventoryFlag% eq 1,
+ 621  *Start with half day of inventory
+ 622  *InitialInventory(s)$product_states(s)=12*demand_magnitude/demand_cycletim
+      e;
+ 623  *);
+ 624  InitialInventory(s)$product_states(s)=0*demand_magnitude/demand_cycletime;
+ 625   
+ 626   
+ 627  *MODEL P1 /all/;
+ 628  MODEL MIN_COST /
+ 629  numberOfBatches,
+ 630  Allocation,
+ 631  UnitCapacityMax,
+ 632  UnitCapacityMin,
+ 633  *InventoryLimit,
+ 634  InventoryBalance,
+ 635  EndingInventory,
+ 636  BacklogBalance,
+ 637  EndingBacklog,
+ 638  *UtilityLimit,
+ 639  *UtilityBalance,
+ 640  *UnitUnavailabality,
+ 641  LiftingW,
+ 642  LiftingB,
+ 643  Carryover_W,
+ 644  Carryover_B,
+ 645  objective_MIN_COST/;
+ 646   
+ 647  MODEL MAX_PROFIT_1 /
+ 648  numberOfBatches,
+ 649  Allocation,
+ 650  UnitCapacityMax,
+ 651  UnitCapacityMin,
+ 652  Carryover_B
+ 653  InventoryBalance_MAX_PROFIT,
+ 654  LiftingW,
+ 655  BacklogBalance
+ 656  LiftingB,
+ 657  Carryover_W,
+ 658  objective_MAX_PROFIT
+ 659  Ship_constraint
+ 660  EndingInventory_MAX_PROFIT,
+ 661  EndingBacklog/;
+ 662   
+ 663  MODEL MAX_PROFIT_2 /
+ 664  numberOfBatches,
+ 665  Allocation,
+ 666  UnitCapacityMax,
+ 667  UnitCapacityMin,
+ 668  InventoryBalance_MAX_PROFIT,
+ 669  EndingInventory_MAX_PROFIT,
+ 670  BacklogBalance,
+ 671  EndingBacklog,
+ 672  LiftingW,
+ 673  LiftingB,
+ 674  Carryover_W,
+ 675  Carryover_B,
+ 676  objective_MAX_PROFIT
+ 677  Ship_constraint/;
+ 678   
+ 679  MODEL MAX_PROFIT_SellAnytime /
+ 680  numberOfBatches,
+ 681  Allocation,
+ 682  UnitCapacityMax,
+ 683  UnitCapacityMin,
+ 684  InventoryBalance_MAX_PROFIT,
+ 685  EndingInventory_MAX_PROFIT,
+ 686  BacklogBalance,
+ 687  EndingBacklog,
+ 688  LiftingW,
+ 689  LiftingB,
+ 690  Carryover_B,
+ 691  Carryover_W,
+ 692  objective_MAX_PROFIT
+ 693  NoTaskStart/;
+ 694  MODEL MAX_PROFIT_SellAnytime_Greedy /
+ 695  numberOfBatches,
+ 696  Allocation,
+ 697  UnitCapacityMax,
+ 698  UnitCapacityMin,
+ 699  InventoryBalance_MAX_PROFIT,
+ 700  EndingInventory_MAX_PROFIT,
+ 701  BacklogBalance,
+ 702  EndingBacklog,
+ 703  LiftingW,
+ 704  LiftingB,
+ 705  Carryover_B,
+ 706  Carryover_W,
+ 707  objective_MAX_PROFIT_Greedy /;
+ 708   
+ 709  MODEL MAX_PROFIT_GREEDY /
+ 710  numberOfBatches,
+ 711  Allocation,
+ 712  UnitCapacityMax,
+ 713  UnitCapacityMin,
+ 714  InventoryBalance_MAX_PROFIT,
+ 715  EndingInventory_MAX_PROFIT,
+ 716  BacklogBalance,
+ 717  EndingBacklog,
+ 718  LiftingW,
+ 719  LiftingB,
+ 720  Carryover_W,
+ 721  Carryover_B,
+ 722  *objective_MAX_PROFIT
+ 723  objective_MAX_PROFIT_Greedy
+ 724  Ship_constraint/;
+ 725  *NoShip/;
+ 726   
+ 727  MODEL MAX_PROFIT_NOSHIP /
+ 728  numberOfBatches,
+ 729  Allocation,
+ 730  UnitCapacityMax,
+ 731  UnitCapacityMin,
+ 732  InventoryBalance_MAX_PROFIT,
+ 733  EndingInventory_MAX_PROFIT,
+ 734  BacklogBalance,
+ 735  EndingBacklog,
+ 736  LiftingW,
+ 737  LiftingB,
+ 738  Carryover_W,
+ 739  Carryover_B,
+ 740  objective_MAX_PROFIT
+ 741  *objective_MAX_PROFIT_Greedy
+ 742  Ship_constraint
+ 743  NoShip/;
+ 744   
+ 745  MODEL MAX_PROFIT_GREEDY_NOSHIP /
+ 746  numberOfBatches,
+ 747  Allocation,
+ 748  UnitCapacityMax,
+ 749  UnitCapacityMin,
+ 750  InventoryBalance_MAX_PROFIT,
+ 751  EndingInventory_MAX_PROFIT,
+ 752  BacklogBalance,
+ 753  EndingBacklog,
+ 754  LiftingW,
+ 755  LiftingB,
+ 756  Carryover_W,
+ 757  Carryover_B,
+ 758  *objective_MAX_PROFIT
+ 759  objective_MAX_PROFIT_Greedy
+ 760  Ship_constraint
+ 761  NoShip/;
+ 762   
+ 763  *SHIPMENT/;
+ 764   
+ 765   
+ 766  T.l(i,j,hbar)=0;
+ 767  *Parameters for Gantt Charting in Excel
+ 768  *END OF MODEL FILE
+ 769   
+ 770   
+ 771   
+ 772   
+ 773  PARAMETER runcost(run) cost of implemented closed loop
+ 774           runcost_Inv(run) Inventory cost,runcost_BO(run) Backlog cost, run
+      cost_W(run) start_cost_of_tasks
+ 775           runprofit(run) closed loop profit in MAX_profit
+ 776           sales_profit(run);
+ 777   
+ 778           runcost_Inv(run)=0;runcost_BO(run)=0; runcost_W(run)=0;runcost(ru
+      n)=0; runprofit(run)=0;sales_profit(run)=0;
+ 779   
+ 780  PARAMETER modelStat(calc,run)     Should be 1 for successful optimization
+ 781            BOStat_OL(calc,run)     If 1 means open loop had non zero back o
+      rder
+ 782            BOStat_CL(calc,run)     If 1 means closed loop had non zero back
+       order
+ 783            IntegralityGap(calc,run)
+ 784            Est_modelGap1(calc,run)  Estimated optimality gap by CPLEX (obj.
+      val in denominator)
+ 785            Est_modelGap2(calc,run)  Estimated optimality gap by CPLEX (obj.
+      Est in denominator)
+ 786            True_modelGap(calc,run) True optimality gap obtained by solving 
+      to optcr=0
+ 787            ETSolve(calc,run)
+ 788            ETSolver(calc,run)
+ 789            iterUsd(calc,run)
+ 790            nodUsd(calc,run)
+ 791            resUsd(calc,run)
+ 792            numDVar(calc,run)
+ 793            numEqu(calc,run)
+ 794            numInfes(calc,run)
+ 795            numNZ(calc,run)
+ 796            numVar(calc,run)
+ 797            solveStat(calc,run)
+ 798            Suboptimal_objective /0/
+ 799            Optimal_Objective /0/
+ 800            TimeToSolveOptimal(calc,run);
+ 801   
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      SET         o orders /o1*o%H%/;
+      PARAMETER deliveries_time(o,run);
+      deliveries_time(o,run)=demand_cycletime*ord(o);
+      PARAMETER deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+       
+      PARAMETER Dst_full(s,h);
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+       
+      PARAMETER Dst_full_realization(s,h,run);
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+       
+      *IF(%Demand_Disturbance_flag% eq 1,
+               LOOP(run,
+                  deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+                  Dst_full_realization(s,h,run)=(Dst_full(s,h)+Dst_full(s,h)*uni
+      formInt(-lambda_Demand,lambda_Demand)  )$(Dst_full(s,h) gt 0);
+               );
+      *);
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 827  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 828  ******DEMAND INFORMATION*****************************
+ 829  *Each order for all products
+ 830  SET         o orders /o1*o216/;
+ 831  PARAMETER deliveries_time(o,run);
+ 832  deliveries_time(o,run)=demand_cycletime*ord(o);
+ 833  PARAMETER deliveries(o,s);
+ 834  deliveries(o,s)$(product_states(s))=demand_magnitude;
+ 835  ******DEMAND INFORMATION*****************************
+ 836   
+ 837  PARAMETER Dst_full_realization(s,h,run),Dst_full(s,h);
+ 838   
+ 839  *IF(%Demand_Disturbance_flag% eq 1,
+ 840  LOOP(run,
+ 841    deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-demand_variati
+      on,demand_variation);
+ 842    Dst_full_realization(s,h,run)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(d
+      eliveries_time(o,run)/1)));
+ 843    Dst_full_realization(s,h,run)=(Dst_full_realization(s,h,run)+Dst_full_re
+      alization(s,h,run)/100*uniformInt(-lambda_Demand*100,lambda_Demand*100)  )
+      $(Dst_full_realization(s,h,run) gt 0);
+ 844  );
+ 845  *);
+ 846  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 847   
+ 848   
+ 849  PARAMETER ClosedLoopINV(run,s,h),ClosedLoopBO(run,s,h),ClosedLoopShip(run,
+      s,h),ClosedLoopShip_sales(run,s,h),
+ 850            ClosedLoopStart(run,h),Cost_EndInventory(run),ClosedLoopExecutio
+      ns(run,i);
+ 851  ClosedLoopINV(run,s,h)=0;
+ 852  ClosedLoopBO(run,s,h)=0;
+ 853  ClosedLoopShip(run,s,h)=0;
+ 854  ClosedLoopShip_sales(run,s,h)=0;
+ 855  ClosedLoopStart(run,h)=0;
+ 856  Cost_EndInventory(run)=0;
+ 857  ClosedLoopExecutions(run,i)=0;
+ 858  *This parameter switches to 1 at end of this file
+ 859  *indicating a succesful run(sweep of code) throughout
+ 860  PARAMETER SUCCESS /0/;
+ 861   
+ 862   
+ 863  PARAMETER timeLeft /0/;
+ 864  PARAMETER endingSeed /0/;
+ 865  *PARAMETER sample /0/;
+ 866   
+ 867  ********************STOPPING CRITERION*************
+      PARAMETER mean_runcost(run), std_dev_runcost(run), delta_std_dev_runcost(r
+      un), max_delta_std_dev_runcost(run), N_run count of runs;
+      mean_runcost(run)=0;
+      std_dev_runcost(run)=0;
+      delta_std_dev_runcost(run)=0;
+      max_delta_std_dev_runcost(run)=0;
+      N_run=0;
+      ALIAS(run,run_p);
+      ********************STOPPING CRITERION*************
+ 878   
+ 879  ********************[Start] Evaluations Runs *****************************
+      **********
+ 880  loop(run,
+      put screen;
+      put 'I am on run ' run.tl;
+      putclose;
+      put log;
+      put 'I am on run ' run.tl;
+      putclose;
+ 889   
+ 890  *We need to reset Dst_full(s,h) with each run to nominal values
+ 891  *and then as MH goes forward, Dst_full slowly takes the value of Dst_full_
+      realization
+ 892  *for that particular run, after which here we need to refresh it to nomina
+      l values
+ 893  Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o,r
+      un)/1)));
+ 894   
+ 895  if(0 eq 1,
+ 896  abort$1 "Look into robust case demand generation in MasterFile and make su
+      re its correct";
+ 897           Dst_full(s,h)=Dst_full(s,h)*(1+ lambda_Demand);
+ 898  );
+ 899  *this time sample is equal to 1, so we are in evaluation mode
+ 900   
+ 901  ********CLOSED-LOOP SOLUTION*********
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+ 903  OPTIONS limrow = 0, limcol = 0, solprint = off;
+ 904  *OPTIONS limrow = 1000, limcol = 1000, solprint = on;
+ 905  *No upper limit on inventory (equation not enforced)
+ 906   
+ 907  loop(calc,
+ 908  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+ 909  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+ 910  *abort$1 "stopped for debugging";
+ 911  *abort$(ord(calc)-1 eq 1) "stopped for debugging";
+ 912   
+ 913  *********VARIABLE RESCHEDULING FREQUENCY********
+ 914  *resetting old parameter values
+ 915  WbarInfo(i,j,n,hbar)=0;
+ 916  BbarInfo(i,j,n,hbar)=0;
+ 917   
+ 918  *DEMAND SAMPLING
+ 919  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+ 920          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+      ))) ) = Dst_full_realization(s,h,run);
+ 921  *Now allocating demands to the rolling horizon calculation
+ 922          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+      ));
+ 923   
+ 924   
+      * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+      *are wrongly fixed)
+      if (re_freq=0,
+      *Reschedule flag is 1 for first optimization
+              reschedule_flag=0;
+      *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+              reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+      *Also do find schedule for the very first optimization
+              reschedule_flag$(ord(calc)-1 eq 0)=1;
+      *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+              if (reschedule_flag=1,
+      *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+                      fixed_decisions=0;
+              else
+      *Forced to follow previous fixed (planned) decisions
+                      fixed_decisions=card(n)-1;
+              );
+      else
+ 945          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+ 946          reschedule_flag=0;
+ 947          reschedule_flag$(fixed_decisions=0)=1;
+ 948  *);
+ 949  record_fixed_decision(calc)=fixed_decisions;
+ 950  record_reschedule_flag(calc,run)=reschedule_flag;
+ 951   
+ 952  *Unfix fixed variables
+ 953  Ship.lo(s,n)=0;Ship.up(s,n)=Inf;
+ 954  Rst.lo(s,n)=0;Rst.up(s,n)=Inf;
+ 955  Ship_sales.lo(s,n)=0;Ship_sales.up(s,n)=Inf;
+ 956  *Uut.lo(u,n)=0; Uut.up(u,n)=Inf;
+ 957  *Fix Input states
+ 958  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+ 959  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 960  Ship.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment(run,calc-1,s,
+      n+1);
+ 961  Rst.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_Rst(run,calc-1,s,n+1);
+ 962  Ship_sales.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment_sales(r
+      un,calc-1,s,n+1);
+ 963  T.fx(i,j,hbar)=0;
+ 964  *********VARIABLE RESCHEDULING FREQUENCY********
+ 965  *(Variable rescheduling frequency does not extend to disturbances other th
+      an demand)
+ 966   
+ 967  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+ 968  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+      ntory(s)$(ord(calc)-1 eq 0);
+ 969  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+      cklog(s)$(ord(calc)-1 eq 0);
+ 970  *Uut.fx(u,n)$(ord(n)-1 le 0)=record_utility(run,calc-1,u,n+1);
+ 971   
+ 972   
+ 973  *Fix backlogs to zero if corresponding flag is 0
+ 974  if(1 eq 0,
+ 975  Backlog.fx(s,n)=0;
+ 976  BacklogTerminal.fx(s)=0;
+ 977  );
+ 978  *Dst(s,n)$(product_states(s) AND ord(n) eq 1) = 1;
+ 979  *Ship_sales.fx(s,n)$(ord(n)-1 eq 0 AND sameas(s,'M4')) = 8.05;
+ 980  *Ship_sales.fx(s,n)$(ord(n) lt card(n)) = 0;
+ 981   
+ 982  *cc=execseed;
+ 983  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 984  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+ 985  *if(%Demand_Disturbance_Flag% eq 1,
+ 986  *);
+ 987   
+ 988  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+ 989  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+ 990  *Now allocating demands to the rolling horizon calculation
+ 991  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+ 992  **UNCOMMENT HERE TO HERE
+ 993  *Display Dst_full;
+ 994   
+ 995   
+ 996  *UnitBreakdown disturbance
+ 997  *First breakdown unit for whole horizon and then sample after 1 time step
+ 998  *when it is coming back
+ 999  UnitBroken(j,n)=0;
+1000  Zhat(i,j,n,hbar)=0;
+1001  if(0 eq 1 and ord(calc)-1 ge 2,
+1002           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) le lambda_UnitBreakdown and D
+      uration_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(
+      run,calc-1,'W',i,j,n,hbar-1)) gt 0));
+1003   
+1004  *If there is a delay ongoing then sample this breakdown
+1005           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) le lambda_UnitBreakdown and Dur
+      ation_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(ru
+      n,calc-1,'W',i,j,n,hbar)) gt 0));
+1006   
+1007  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+1008  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+1009   
+1010  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+1011  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+1012  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1013           Duration_breakdown(calc,j)=time_to_bring_unit_back_online$(sum((h
+      bar,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1
+       and Duration_breakdown(calc-1,j) eq (card(h)))
+1014                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+1015                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1016  *display Breakdown,duration_breakdown;
+1017   
+1018           UnitBroken(j,n)=0;
+1019           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+1020   
+1021           Zhat(i,j,n,hbar)=0;
+1022           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+      )=1;
+1023   
+1024  );
+1025   
+1026   
+1027   
+1028  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+1029  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+1030  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+1031  *was already over in the last horizon
+1032  if(1 eq 1,
+1033  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+1034  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+1035            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+1036            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+      (calc-1,i,j,hbar) eq 0)=default_delay_length$(uniform(0,1) ge 0.6 and (sum
+      (n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and De
+      lay(calc-1,i,j,hbar-1) eq 0));
+1037  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+1038  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+1039   
+1040  *display Delay;
+1041  *Wipes out previous Yhats
+1042            Yhat(i,j,n,hbar)=0;
+1043  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+1044            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+1045  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+1046            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+      1$(Delay(calc,i,j,hbar) gt 0);
+1047   
+1048  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+1049  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+1050  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+1051  );
+1052   
+1053  *display Yhat;
+1054  *display WbarInfo;
+1055  *display BbarInfo;
+1056   
+1057   
+1058  *Introducing disturbance in material handling(loading/unloading)
+1059  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+1060  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+1061  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+1062  if(0 eq 1,
+1063  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+1064  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+1065  *wipes out previous parameter values
+1066  betaHatProd(i,j,s,n)=0;
+1067  betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-0
+      .1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yhat
+      (i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+1068  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+1069  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+1070  );
+1071  *Display betaHatProd;
+1072   
+1073   
+1074  *Correct allocation constraint
+1075  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+1076  KillOccupy(j,n)=0;
+1077  KillDuration(i,j)$Ij(i,j)=KillLength$(0);
+1078  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+1079  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+1080  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+1081  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+1082  if(0 eq 0,
+1083     T.fx(i,j,hbar)=0;
+1084  );
+1085  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+1086  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+1087   
+1088  ***************UTILITIES**************************************************
+      ******
+1089  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+      ;
+1090  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+      ailable_full(j,h));
+1091  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+1092  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+1093  *This correction is needed in model file
+1094  ***************UTILITIES**************************************************
+      ******
+1095  *Display Dst;
+1096   
+1097  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+1098  *Solve optimization horizon
+1099   
+1100  Option IntVarUp=0;
+1101  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+1102  MIN_COST.optcr = optcr_value$(reschedule_flag)+1$(NOT reschedule_flag);
+1103  MIN_COST.reslim = timelimit;
+1104  MIN_COST.holdFixed=1;
+1105  solve MIN_COST using MIP MINIMIZING obj_variable;
+1106   
+1107  modelStat(calc,run)=MIN_COST.ModelStat;
+1108  *Watch out what should be denominator, Relaxed or Best found solution
+1109  *Cplex uses division by best found integer solution
+1110  Est_modelGap1(calc,run)=abs((MIN_COST.objEst-MIN_COST.objVal)/(MIN_COST.ob
+      jVal+1E-10));
+1111  Est_modelGap2(calc,run)=abs((MIN_COST.objEst-MIN_COST.objVal)/(MIN_COST.ob
+      jEst+1E-10));
+1112  Suboptimal_objective=MIN_COST.objVal;
+1113   
+1114  ETSolve(calc,run)=MIN_COST.etSolve;
+1115  ETSolver(calc,run)=MIN_COST.etSolver;
+1116  iterUsd(calc,run)=MIN_COST.iterUsd;
+1117  nodUsd(calc,run)=MIN_COST.nodUsd;
+1118  resUsd(calc,run)=MIN_COST.resUsd;
+1119  numDVar(calc,run)=MIN_COST.numDVar;
+1120  numEqu(calc,run)=MIN_COST.numEqu;
+1121  numInfes(calc,run)=MIN_COST.numInfes;
+1122  numNZ(calc,run)=MIN_COST.numNZ;
+1123  numVar(calc,run)=MIN_COST.numVar;
+1124  solveStat(calc,run)=MIN_COST.solveStat;
+1125   
+1126  *Recording optimized variables for each optimization horizon
+1127  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Bbar.l(i,j,n,hbar);
+1128  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Wbar.l(i,j,n,hbar);
+1129  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+1130  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Wbar.l(i,j,n,hbar));
+1131  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+      ar);
+1132  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+1133  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+1134  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+1135  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+1136  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+1137  record_objective(run,calc)=obj_variable.l;
+1138  record_utility(run,calc,u,n)=Uut.l(u,n);
+1139  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+1140  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+1141  record_shipment_raw(run,calc,s,n)=Ship.l(s,n);
+1142  record_shipment(run,calc,s,n)=round(Ship.l(s,n),2);
+1143  record_shipment_sales_raw(run,calc,s,n)=Ship_sales.l(s,n);
+1144  record_shipment_sales(run,calc,s,n)=round(Ship_sales.l(s,n),2);
+1145  record_Rst_raw(run,calc,s,n)=Rst.l(s,n);
+1146  record_Rst(run,calc,s,n)=round(Rst.l(s,n),2);
+1147  record_demands(run,calc,s,n)=Dst(s,n);
+1148  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+1149   
+1150  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+1151  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+1152   
+1153  BOStat_OL(calc,run) =  1$(sum((s,n),record_backlog(run,calc,s,n)+record_ba
+      cklogTerminal(run,calc,s)) > 0);
+1154  BOStat_CL(calc,run) =  1$(sum((s,n)$(ord(n)-1 eq 0),record_backlog(run,cal
+      c,s,n)) > 0);
+1155   
+1156  *display ship.l;
+1157  Optimal_Objective=Suboptimal_Objective;
+1158  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1159  IF(MIN_COST.optcr <> 0 AND reschedule_flag eq 1,
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+1165  MIN_COST.optcr=0;
+1166  solve MIN_COST using MIP MINIMIZING obj_variable;
+1167  Optimal_Objective=MIN_COST.objVal;
+1168  True_modelGap(calc,run)=(Suboptimal_objective-Optimal_Objective)/(Optimal_
+      objective+1E-10);
+1169  TimeToSolveOptimal(calc,run)=MIN_COST.resUsd;
+1170  );
+1171   
+1172  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1173   
+1174  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+1175   
+1176  IF (reschedule_flag eq 1,
+1177  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1178  solve MIN_COST using RMIP MINIMIZING obj_variable;
+1179  record_relaxed_objective(run,calc)=obj_variable.l;
+1180  IntegralityGap(calc,run)=record_relaxed_objective(run,calc)/(Optimal_Objec
+      tive+1E-10);
+1181  record_relaxed_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Bbar.l(i,j,n,hbar);
+1182  record_relaxed_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Wbar.l(i,j,n,hbar);
+1183  record_relaxed_shipment(run,calc,s,n)=Ship.l(s,n);
+1184  record_relaxed_shipment_sales(run,calc,s,n)=Ship_sales.l(s,n);
+1185  record_relaxed_backlog(run,calc,s,n)=Backlog.l(s,n);
+1186  );
+1187  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1188   
+1189  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF RMIP NOW**********
+1190   
+1191  );
+1192  **END OF CALC LOOP HERE
+1193   
+1194  *END OF SOLUTION FILE
+1195   
+1196   
+1197   
+1198  ********STORING CL-SOLUTION IN RECOGNIZABLE PARAMETERS FOR EASY ACCESS AND
+       ANALAYSIS*******
+1199  loop((n,calc)$(ord(n)-1 eq 0),
+1200           ClosedLoopINV(run,s,h)$(ord(h) eq ord(calc))=record_inventory(run
+      ,calc,s,n);
+1201           ClosedLoopBO(run,s,h)$(ord(h) eq ord(calc))=record_backlog(run,ca
+      lc,s,n);
+1202           ClosedLoopShip(run,s,h)$(ord(h) eq ord(calc))=record_shipment(run
+      ,calc,s,n);
+1203           ClosedLoopShip_sales(run,s,h)$(ord(h) eq ord(calc))=record_shipme
+      nt_sales(run,calc,s,n);
+1204           ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=sum((i,j,hbar)$(Ij(i
+      ,j) AND ord(hbar)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1205  *         ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=0;
+1206  );
+1207           ClosedLoopExecutions(run,i)=sum((calc,j,n,hbar)$(Ij(i,j) AND ord(
+      hbar)-1 eq 0
+1208                                           AND ord(n)-1 eq 0 AND ord(calc)-1
+       le 6-1),
+1209                                           record_states(run,calc,'W',i,j,n,
+      hbar));
+1210   
+1211  *         runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*Sinv(s,
+      h));
+1212  *         runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*BO(s,h))
+      ;
+1213           runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLo
+      opINV(run,s,h));
+1214           runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLoo
+      pBO(run,s,h));
+1215           runcost_W(run)=sum((h)$closed_loop(h),ClosedLoopStart(run,h));
+1216  *total profit from all shipments (demand+sales)
+1217   
+1218           runcost(run)=runcost_Inv(run)+runcost_BO(run)+runcost_W(run);
+1219   
+1220  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),
+1221  *                                 Cst_new(s)*(ClosedLoopShip(run,s,h)+Clos
+      edLoopShip_sales(run,s,h) ));
+1222           sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(h
+      ) and (ord(h)-1 ne 6) ),
+1223                                   Cst_new(s)*(ClosedLoopShip_sales(run,s,h)
+       ));
+1224  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),Cst_new(s)*ClosedLoopShip
+      _sales(run,s,h));
+1225           Cost_EndInventory(run)=sum((s,h)$(product_states(s) and ord(h)-1 
+      eq 6),Cst_new(s)*ClosedLoopINV(run,s,h));
+1226  *         runcost_W(run)=0;
+1227  *         runprofit(run)=sum((s,h)$(product_states(s) and closed_loop(h)),
+      Cst_new(s)*ClosedLoopShip(run,s,h))+runcost_W(run);
+1228  *Runprofit includes subtraction of BO even at last point because BO are wr
+      itten like inventory
+1229  *BO at 168 means just before 168th point. Ship at 168 means at 168 not bef
+      ore or after.
+1230  *Our runprofit is only for 167 points of closed loop and 168th point as co
+      rrection. So we are essentially wasting the last decision
+1231  *that is the open loop that was computed at 168.
+1232           runprofit(run)=sales_profit(run)+Cost_EndInventory(run)
+1233                           -(runcost_W(run)-sum((h)$(ord(h)-1 eq 6),ClosedLo
+      opStart(run,h)))
+1234                           -runcost_BO(run);
+1235   
+1236  *         runprofit(run)=runcost_Inv(run)-runcost_BO(run)
+1237  *                        +1E1*sum((s,h)$(product_states(s) and closed_loop
+      (h)),Cst_new(s)*ClosedLoopShip(run,s,h));
+1238   
+1239  *Does not include cost of Terminal BO and inventory but thats okay because
+       they are irrelevant when some extra horizon is allowed for getting comple
+      te closed loop rolling horizon solution
+1240  ************[Start]Information to get very crude estimate for running time
+       left**************
+1241  timeLeft=MIN_COST.etSolve*(card(run)-ord(run))*card(calc);
+      put screen;
+      put 'Time for run ' P1.etSolve;
+      put ' Estimated Time Left ' timeLeft;
+      putclose;
+1248  *************[End]Information to get very crude estimate for running time 
+      left***************
+1249   
+      *************Stopping Criterion**************
+      N_run=ord(run);
+      mean_runcost(run)=sum(run_p$(ord(run_p) le N_run),runcost(run_p))/N_run;
+      std_dev_runcost(run)$(ord(run) gt 1)= sqrt(       sum(run_p$(ord(run_p) le
+       N_run),     ( abs(  runcost(run_p)-mean_runcost(run) )**2)) /(N_run-1)   
+       );
+      delta_std_dev_runcost(run)$(ord(run) gt 2)=std_dev_runcost(run)/std_dev_ru
+      ncost(run-1)  - 1;
+      max_delta_std_dev_runcost(run)= sqrt( 1 + (1.96**2-1)/N_run ) -1;
+      *icdfnorm(0.95,0,1);
+      *************Stopping Criterion**************
+1260  );
+1261  ********************[End] runs loop **************************************
+      *
+1262   
+1263  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1264  PARAMETERS BS(i,j,h),start(i,j,h),Sinv(s,h),end(i,j,h),BO(s,h);
+1265  IF (1 eq 0,
+1266           loop((run,calc)$(ord(run) eq 1),
+1267             BS(i,j,h)$(ord(h) eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 
+      and ord(n)-1 eq 0),record_states(run,calc,'B',i,j,n,hbar));
+1268  *start(i,j,h)$(ord(h)eq ord(calc))=round(sum((hbar,n)$(ord(hbar)-1 eq 0 an
+      d ord(n)-1 eq 0),record_states(calc,'W',i,j,n,hbar)));
+1269             start(i,j,h)$(ord(h)eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 
+      0 and ord(n)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1270             Sinv(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_in
+      ventory(run,calc,s,n));
+1271             BO(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_back
+      log(run,calc,s,n));
+1272           );
+1273  ELSE
+1274  *Write OPEN loop static gantt chart %GanttChart_OPENLOOP% eq 1
+1275           loop((run,calc)$(ord(run) eq 1 and ord(calc)-1 eq 3),
+1276             BS(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(n) 
+      eq ord(h))),record_states(run,calc,'B',i,j,n,hbar));
+1277             start(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(
+      n) eq ord(h))),record_states(run,calc,'W',i,j,n,hbar));
+1278             Sinv(s,h)=sum(n$(ord(n) eq ord(h)),record_inventory(run,calc,s,
+      n));
+1279             BO(s,h)=sum(n$(ord(n) eq ord(h)),record_backlog(run,calc,s,n));
+1280           );
+1281  );
+1282  *Have ending account for task delays
+1283  end(i,j,h) = start(i,j,h-pi_new(i))$(BS(i,j,h-pi_new(i))>0);
+1284  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1285   
+1286  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1287  SUCCESS=1;
+1288  EXECUTE_UNLOAD 'Z_N2_MH12_RF_Event_Cost.gdx';
+1289  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1290   
+1291  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1292  IF(1 eq 1,
+1293  ************************************************
+1294  ********Closed-Loop GanttChartGeneration********
+1295  ************************************************
+1296  *Name of the excel file where the data will be exported
+1297  *$setglobal file %Results_FileName%_Gantt
+1298  *i = set of tasks
+1299  *j = set of units
+1300  *h = set of time points
+1301  *BS = batch size of task i starting in unit j at time t (must be indexed i
+      jt)
+1302  *start = binary variable that is 1 if task i starts in unit j at time t (m
+      ust be indexed ijt)
+1303  *Sinv = inventory level of material s at time t (must be indexed st)
+1304  *BO= backorder of state s at time t
+1305  *end =  binary variable that is 1 if task i ends in unit j at time t (must
+       be indexed ijt)
+1306   
+1307  *EXECUTE_UNLOAD '%Results_FileName%_Gantt.gdx' BS i j h  Sinv start end;
+1308   
+1309  *The first word of each line gives the type: set = set, var = variable, pa
+      r = parameter. This may need to be changed depending on your model
+1310  *The location of the output or the sheet names must not be changed
+1320   
+1321  *display BS,start,end,Sinv,BO;
+1322           IF (1 eq 0,
+1323                    EXECUTE 'gdxxrw Input=Z_N2_MH12_RF_Event_Cost.gdx Output
+      =Z_N2_MH12_RF_Event_Cost_Gantt_CL @GANTT_write.txt'
+1324           ELSE
+1325                    EXECUTE 'gdxxrw Input=Z_N2_MH12_RF_Event_Cost.gdx Output
+      =Z_N2_MH12_RF_Event_Cost_Gantt_OL_3 @GANTT_write.txt'
+1326           );
+1327  );
+1328  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1329   
+1330  *END OF MASTER FILE
+1331   
+1332   
+1333   
+1334   
+1335   
+1336   
+1337  *Watch out for overflow of solution for rolling horizon...ie the spilling 
+      over of
+1338  *rolling horizon beyond real horizon to get last implemented closed loop s
+      olution
+1339   
+1340   
+1341  *$set console
+1342  *$if %system.filesys% == UNIX  $set console /dev/tty
+1343  *$if %system.filesys% == DOS $set console con
+1344  *$if %system.filesys% == MS95  $set console con
+1345  *$if %system.filesys% == MSNT  $set console con
+1346  *$if "%console%." == "." abort "filesys not recognized";
+1347  *file screen / '%console%' /;
+1348  *file log /''/
+1349   
+1350   
+1351   
+1352   
+1353   
+1354   
+1355   
+1356   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 5
+State_Space_Model
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes\GAM
+                                          S_Code\Z_N2_MH12_RF_Event_Cost.gms
+     2       21 INCLUDE        1      21  .C:\Users\dhruv\Box Sync\Work\Codes\GA
+                                           MS_Code\ConfigurationFile.gms
+     3       91 INCLUDE        2      70  ..C:\Users\dhruv\Box Sync\Work\Codes\G
+                                            AMS_Code\MasterFile.gms
+     4      108 INCLUDE        3      17  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\NetworkN2.gms
+     5      216 INCLUDE        3      18  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\Model9.gms
+     6      902 INCLUDE        3     151  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\ModelSolution9.gms
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 6
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.078 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.109 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 7
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             9056.0000
+
+ RESOURCE USAGE, LIMIT          0.109       600.000
+ ITERATION COUNT, LIMIT      1153    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.11sec (det. 65.52 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.39 ticks)
+Proven optimal solution.
+
+MIP Solution:         9056.000000    (1149 iterations, 77 nodes)
+Final Solve:          9056.000000    (4 iterations)
+
+Best possible:        9056.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 8
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 9
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3803.6000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        74    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.03 ticks)
+Optimal solution found.
+Objective :        3803.600000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 10
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.093 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.093 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 11
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             9055.0000
+
+ RESOURCE USAGE, LIMIT          0.093       600.000
+ ITERATION COUNT, LIMIT       223    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.09sec (det. 18.46 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.39 ticks)
+Proven optimal solution.
+
+MIP Solution:         9055.000000    (220 iterations, 0 nodes)
+Final Solve:          9055.000000    (3 iterations)
+
+Best possible:        9055.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 12
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 13
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6303.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        74    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.04 ticks)
+Optimal solution found.
+Objective :        6303.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 14
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.015 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 15
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             9055.0000
+
+ RESOURCE USAGE, LIMIT          0.078       600.000
+ ITERATION COUNT, LIMIT       213    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.08sec (det. 19.10 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.39 ticks)
+Proven optimal solution.
+
+MIP Solution:         9055.000000    (209 iterations, 0 nodes)
+Final Solve:          9055.000000    (4 iterations)
+
+Best possible:        9055.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 16
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 17
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6303.0000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        82    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.10 ticks)
+Optimal solution found.
+Objective :        6303.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 18
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 19
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE            12104.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT       174    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 11.01 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.39 ticks)
+Proven optimal solution.
+
+MIP Solution:        12104.000000    (168 iterations, 19 nodes)
+Final Solve:         12104.000000    (6 iterations)
+
+Best possible:       12104.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 20
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 21
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6552.5000
+
+ RESOURCE USAGE, LIMIT          0.032       600.000
+ ITERATION COUNT, LIMIT        78    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 1.10 ticks)
+Optimal solution found.
+Objective :        6552.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 22
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 23
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE            12054.0000
+
+ RESOURCE USAGE, LIMIT          0.046       600.000
+ ITERATION COUNT, LIMIT       183    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 10.19 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.39 ticks)
+Proven optimal solution.
+
+MIP Solution:        12054.000000    (178 iterations, 19 nodes)
+Final Solve:         12054.000000    (5 iterations)
+
+Best possible:       12054.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 24
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 25
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6202.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        81    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 1.12 ticks)
+Optimal solution found.
+Objective :        6202.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 26
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 27
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE            12004.0000
+
+ RESOURCE USAGE, LIMIT          0.109       600.000
+ ITERATION COUNT, LIMIT       217    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.11sec (det. 11.54 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.40 ticks)
+Proven optimal solution.
+
+MIP Solution:        12004.000000    (211 iterations, 19 nodes)
+Final Solve:         12004.000000    (6 iterations)
+
+Best possible:       12004.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 28
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 29
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5852.5000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        86    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.16 ticks)
+Optimal solution found.
+Objective :        5852.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 30
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1105
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 31
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1105
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1105
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE            11804.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT       194    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 19.64 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.40 ticks)
+Proven optimal solution.
+
+MIP Solution:        11804.000000    (189 iterations, 0 nodes)
+Final Solve:         11804.000000    (5 iterations)
+
+Best possible:       11804.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 32
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1178
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          480
+BLOCKS OF VARIABLES          10     SINGLE VARIABLES          497
+NON ZERO ELEMENTS         1,378     DISCRETE VARIABLES        173
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 33
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1178
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1178
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5002.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        88    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.03 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 1.15 ticks)
+Optimal solution found.
+Objective :        5002.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:11:08 Page 34
+State_Space_Model
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.484 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH12_RF_Event_Cost.
+           gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH12_RF_Event_Cost.
+           lst

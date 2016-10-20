@@ -1,0 +1,21 @@
+$SETGLOBAL NetworkNumber          N2
+$SETGLOBAL MH                     8
+SCALAR re_freq                    /1/;
+PARAMETER demand_cycletime        /3/;
+PARAMETER demand_variation        /1/;
+PARAMETER demand_magnitude        /3.00/;
+PARAMETER lambda_Demand           /0.1000/;
+SCALAR surprise                   /0.0000/;
+SCALAR optcr_value                /0.0000/;
+PARAMETER SEED_VALUE              /17158/;
+$SETGLOBAL N_runs                 1
+$EVALGLOBAL H                     32+192
+$SETGLOBAL Results_FileName       Z_N2_MH8_RF1_OPT1_DF3_DV1_DL3_DU1_S1_MC1_Cost
+$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing
+$SETGLOBAL MODEL_NAME              MIN_COST
+$SETGLOBAL InitialInventoryBufferHours                 6
+$SETGLOBAL Transient_H             0
+$SETGLOBAL Closed_Loop_Upper       168
+$SETGLOBAL Backlog_flag            1
+$SETGLOBAL Gantt_OL_Number       1
+$INCLUDE ConfigurationFile.gms

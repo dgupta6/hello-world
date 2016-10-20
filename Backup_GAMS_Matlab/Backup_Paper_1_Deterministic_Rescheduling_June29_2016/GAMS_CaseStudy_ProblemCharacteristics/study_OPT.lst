@@ -1,0 +1,162 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/15/16 13:43:32 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+   2  *MH      Moving Horizon Length           /MH0 6,MH1001 9, MH1 12, MH2 15, 
+      MH3 18, MH4 21, MH5 24, MH6 30, MH7 36, MH8 42, MH9 48/;
+   3  SETS
+   4  *DESIGN PARAMETERS
+   5  MH      Moving Horizon Length           /MH1*MH3/
+   6  RF      Rescheduling Frequency          /RF1*RF4/
+   7  OPT     Optimality gap                  /OPT1*OPT11/
+   8  *TESTING OVER SPACE OF
+   9  N       Network                         /N1*N3,N4/
+  10  DF      Demand Freq                     /DF1*DF4/
+  11  *Variation in temporal position of demand
+  12  DV      Demand Variation                /DV1/
+  13  DL      Demand Load                     /DL1*DL3/
+  14  *Uncertainty in magnitude of demand
+  15  DU      Demand Uncertainty              /DU1/
+  16  MC      Monte Carlo Run#                /MC1*MC10/
+  17  S       surprise                        /S1/
+  18  *S       surprise                        /S0 0,S1 0.25/
+  19  Obj     MinCost or MaxProfit            /Cost,Profit/;
+  20   
+  21   
+  22  *Testing space
+  23  TABLE par_DF(N,DF)
+  24          DF1     DF2     DF3     DF4
+  25  N1      2       4       6       8
+  26  N2      3       6       9       12
+  27  N3      5       10      15      20
+  28  N4      3       6       9       12;
+  29  TABLE par_DV(DF,DV)
+  30          DV1
+  31  DF1     1
+  32  DF2     1
+  33  DF3     2
+  34  DF4     3;
+  35   
+  36  *DEMAND MAGNITUDE
+  37  *APPROX 50%, 80% and 100% load
+  38  PARAMETER
+      par_DM(N,DF,DL)  /N1.DF1.(DL1 1,DL2 3,DL3 5),
+                        N2.DF1.(DL1 3,DL2 4,DL3 5),
+                        N3.DF1.(DL1 1,DL2 3,DL3 5),
+                        N4.DF1.(DL1 1,DL2 2,DL3 3),
+                        N4.DF2.(DL1 2,DL2 3,DL3 5),
+                        N4.DF3.(DL1 4,DL2 6,DL3 8),
+                        N4.DF4.(DL1 5,DL2 8,DL3 10)/;
+  48  par_DM(N,DF,DL)  /N2.DF1.(DL1 3,DL2 4,DL3 5)/;
+  49  par_DM(N,DF,DL)$(ord(N) eq 2)= par_DM(N,'DF1',DL)*(par_DF(N,DF)/par_DF(N,'
+      DF1'));
+  50   
+  51   
+  52   
+  53  *Demand magnitude uncertainty
+  54  PARAMETER par_DU(DL,DU),par_S(S);
+  55  par_DU(DL,DU)=0.1;
+  56  par_S(S)=0;
+  57  *Now setting seed for each demand monte carlo sample
+  58  PARAMETER seed(MC);
+  59  loop MC do seed(MC)=UniformInt(1,card(MC)*999); endloop
+****        $7 $10                                          $140
+  60  display seed;
+****        $36
+  61   
+  62  *Design decisions
+  63  PARAMETER
+****          $349
+  64  par_MH(N,DF,MH)
+  65  par_RF(N,DF,RF)
+  66  par_OPT(N,OPT);
+  67   
+  68  par_MH(N,DF,MH)= 12+6*(ord(MH)-1);
+  69  par_RF(N,DF,RF)= 3*(ord(RF)-1);par_RF(N,DF,RF)$(ord(RF) eq 1)= ord(RF);
+  70  par_OPT(N,OPT)=0.025*(ord(OPT)-1);
+  71   
+  72  MH_max=smax((N,DF,MH),par_MH(N,DF,MH));
+****       $140
+  73  *N       Network                         /N1 1,N2 2,N3 3/
+  74  *RF      Rescheduling Frequency          /RF0 0,RF1 1, RF2 3, RF3 6/
+  75  *OPT     Optimality gap                  /OPT0 0, OPT1 0.025, OPT2 0.05, O
+      PT3 0.075, OPT4 0.1/;
+  76   
+  77   
+  78  *Due to difference in complexities we only want certain combinations of N,
+      MH
+  79  SET N_DL_combination(N,DL);
+****    $349
+  80  N_DL_combination(N,DL)=no;
+  81  N_DL_combination(N,DL)=yes;
+  82  *N_DL_combination(N,DL)$(ord(N) ge 2 AND ord(DL) le 3)=yes;
+  83   
+  84  SET N_MH_combination(N,MH);
+****    $349
+  85  N_MH_combination(N,MH)=no;
+  86  *N_MH_combination(N,MH)=yes$( (ord(N) eq 1 and ord(MH) le 3) OR (ord(N) gt
+       1 and ord(MH) gt 1));
+  87  N_MH_combination(N,MH)$(ORD(N) eq 2)=yes;
+  88  display N_MH_combination;
+  89   
+  90  SET Demand_combination(DF,DV,DL,DU,S);
+****    $349
+  91  Demand_combination(DF,DV,DL,DU,S)=no;
+  92  Demand_combination(DF,DV,DL,DU,S)$(ord(DU) eq 1 AND ord(S) eq 1)=yes;
+  93  display Demand_combination;
+  94   
+  95  SET N_Obj_combination(N,OBJ);
+****    $349
+  96  N_Obj_combination(N,OBJ)=no;
+  97  N_Obj_combination(N,OBJ)$(ord(OBJ) eq 2)=yes;
+  98   
+  99   
+ 100  SET comb(N,MH,RF,OPT);
+****    $349
+ 101  comb(N,MH,RF,OPT)= no;
+ 102  comb(N,MH,RF,OPT)= yes;
+ 103   
+ 104  *comb(N,MH,RF,DL,OPT)$(ord(N) ge 1 and ord(MH) eq 1 and Ord(RF) eq 1 and O
+      Rd(DL) eq 2 and ord(OPT) eq 1)= yes;
+ 105  *comb(N,MH,RF,L,OPT)$(ord(OPT) eq 1)= yes;
+ 106  *comb(N,MH,RF)$(ord(N) eq 1 and ord(MH) eq 1)= yes;
+ 107  *comb(N,MH,RF,OPT)$(ord(N) eq 1 AND ord(MH) eq 1 AND ord(RF) eq 1 AND ord(
+      OPT) eq 1)= yes;
+ 108  *Only allowing certain combinations of Networks and Moving horizons
+ 109  *comb(N,MH,RF,DL,OPT)$(NOT N_MH_combination(N,MH))=no;
+****  $767,299  UNEXPECTED END OF FILE (1)
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 01/15/16 13:43:32 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Error Messages
+
+
+  7  '(' expected
+ 10  ',' expected
+ 36  '=' or '..' or ':=' or '$=' operator expected
+     rest of statement ignored
+140  Unknown symbol
+299  Unexpected end of file
+349  Declaration not allowed inside a LOOP or IF statement
+767  Unexpected symbol will terminate the loop - symbol replaced by )
+
+**** 13 ERROR(S)   0 WARNING(S)
+
+
+COMPILATION TIME     =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Code_Paper1\stu
+           dy_OPT.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes_OnlineMethods\GAMS_Code_Paper1\stu
+           dy_OPT.lst
+
+**** USER ERROR(S) ENCOUNTERED

@@ -1,0 +1,18 @@
+
+--- Job MakeBatchFiles.gms Start 04/06/16 16:24:41 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- MakeBatchFiles.gms(36) 2 Mb
+--- .study_All_N2.gms(122) 3 Mb
+--- MakeBatchFiles.gms(178) 3 Mb
+--- Starting execution: elapsed 0:00:00.062
+--- MakeBatchFiles.gms(297) 4 Mb
+--- GDX File C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MakeBatchFiles.gdx
+--- Putfile LinuxBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\LinuxBatchFile.bat
+--- Putfile WindowsBatchFile C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\WindowsBatchFile.bat
+--- Putfile GamsFiles C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code_Paper1\MakeGMS.gms
+*** Status: Normal completion
+--- Job MakeBatchFiles.gms Stop 04/06/16 16:24:42 elapsed 0:00:01.045

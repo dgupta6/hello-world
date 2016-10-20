@@ -1,0 +1,702 @@
+
+--- Job ModelSolution9.gms Start 07/11/16 12:06:42 24.5.6 r55090 WEX-WEI x86 64bit/MS Windows
+GAMS 24.5.6   Copyright (C) 1987-2015 GAMS Development. All rights reserved
+Licensee: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+          University of Wisconsin - Madison                          DC4923
+          License for teaching and research at degree granting institutions
+--- Starting compilation
+--- ModelSolution9.gms(5) 3 Mb 1 Error
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+--- ModelSolution9.gms(13) 3 Mb 6 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+--- ModelSolution9.gms(14) 3 Mb 7 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(18) 3 Mb 14 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(20) 3 Mb 15 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(43) 3 Mb 17 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(44) 3 Mb 18 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(47) 3 Mb 19 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(48) 3 Mb 20 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(51) 3 Mb 21 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(52) 3 Mb 22 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(53) 3 Mb 23 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(56) 3 Mb 27 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 767 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unexpected symbol will terminate the loop - symbol replaced by )
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(57) 3 Mb 30 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(58) 3 Mb 33 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(59) 3 Mb 36 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(60) 3 Mb 39 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(61) 3 Mb 40 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(66) 3 Mb 46 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ModelSolution9.gms(67) 3 Mb 52 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Set for 'ord' is not controlled
+--- ModelSolution9.gms(72) 3 Mb 57 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(74) 3 Mb 58 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(75) 3 Mb 59 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(97) 3 Mb 60 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(98) 3 Mb 61 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(99) 3 Mb 66 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(103) 3 Mb 71 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(111) 3 Mb 78 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error 148 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(117) 3 Mb 79 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(120) 3 Mb 80 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(122) 3 Mb 81 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(130) 3 Mb 86 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(134) 3 Mb 90 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(140) 3 Mb 91 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(144) 3 Mb 93 Errors
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+*** Error 149 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Uncontrolled set entered as constant
+--- ModelSolution9.gms(149) 3 Mb 94 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(160) 3 Mb 99 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(165) 3 Mb 102 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(168) 3 Mb 103 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(174) 3 Mb 104 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(175) 3 Mb 110 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(178) 3 Mb 111 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(180) 3 Mb 115 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(182) 3 Mb 116 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(187) 3 Mb 120 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 120 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown identifier entered as set
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Set for 'ord' is not controlled
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(188) 3 Mb 123 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Set for 'ord' is not controlled
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(189) 3 Mb 126 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 154 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Set for 'ord' is not controlled
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(200) 3 Mb 127 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(201) 3 Mb 128 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(202) 3 Mb 129 Errors
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(203) 3 Mb 133 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Identifier expected
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ModelSolution9.gms(205) 3 Mb 137 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(208) 3 Mb 142 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(209) 3 Mb 147 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(210) 3 Mb 151 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(212) 3 Mb 155 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(213) 3 Mb 159 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(214) 3 Mb 163 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(215) 3 Mb 167 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(216) 3 Mb 171 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(217) 3 Mb 175 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(218) 3 Mb 179 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(219) 3 Mb 183 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(220) 3 Mb 187 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(221) 3 Mb 191 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(222) 3 Mb 195 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(225) 3 Mb 199 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(226) 3 Mb 202 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(227) 3 Mb 206 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(228) 3 Mb 209 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(229) 3 Mb 213 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(232) 3 Mb 214 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(233) 3 Mb 215 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(234) 3 Mb 216 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(235) 3 Mb 218 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(236) 3 Mb 220 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(237) 3 Mb 222 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(238) 3 Mb 223 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(239) 3 Mb 224 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(241) 3 Mb 225 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(243) 3 Mb 226 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(245) 3 Mb 227 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(246) 3 Mb 228 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(248) 3 Mb 229 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(249) 3 Mb 230 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(251) 3 Mb 231 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(252) 3 Mb 232 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(255) 3 Mb 233 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(257) 3 Mb 238 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error  10 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ',' expected
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(264) 3 Mb 241 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Identifier expected
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ModelSolution9.gms(265) 3 Mb 244 Errors
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(266) 3 Mb 245 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(267) 3 Mb 249 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error 119 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Number (primary) expected
+*** Error 143 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    A suffix is missing
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(268) 3 Mb 250 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(276) 3 Mb 253 Errors
+*** Error   2 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Identifier expected
+*** Error 241 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Model has not been defined
+*** Error 812 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Solve keys expected - USING MAX/MIN SCENARIO
+--- ModelSolution9.gms(277) 3 Mb 254 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(278) 3 Mb 255 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(279) 3 Mb 260 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(280) 3 Mb 263 Errors
+*** Error   8 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    ')' expected
+*** Error  36 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+*** Error 409 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- ModelSolution9.gms(281) 3 Mb 264 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(282) 3 Mb 265 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(283) 3 Mb 266 Errors
+*** Error 140 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Unknown symbol
+--- ModelSolution9.gms(284) 3 Mb 267 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(289) 3 Mb 268 Errors
+*** Error 408 in C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+    Too many ),] or }
+--- ModelSolution9.gms(294) 3 Mb 268 Errors
+*** Status: Compilation error(s)
+--- Job ModelSolution9.gms Stop 07/11/16 12:06:42 elapsed 0:00:00.361
+Exit code = 2

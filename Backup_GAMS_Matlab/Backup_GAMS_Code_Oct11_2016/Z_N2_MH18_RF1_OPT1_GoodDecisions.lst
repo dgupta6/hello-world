@@ -1,0 +1,4776 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   3  SCALAR re_freq                    /1/;
+   4  PARAMETER demand_cycletime        /6/;
+   5  PARAMETER demand_variation        /0/;
+   6  PARAMETER demand_magnitude        /5/;
+   7  PARAMETER lambda_Demand           /0.00/;
+   8  SCALAR surprise                   /0.00/;
+   9  SCALAR optcr_value                /0/;
+  10  PARAMETER SEED_VALUE              /1716/;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ConfigurationFile.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 2
+CONFIGURATION_FILE
+C o m p i l a t i o n
+
+
+  23   
+  24  *$SETGLOBAL OPTIMIZATION_DIRECTION  maximizing
+  25  *$SETGLOBAL MODEL_NAME MAX_PROFIT
+  26  *$SETGLOBAL InitialInventoryFlag 1
+  27   
+  28  *$SETGLOBAL OPTIMIZATION_DIRECTION  minimizing
+  29  *$SETGLOBAL MODEL_NAME MIN_COST
+  30  *$SETGLOBAL InitialInventoryFlag 0
+  31  *******HORIZON********
+  32  *$SETGLOBAL H 192
+  34  *$SETGLOBAL MH 20
+  35  *SCALAR re_freq /1/;
+  36  *Used in chopping off initial transient in closed loop cost evaluation
+  37  *$SETGLOBAL Transient_H 48
+  38  *$SETGLOBAL Transient_H 0
+  39  *We do Closed_Loop_Upper # of calc and record closed loop solution only ti
+      ll there
+  40  *$SETGLOBAL Closed_Loop_Upper 168
+  41  *$SETGLOBAL Closed_Loop_Upper 192
+  42  *******HORIZON********
+  43   
+  44  *******NETWORK AND MODEL********
+  45  *$SETGLOBAL NetworkNumber 1
+  48  *******NETWORK AND MODEL********
+  49   
+  50  *******DEMAND LOAD********
+  51  *PARAMETER demand_cycletime /12/;
+  52  *PARAMETER demand_variation /3/;
+  53  *PARAMETER demand_magnitude NOMINAL LOAD /25/;
+  54  *******DEMAND LOAD********
+  55   
+  56  ******DISTURBANCES********************
+  57  *$SETGLOBAL Demand_Disturbance_flag 0
+  61  *Parameters for demand uncertainty
+  62  *What fraction ahead of rolling Horizon does demand forecast changes'
+  63  *SCALAR surprise /0.34/;
+  64  *Magnitude of Uncertainties
+  65  *PARAMETER lambda_Demand /0.2/;
+  66  *Yet to replace these names in ModelSolution9 file
+  67  *and these values are hardcoded right now (look into code again)
+  68  PARAMETER lambda_TaskDelay /0.2/;
+  69  PARAMETER default_delay_length /1/;
+  70  PARAMETER lambda_UnitBreakdown /0.2/;
+  71  PARAMETER time_to_bring_unit_back_online /2/;
+  72  PARAMETER lambda_Handling /0.2/;
+  73  ******DISTURBANCES********************
+  74   
+  75  *******OPTIMIZATION OPTIONS****
+  76  *SCALAR   optcr_value /0/;
+  77  SCALAR   timelimit /600/;
+  78  *******OPTIMIZATION OPTIONS****
+  79   
+  80  *******EVALUATION********
+  81  *$SETGLOBAL N_runs 1
+  82  *******EVALUATION********
+  83   
+  84  *******REPORTING********
+  87  *$SETGLOBAL Results_FileName Config_Results
+  88  *******REPORTING********
+  89   
+  90  *Run the closed loop and generate results
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\MasterFile.gms
+  92  *Change this to name of the instance
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 3
+MasterFile
+C o m p i l a t i o n
+
+
+  98  *$OFFLISTING
+  99   
+ 100  execseed=SEED_VALUE;
+ 101  *parameter cc /0/;
+ 102   
+ 104  SCALAR KillLength /2/;
+ 105   
+ 106  SET run /run1*run1/;
+ 107   
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\NetworkN2.gms
+ 109  Sets     i tasks  /T1*T3/
+ 110           s states /M1*M4/
+ 111           j units  /U1*U2/
+ 112           u utilities /manpower/
+ 113   
+ 114  *         Ki(j,i) set of equipments(units) suitable for task i
+ 115  *         /(Reactor1).(TA,TB),Heater.Heating/
+ 116           Ij(i,j) set of equipments(units) suitable for task i
+ 117           /T1.U1,(T2,T3).U2/
+ 118   
+ 119           FIS(s) States with Finite Intermediate Storage /M2/
+ 120           product_states(s) Product States/M3*M4/
+ 121           feed_states(s) Feed States/M1/
+ 122   
+ 123           UtilInt Intervals for utility /Int1/
+ 124           UnitInt Intervals for unit-unavailability /Int1/
+ 125   
+ 126           Attributes/magnitude, starttime, price/
+ 127  ;
+ 128   
+ 129  Table UtilData(UtilInt,u,Attributes)
+ 130               manpower.starttime            manpower.magnitude      manpowe
+      r.price
+ 131  Int1                    0                         10                     0
+ 132  ;
+ 133   
+ 134  *Availability of unit  0=available, 1=not available
+ 135  Table UnitData(UnitInt,j,Attributes)
+ 136                U1.magnitude         U1.starttime
+ 137  Int1              0                     0
+ 138  ;
+ 139   
+ 140  Parameters rho(i,s) proportion of input of task i from states s
+ 141             /T1.M1 1,(T2,T3).M2 1/
+ 142             rhobar(i,s) proportion of ouput of task i to state s
+ 143             /T1.M2 1, T2.M3 1, T3.M4 1/
+ 144   
+ 145             pis(i,s) processing time for output of task i into state s
+ 146             /T1.M2 2,T2.M3 2, T3.M4 3/
+ 147             pi(i) maximum processing time in task i for any stage produced 
+      by it
+ 148   
+ 149             alpha(u,i) fixed utility demand by task i throughout its run
+ 150             /manpower.(T1*T2) 0/
+ 151             beta(u,i) "variable utility demand by task i throughout its run
+      (te/hr)"
+ 152             /manpower.(T1*T2) 0/
+ 153   
+ 154             vmaxij(i,j)  Maximum capacity of unit j when used for task i
+ 155             /T1.U1 20, (T2,T3).U2 10/
+ 156             vminij(i,j)  Minimum capacity of unit j when used for task i
+ 157             /T1.U1 10, (T2,T3).U2 5/
+ 158             Cs(s) maximum storage capacity for stage s  /(M1*M4) 99999/
+ 159             Cst(s) unit price of s/M1 1, M2 5, M3 10, M4 10/
+ 160  ;
+ 161  *pis(i,s)=5;
+ 162  pi(i)=smax(s,pis(i,s));
+ 163   
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      set         o orders /o1*o%H%/;
+      parameter deliveries_time(o);
+      deliveries_time(o)=demand_cycletime*ord(o);
+      deliveries_time(o)=deliveries_time(o)+UniformInt(-demand_variation,demand_
+      variation);
+      parameter deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+ 175   
+ 176  *END OF INSTANCE FILE
+ 177   
+ 178   
+ 179   
+ 180   
+ 181   
+ 182   
+ 183   
+ 184   
+ 185   
+ 186   
+ 187   
+ 188   
+ 189   
+ 190   
+ 191   
+ 192   
+      Table deliveries(o,s)
+              SA      SB
+      o1      5       5
+      o2      5       5
+      o3      5       5
+      o4      5       5
+      o5      5       5
+      o6      5       5
+      o7      5       5
+      o8      5       5;
+ 205   
+ 206   
+      For debugging/testing utility formulas
+      Table UtilData(UtilInt,u,Attributes)
+                   manpower.starttime            manpower.magnitude      manpowe
+      r.price
+      Int1                    0                         1                     1
+      Int2                    1.5                       0                     0
+      Int3                    3.5                       1                     1
+      Int4                    6.1                       0                     0;
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Model9.gms
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 4
+State_Space_Model
+C o m p i l a t i o n
+
+
+ 218   
+ 219  PARAMETER Small_number /1E-2/;
+ 220  *used for rounding W,B in recordstates in modelsolution file
+ 221   
+ 222  *Now generating time grid using delta
+ 225  *$EvalGlobal calculations (%horizon%-%window%)
+ 229   
+ 230  set h time(multiples of delta) /h0*h216/
+ 231      n time window   /n0*n23/
+ 232      calc #of windows /calc0*calc24/
+ 233   
+ 234      closed_loop(h) horizon points for which we calculate closed loop cost
+ 235   
+ 236      Sbari(s,i)  materials produced by task i
+ 237      Si(s,i)     materials consumed by task i
+ 238      Tbars(i,s)    Tasks producing material s
+ 239      Ts(i,s) Tasks consuming material s;
+ 240   
+ 241  Sbari(s,i)=1$(rhobar(i,s) gt 0);
+ 242  Si(s,i)=1$(rho(i,s) gt 0);
+ 243  *Ij(i,j)=Ki(j,i);
+ 244  Tbars(i,s)=Sbari(s,i);
+ 245  Ts(i,s)=Si(s,i);
+ 246   
+ 247  closed_loop(h)=0;
+ 248  closed_loop(h)$(ord(h)-1 ge 0 and ord(h)-1 le 24)=1;
+ 249   
+ 250   
+ 251  alias(i,ip)
+ 252  alias(j,jp)
+ 253  alias(s,sp)
+ 254  alias(n,np)
+ 255  alias(h,hbar);
+ 256   
+ 257  set     UnitUnavailable_full(j,h)
+ 258  UnitUnavailable(j,n);
+ 259   
+ 260  parameter Uutmax_full(u,h),Cut_full(u,h) utility price;
+ 261   
+ 262  parameters Dst(s,n),Uutmax(u,n),Cut(u,n);
+ 263   
+ 264   
+ 265  parameter pis_new(i,s),pi_new(i);
+ 266  *tau_new(j,k,kp);
+ 267  pis_new(i,s)=ceil(pis(i,s)/1);
+ 268  pi_new(i)=ceil(pi(i)/1);
+ 269   
+ 270  parameter alpha_new(u,i),beta_new(u,i),Cst_new(s);
+ 271   
+ 272  alpha_new(u,i)=alpha(u,i);
+ 273   
+ 274  beta_new(u,i)=beta(u,i);
+ 275   
+ 276  Cst_new(s)=Cst(s);
+ 277   
+ 278   
+ 279   
+ 280   
+ 281  *UTILITY CALCULATIONS NEED TO BE CORRECTED
+ 282  *RIGHT NOW THERE IS BUG THAT IF THERE IS MORE THAN ONE CHANGE
+ 283  *WITHIN AN INTERVAL THEN THE CODE TAKES FIRST CHANGE ONLY
+ 284  *AND IGNORES THE SECOND CHANGE
+ 285  loop(UtilInt,
+ 286  *Maximum available utility
+ 287  Uutmax_full(u,h)$(ord(UtilInt) eq 1 and
+ 288                   ord(h) ge 1 and
+ 289                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 290                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 291                  =  UtilData(UtilInt,u,"magnitude");
+ 292   
+ 293   
+ 294   
+ 295   
+ 296  Uutmax_full(u,h)$((ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt)) an
+      d
+ 297                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 298                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 299                   ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1)$(
+      UtilData(UtilInt,u,"magnitude") gt UtilData(UtilInt+1,u,"magnitude"))+
+ 300                                ceil(UtilData(UtilInt+1,u,"starttime")/1)$(U
+      tilData(UtilInt,u,"magnitude") le UtilData(UtilInt+1,u,"magnitude")) ))
+ 301                  =  UtilData(UtilInt,u,"magnitude");
+ 302   
+ 303   
+ 304   
+ 305  Uutmax_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 306                   ord(h)-1 ge (floor(UtilData(UtilInt,u,"starttime")/1)$(Ut
+      ilData(UtilInt-1,u,"magnitude") gt UtilData(UtilInt,u,"magnitude"))+
+ 307                                ceil(UtilData(UtilInt,u,"starttime")/1)$(Uti
+      lData(UtilInt-1,u,"magnitude") le UtilData(UtilInt,u,"magnitude")) ) and
+ 308                   ord(h) le card(h))
+ 309                  =  UtilData(UtilInt,u,"magnitude");
+ 310   
+ 311   
+ 312  *Utility Price
+ 313  Cut_full(u,h)$(ord(UtilInt) eq 1 and
+ 314            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 315            =  UtilData(UtilInt,u,"price");
+ 316   
+ 317  Cut_full(u,h)$(ord(UtilInt) gt 1 and ord(UtilInt) lt card(UtilInt) and
+ 318            ord(h)-1 gt (floor(UtilData(UtilInt,u,"starttime")/1)) and
+ 319            ord(h)-1 lt (floor(UtilData(UtilInt+1,u,"starttime")/1))   )
+ 320            =  UtilData(UtilInt,u,"price");
+ 321   
+ 322  Cut_full(u,h)$(ord(UtilInt) eq card(UtilInt) and
+ 323            ord(h)-1 gt floor(UtilData(UtilInt,u,"starttime")/1) and
+ 324            ord(h) le card(h)   )
+ 325            =  UtilData(UtilInt,u,"price");
+ 326   
+ 327  Cut_full(u,h)$(ord(UtilInt) gt 1 and
+ 328           ord(h)-1 eq floor(UtilData(UtilInt,u,"starttime")/1))
+ 329           =(   UtilData(UtilInt-1,u,"price")*(UtilData(UtilInt,u,"starttime
+      ")-(ord(h)-1)* 1 )
+ 330                +UtilData(UtilInt,u,"price")*(ord(h)*1-UtilData(UtilInt,u,"s
+      tarttime"))   )/1;
+ 331  *Bug in cost calculation: what if there are 3 cost levels within one time 
+      grid?
+ 332  )
+ 333   
+ 334   
+ 335  *UnitUnavailabality(note the difference in inequalities as opposed to Util
+      ity....1=>unit not available so more magnitude is bad)
+ 336  loop(UnitInt,
+ 337  Unitunavailable_full(j,h)$(ord(UnitInt) eq 1 and
+ 338                   ord(h)-1 ge 0 and
+ 339                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 340                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 341                  =  UnitData(UnitInt,j,"magnitude");
+ 342   
+ 343   
+ 344   
+ 345   
+ 346  Unitunavailable_full(j,h)$((ord(UnitInt) gt 1 and ord(UnitInt) lt card(Uni
+      tInt)) and
+ 347                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 348                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 349                   ord(h)-1 lt (floor(UnitData(UnitInt+1,j,"starttime")/1)$(
+      UnitData(UnitInt,j,"magnitude") lt UnitData(UnitInt+1,j,"magnitude"))+
+ 350                                ceil(UnitData(UnitInt+1,j,"starttime")/1)$(U
+      nitData(UnitInt,j,"magnitude") ge UnitData(UnitInt+1,j,"magnitude")) ))
+ 351                  =  UnitData(UnitInt,j,"magnitude");
+ 352   
+ 353   
+ 354   
+ 355  Unitunavailable_full(j,h)$(ord(UnitInt) eq card(UnitInt) and
+ 356                   ord(h)-1 ge (floor(UnitData(UnitInt,j,"starttime")/1)$(Un
+      itData(UnitInt-1,j,"magnitude") lt UnitData(UnitInt,j,"magnitude"))+
+ 357                                ceil(UnitData(UnitInt,j,"starttime")/1)$(Uni
+      tData(UnitInt-1,j,"magnitude") ge UnitData(UnitInt,j,"magnitude")) ) and
+ 358                   ord(h) le card(h))
+ 359                  =  UnitData(UnitInt,j,"magnitude");
+ 360  )
+ 361   
+ 362   
+ 363   
+ 364  *display UnitUnavailable_full,Uutmax_full,Cut_full,Sbari,Si,rhobar,rho,Tba
+      rs,Ts,calc;
+ 365   
+ 366  *Ijk,tauChangeMax
+ 367   
+ 368   
+ 369   
+ 370  *Disturbance parameter for loading/unloading of materials
+ 371  parameters betaHatProd(i,j,s,n),betaHatCons(i,j,s,n);
+ 372  betaHatProd(i,j,s,n)=0;
+ 373  betaHatCons(i,j,s,n)=0;
+ 374   
+ 375   
+ 376  *Disturbance parameter for task delays
+ 377  parameters
+ 378  Yhat(i,j,n,hbar)
+ 379  Delay(calc,i,j,hbar)
+ 380  Zhat(i,j,n,hbar)
+ 381  Breakdown(calc,i,j,hbar)
+ 382  Duration_breakdown(calc,j)
+ 383  UnitBroken(j,n)
+ 384  WbarInfo(i,j,n,hbar)
+ 385  BbarInfo(i,j,n,hbar)
+ 386  KillDuration(i,j)
+ 387  KillDurationCountdown(i,j)
+ 388  KillOccupy(j,n)
+ 389  KillCountdown(j);
+ 390   
+ 391  *Initializing parameters
+ 392  Yhat(i,j,n,hbar)=0;
+ 393  Delay(calc,i,j,hbar)=0;
+ 394  Zhat(i,j,n,hbar)=0;
+ 395  Breakdown(calc,i,j,hbar)=0;
+ 396  Duration_breakdown(calc,j)=0;
+ 397  UnitBroken(j,n)=0;
+ 398  WbarInfo(i,j,n,hbar)=0;
+ 399  BbarInfo(i,j,n,hbar)=0;
+ 400  KillDuration(i,j)=0;
+ 401  KillDurationCountdown(i,j)=0;
+ 402  KillOccupy(j,n)=0;
+ 403  KillCountdown(j)=0;
+ 404   
+ 405  *hbar are the time points for lifting of variables
+ 406  *binary variables W(i,j,n),Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 407  binary variables Wbar(i,j,n,hbar),T(i,j,hbar) Kill_Variable;
+ 408  positive variable Bbar(i,j,n,hbar),Sst(s,n),Backlog(s,n),Ship(s,n),Ship_sa
+      les(s,n),Uut(u,n),Rst(s,n),SstTerminal(s),BacklogTerminal(s);
+ 409  variables obj_variable;
+ 410  integer variable NB(i,j) number of batches;
+ 411  *Assigning values to variables that might not participate in optimization
+ 412  Uut.l(u,n)=0;
+ 413  Ship_sales.l(s,n)=0;
+ 414   
+ 415  Equations
+ 416  numberOfBatches,
+ 417  Allocation,
+ 418  UnitCapacityMax,UnitCapacityMin,
+ 419  InventoryLimit,
+ 420  InventoryBalance,
+ 421  EndingInventory,
+ 422  BacklogBalance,
+ 423  EndingBacklog,
+ 424  UtilityLimit,
+ 425  UtilityBalance,
+ 426  objective_MIN_COST,
+ 427  objective_MAX_PROFIT,
+ 428  objective_MAX_PROFIT_Greedy
+ 429  UnitUnavailabality,
+ 430  *CorrectHolding(i,j,n),
+ 431  LiftingW,
+ 432  *LiftingW0,
+ 433  LiftingB,
+ 434  *LiftingB0,
+ 435  Carryover_W,Carryover_B,
+ 436  InventoryBalance_MAX_PROFIT,
+ 437  EndingInventory_MAX_PROFIT
+ 438  Ship_constraint(s,n)
+ 439  NoShip(s,n)
+ 440  NoTaskStart
+ 441  SafetyStock;
+ 442  *SHIPMENT;
+ 443  *NoTaskRunningAtEndOfHorizon;
+ 444   
+ 445  numberOfBatches(i,j)$Ij(i,j).. NB(i,j)=E=sum((n,hbar)$(ord(hbar)-1 eq 0),W
+      bar(i,j,n,hbar));
+ 446   
+ 447  *scalar ord_calc /0/;
+ 448  SCALAR fixed_decisions /0/;
+ 449  SCALAR reschedule_flag /0/;
+ 450  *re_freq-1-mod(ord_calc-1+re_freq-1,re_freq)  is zero for calc0
+ 451  Carryover_W(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Wbar(i,j,n,hbar)=E=WbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 452  Carryover_B(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 ge 1 
+      and ord(hbar)-1 le pi(i) and Ij(i,j))..Bbar(i,j,n,hbar)=E=BbarInfo(i,j,n,h
+      bar)*(1-T(i,j,hbar))*(1-Zhat(i,j,n,hbar));
+ 453   
+ 454  *LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 455  *         Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,
+      j,n,hbar-1)-Zhat(i,j,n,hbar-1);
+ 456  *LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (
+      ord(n) lt card(n)) and Ij(i,j))..
+ 457  *         Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1)
+ 458   
+ 459  LiftingW(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 460           Wbar(i,j,n+1,hbar)=E=Wbar(i,j,n,hbar-1)+Yhat(i,j,n,hbar)-Yhat(i,j
+      ,n,hbar-1);
+ 461   
+ 462  LiftingB(i,j,n,hbar)$((ord(hbar)-1 ge 1) and (ord(hbar)-1 le pi(i)) and (o
+      rd(n) lt card(n)) and Ij(i,j))..
+ 463           Bbar(i,j,n+1,hbar)=E=Bbar(i,j,n,hbar-1)+Bbar(i,j,n,hbar)*Yhat(i,j
+      ,n,hbar)-Bbar(i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+ 464  Allocation(j,n).. sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 le (pi_new(i)-1)
+      ) ), Wbar(i,j,n,hbar))=L=1-sum((i,hbar)$(Ij(i,j) and (ord(hbar) -1 eq pi_n
+      ew(i)) ) , Yhat(i,j,n,hbar))-UnitBroken(j,n)
+ 465                        -sum((i,hbar)$(Ij(i,j) and ord(hbar)-1 ge 1 and ord(
+      hbar)-1 le pi(i)),T(i,j,hbar)$(ord(n)-1 lt KillDuration(i,j)))-KillOccupy(
+      j,n);
+ 466  *ord(np)-1=0 => Wbar0 which is also included in the above sum, so we dont 
+      have to explicitly sum over W now since W0 is also there
+ 467   
+ 468  UnitCapacityMax(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=L=Wbar(i,j,n,hbar)*vmaxij(i,j);
+ 469   
+ 470  UnitCapacityMin(i,j,n,hbar)$(Ij(i,j) and ord(hbar)-1 eq 0).. Bbar(i,j,n,hb
+      ar)=G=Wbar(i,j,n,hbar)*vminij(i,j);
+ 471   
+ 472  InventoryLimit(s,n)$(FIS(s)).. Sst(s,n)=L=Cs(s);
+ 473   
+ 474  *Watch out for brackets in betahatCons and betaHatProd. One has multiplica
+      tion with rho other does not
+ 475  InventoryBalance(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,n)+sum((i,j
+      ,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhobar(
+      i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatProd(i
+      ,j,s,n)))
+ 476                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(produc
+      t_states(s))+Rst(s,n)$(feed_states(s));
+ 477  EndingInventory(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst(s,n)+sum((
+      i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(hbar) -1 eq pis_new(i,s))),rhob
+      ar(i,s)*(Bbar(i,j,n,hbar)*(1-Yhat(i,j,n,hbar)-Zhat(i,j,n,hbar))+betaHatPro
+      d(i,j,s,n)))
+ 478                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar)+betaHatCons(i,j,s,n)) -Ship(s,n)$(product
+      _states(s))+Rst(s,n)$(feed_states(s));
+ 479   
+ 480  ********
+ 481  *Inventory at point 2 means, inventory level infinitesimal time just befor
+      e point 2, ie 2-, need to define extra ending inventory variable SstTermin
+      al(s)
+ 482  *Deliveries are point functions like B, W while inventory is interval func
+      tion
+ 483  *Kondili has convention that inventory at point 2 is 2+, so has to define 
+      extra initial inventory parameter Sst0(s)
+ 484   
+ 485   
+ 486  ***********Backlogs******
+ 487  BacklogBalance(s,n)$(product_states(s) and ord(n) lt card(n)).. Backlog(s,
+      n+1)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 488  EndingBacklog(s,n)$(product_states(s) and ord(n) eq card(n)).. BacklogTerm
+      inal(s)=E=Backlog(s,n)-Ship(s,n)+Dst(s,n);
+ 489   
+ 490  ***********UtilityBalance******
+ 491  UtilityLimit(u,n).. Uut(u,n)=L=Uutmax(u,n);
+ 492  UtilityBalance(u,n).. Uut(u,n)=E=sum((i,j,hbar)$(Ij(i,j) and (ord(hbar)-1 
+      le pi_new(i)-1)),alpha_new(u,i)*Wbar(i,j,n,hbar)+beta_new(u,i)*Bbar(i,j,n,
+      hbar)  );
+ 493   
+ 494  UnitUnavailabality(i,j,n)$(UnitUnavailable(j,n) and Ij(i,j)).. sum((hbar)$
+      (ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 495   
+ 496  *Utility cost: sum((u,n),Cut(u,n)*Uut(u,n))
+ 497  *objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s
+      )) +1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 498  *                                 +1E2*sum((s,n)$(product_states(s)),Cst_n
+      ew(s)*Backlog(s,n))+1E2*sum(s$(product_states(s)),Cst_new(s)*BacklogTermin
+      al(s))
+ 499  *                                 +sum((i,j,hbar)$Ij(i,j),T(i,j,hbar));
+ 500  objective_MIN_COST.. obj_variable  =E= 1E1*sum(s,Cst_new(s)*SstTerminal(s)
+      ) + 1E1*sum((s,n),Cst_new(s)*Sst(s,n))
+ 501                                   +1E2*sum((s,n)$(product_states(s)),Cst_ne
+      w(s)*Backlog(s,n))
+ 502                                   +1E2*sum(s$(product_states(s)),Cst_new(s)
+      *BacklogTerminal(s))
+ 503                                   +sum((i,j,n,hbar)$(Ij(i,j) AND ord(hbar)-
+      1 eq 0),Wbar(i,j,n,hbar)) ;
+ 504   
+ 505   
+ 506  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum(s$(product_states(s)),Cst
+      _new(s)*SstTerminal(s))+1E1*sum((s,n)$(product_states(s)),Cst_new(s)*Ship(
+      s,n))
+ 507  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s) );
+ 508   
+ 509  *objective_MAX_PROFIT.. obj_variable =E= 1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Sst(s,n))+1E1*sum(s$(product_states(s)),Cst_new(s)*SstTerminal
+      (s))
+ 510  *                                       -1E2*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Backlog(s,n))-1E2*sum(s$(product_states(s)),Cst_new(s)*Backlog
+      Terminal(s))
+ 511  *                                       +1E1*sum((s,n)$(product_states(s))
+      ,Cst_new(s)*Ship(s,n));
+ 512   
+ 513  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n))-sum((i,j,n,hbar)$(Ij(i,j) AND
+       ord(hbar)-1 eq 0),Wbar(i,j,n,hbar));
+ 514   
+ 515  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)))
+ 516  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst
+      _new(s)*(Ship_sales(s,n)+Ship(s,n)))
+ 517  objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),Cst_
+      new(s)*(Ship_sales(s,n)))
+ 518                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 519                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 520                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 521   
+ 522  objective_MAX_PROFIT_Greedy.. obj_variable =E= sum((s,n)$(product_states(s
+      )),round(2-(ord(n)/card(n)),2)*Cst_new(s)*(Ship(s,n)+Ship_sales(s,n)))
+ 523                                           -sum((i,j,n,hbar)$(Ij(i,j) AND or
+      d(hbar)-1 eq 0),Wbar(i,j,n,hbar))
+ 524                                           -1E2*sum((s,n)$(product_states(s)
+      ),Cst_new(s)*Backlog(s,n))
+ 525                                           -1E2*sum(s$(product_states(s)),Cs
+      t_new(s)*BacklogTerminal(s));
+ 526  *Objective_makespan_min.. obj_variable =E= sum(ord(n)*W)
+ 527   
+ 528  *objective_MAX_PROFIT.. obj_variable =E= sum((s,n)$(product_states(s)),rou
+      nd(2-ord(n)/card(n),2)*Cst_new(s)*Ship(s,n));
+ 529   
+ 530  *SHIPMENT(s,n).. Ship(s,n)=L=Dst(s,n)  ;
+ 531  InventoryBalance_MAX_PROFIT(s,n)$(ord(n) lt card(n)).. Sst(s,n+1)=E=Sst(s,
+      n)
+ 532                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 533                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j) and ord(hbar
+      ) eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 534                           -Ship_sales(s,n)$(product_states(s))-Ship(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 535   
+ 536  EndingInventory_MAX_PROFIT(s,n)$(ord(n) eq card(n)).. SstTerminal(s)=E=Sst
+      (s,n)
+ 537                           +sum((i,j,hbar)$(Tbars(i,s) and Ij(i,j) and (ord(
+      hbar) -1 eq pis_new(i,s))),rhobar(i,s)*Bbar(i,j,n,hbar))
+ 538                           -sum((i,j,hbar)$(Ts(i,s) and Ij(i,j)and ord(hbar)
+       eq 1),rho(i,s)*Bbar(i,j,n,hbar))
+ 539                           -Ship(s,n)$(product_states(s))-Ship_sales(s,n)$(p
+      roduct_states(s))+Rst(s,n)$(feed_states(s));
+ 540   
+ 541  *Ship_constraint(s,n)$(ord(n) gt 1 AND ord(n) lt card(n) ).. Ship(s,n)=E=0
+      ;
+ 542  *Ship_constraint(s,n)$(Dst(s,n) eq 0).. Ship_sales(s,n)=E=0;
+ 543  Ship_constraint(s,n)$(NOT Dst(s,n) gt 0).. Ship_sales(s,n)=E=0;
+ 544   
+ 545  *NoTaskRunningAtEndOfHorizon(i,j,n)$(ord(n) eq card(n) and Ij(i,j))..   su
+      m(hbar$(ord(hbar)-1 le pi_new(i)-1),Wbar(i,j,n,hbar))=E=0;
+ 546  NoShip(s,n)$(ord(n) lt card(n)/2 and sameas(s,'M4')).. Ship_sales(s,n)=E=0
+      ;
+ 547  *NoShip(s,n)$(ord(n) lt card(n)/2).. Ship_sales(s,n)=E=0;
+ 548   
+ 549  NoTaskStart(i,j,n,hbar)$(ord(n)-1 eq 0 AND ord(hbar)-1 eq 0).. Wbar(i,j,n,
+      hbar)=E=0;
+ 550   
+ 551  SafetyStock(s)$(product_states(s)).. SstTerminal(s)=G=7.5;
+ 552  *****************
+ 553  *DISTURBANCE VARIABLES
+ 554  *Build feature rich instances and do rigorous testing
+ 555  *****************
+ 556   
+ 557  SET attributes_states /W,B/;
+ 558  PARAMETERS
+ 559  record_states_raw(run,calc,attributes_states,i,j,n,hbar),
+ 560  record_states(run,calc,attributes_states,i,j,n,hbar),
+ 561  record_objective(run,calc),
+ 562  record_utility(run,calc,u,n),
+ 563  record_inventory(run,calc,s,n),
+ 564  record_inventory_raw(run,calc,s,n),
+ 565  record_backlog(run,calc,s,n),
+ 566  record_backlog_raw(run,calc,s,n),
+ 567  record_inventoryTerminal(run,calc,s),
+ 568  record_backlogTerminal(run,calc,s)
+ 569  record_T(run,calc,i,j,hbar)
+ 570  record_shipment(run,calc,s,n)
+ 571  record_shipment_sales(run,calc,s,n)
+ 572  record_shipment_sales_raw(run,calc,s,n)
+ 573  record_Rst(run,calc,s,n)
+ 574  record_shipment_raw(run,calc,s,n)
+ 575  record_Rst_raw(run,calc,s,n)
+ 576  record_yieldloss(run,calc,i,j,s,n)
+ 577  record_demands(run,calc,s,n)
+ 578  record_WbarInfo(run,calc,i,j,n,hbar)
+ 579  record_BbarInfo(run,calc,i,j,n,hbar)
+ 580  record_Demands_realization(run,s,h)
+ 581  record_fixed_decision(calc)
+ 582  record_reschedule_flag(calc,run)
+ 583  record_relaxed_objective(run,calc) Objective from solving RMIP
+ 584  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar) states from s
+      olving RMIP
+ 585  record_relaxed_shipment(run,calc,s,n)
+ 586  record_relaxed_shipment_sales(run,calc,s,n)
+ 587  record_relaxed_backlog(run,calc,s,n);
+ 588   
+ 589  record_states_raw(run,calc,attributes_states,i,j,n,hbar)=0;
+ 590  record_states(run,calc,'B',i,j,n,hbar)=0;
+ 591  record_states(run,calc,'W',i,j,n,hbar)=0;
+ 592  record_inventory(run,calc,s,n)=0;
+ 593  record_inventory_raw(run,calc,s,n)=0;
+ 594  record_backlog(run,calc,s,n)=0;
+ 595  record_backlog_raw(run,calc,s,n)=0;
+ 596  record_T(run,calc,i,j,hbar)=0;
+ 597  record_shipment(run,calc,s,n)=0 ;
+ 598  record_Rst(run,calc,s,n)=0;
+ 599  record_shipment_raw(run,calc,s,n)=0;
+ 600  record_shipment_sales_raw(run,calc,s,n)=0;
+ 601  record_shipment_sales(run,calc,s,n)=0;
+ 602  record_Rst_raw(run,calc,s,n)=0;
+ 603  record_yieldloss(run,calc,i,j,s,n)=0;
+ 604  record_demands(run,calc,s,n)=0;
+ 605  record_WbarInfo(run,calc,i,j,n,hbar)=0;
+ 606  record_BbarInfo(run,calc,i,j,n,hbar)=0;
+ 607  record_Demands_realization(run,s,h)=0;
+ 608  record_fixed_decision(calc)=0;
+ 609  record_reschedule_flag(calc,run)=0;
+ 610  record_relaxed_objective(run,calc)=0;
+ 611  record_relaxed_states(run,calc,attributes_states,i,j,n,hbar)=0;
+ 612  record_relaxed_shipment(run,calc,s,n)=0;
+ 613  record_relaxed_shipment_sales(run,calc,s,n)=0;
+ 614  record_relaxed_backlog(run,calc,s,n)=0;
+ 615   
+ 616  *Initial conditions for first optimization horizon
+ 617  PARAMETERS InitialBbar(i,j,n,hbar),InitialWbar(i,j,n,hbar),InitialInventor
+      y(s),InitialBacklog(s);
+ 618  InitialBbar(i,j,n,hbar)=0;
+ 619  InitialWbar(i,j,n,hbar)=0;
+ 620  InitialInventory(s)=0;
+ 621  InitialBacklog(s)=0;
+ 622   
+ 623  *if (%InitialInventoryFlag% eq 1,
+ 624  *Start with half day of inventory
+ 625  *InitialInventory(s)$product_states(s)=12*demand_magnitude/demand_cycletim
+      e;
+ 626  *);
+ 627  InitialInventory(s)$product_states(s)=0*demand_magnitude/demand_cycletime;
+ 628   
+ 629   
+ 630  *MODEL P1 /all/;
+ 631  MODEL MIN_COST /
+ 632  numberOfBatches,
+ 633  Allocation,
+ 634  UnitCapacityMax,
+ 635  UnitCapacityMin,
+ 636  *InventoryLimit,
+ 637  InventoryBalance,
+ 638  EndingInventory,
+ 639  BacklogBalance,
+ 640  EndingBacklog,
+ 641  *UtilityLimit,
+ 642  *UtilityBalance,
+ 643  *UnitUnavailabality,
+ 644  LiftingW,
+ 645  LiftingB,
+ 646  Carryover_W,
+ 647  Carryover_B,
+ 648  objective_MIN_COST/;
+ 649   
+ 650  MODEL MIN_COST_TERMINAL/
+ 651  numberOfBatches,
+ 652  Allocation,
+ 653  UnitCapacityMax,
+ 654  UnitCapacityMin,
+ 655  InventoryBalance,
+ 656  EndingInventory,
+ 657  BacklogBalance,
+ 658  EndingBacklog,
+ 659  LiftingW,
+ 660  LiftingB,
+ 661  Carryover_W,
+ 662  Carryover_B,
+ 663  objective_MIN_COST
+ 664  SafetyStock/;
+ 665   
+ 666  MODEL MAX_PROFIT_1 /
+ 667  numberOfBatches,
+ 668  Allocation,
+ 669  UnitCapacityMax,
+ 670  UnitCapacityMin,
+ 671  Carryover_B
+ 672  InventoryBalance_MAX_PROFIT,
+ 673  LiftingW,
+ 674  BacklogBalance
+ 675  LiftingB,
+ 676  Carryover_W,
+ 677  objective_MAX_PROFIT
+ 678  Ship_constraint
+ 679  EndingInventory_MAX_PROFIT,
+ 680  EndingBacklog/;
+ 681   
+ 682  MODEL MAX_PROFIT_2 /
+ 683  numberOfBatches,
+ 684  Allocation,
+ 685  UnitCapacityMax,
+ 686  UnitCapacityMin,
+ 687  InventoryBalance_MAX_PROFIT,
+ 688  EndingInventory_MAX_PROFIT,
+ 689  BacklogBalance,
+ 690  EndingBacklog,
+ 691  LiftingW,
+ 692  LiftingB,
+ 693  Carryover_W,
+ 694  Carryover_B,
+ 695  objective_MAX_PROFIT
+ 696  Ship_constraint/;
+ 697   
+ 698  MODEL MAX_PROFIT_SellAnytime /
+ 699  numberOfBatches,
+ 700  Allocation,
+ 701  UnitCapacityMax,
+ 702  UnitCapacityMin,
+ 703  InventoryBalance_MAX_PROFIT,
+ 704  EndingInventory_MAX_PROFIT,
+ 705  BacklogBalance,
+ 706  EndingBacklog,
+ 707  LiftingW,
+ 708  LiftingB,
+ 709  Carryover_B,
+ 710  Carryover_W,
+ 711  objective_MAX_PROFIT
+ 712  NoTaskStart/;
+ 713  MODEL MAX_PROFIT_SellAnytime_Greedy /
+ 714  numberOfBatches,
+ 715  Allocation,
+ 716  UnitCapacityMax,
+ 717  UnitCapacityMin,
+ 718  InventoryBalance_MAX_PROFIT,
+ 719  EndingInventory_MAX_PROFIT,
+ 720  BacklogBalance,
+ 721  EndingBacklog,
+ 722  LiftingW,
+ 723  LiftingB,
+ 724  Carryover_B,
+ 725  Carryover_W,
+ 726  objective_MAX_PROFIT_Greedy /;
+ 727   
+ 728  MODEL MAX_PROFIT_GREEDY /
+ 729  numberOfBatches,
+ 730  Allocation,
+ 731  UnitCapacityMax,
+ 732  UnitCapacityMin,
+ 733  InventoryBalance_MAX_PROFIT,
+ 734  EndingInventory_MAX_PROFIT,
+ 735  BacklogBalance,
+ 736  EndingBacklog,
+ 737  LiftingW,
+ 738  LiftingB,
+ 739  Carryover_W,
+ 740  Carryover_B,
+ 741  *objective_MAX_PROFIT
+ 742  objective_MAX_PROFIT_Greedy
+ 743  Ship_constraint/;
+ 744  *NoShip/;
+ 745   
+ 746  MODEL MAX_PROFIT_NOSHIP /
+ 747  numberOfBatches,
+ 748  Allocation,
+ 749  UnitCapacityMax,
+ 750  UnitCapacityMin,
+ 751  InventoryBalance_MAX_PROFIT,
+ 752  EndingInventory_MAX_PROFIT,
+ 753  BacklogBalance,
+ 754  EndingBacklog,
+ 755  LiftingW,
+ 756  LiftingB,
+ 757  Carryover_W,
+ 758  Carryover_B,
+ 759  objective_MAX_PROFIT
+ 760  *objective_MAX_PROFIT_Greedy
+ 761  Ship_constraint
+ 762  NoShip/;
+ 763   
+ 764  MODEL MAX_PROFIT_GREEDY_NOSHIP /
+ 765  numberOfBatches,
+ 766  Allocation,
+ 767  UnitCapacityMax,
+ 768  UnitCapacityMin,
+ 769  InventoryBalance_MAX_PROFIT,
+ 770  EndingInventory_MAX_PROFIT,
+ 771  BacklogBalance,
+ 772  EndingBacklog,
+ 773  LiftingW,
+ 774  LiftingB,
+ 775  Carryover_W,
+ 776  Carryover_B,
+ 777  *objective_MAX_PROFIT
+ 778  objective_MAX_PROFIT_Greedy
+ 779  Ship_constraint
+ 780  NoShip/;
+ 781   
+ 782  *SHIPMENT/;
+ 783   
+ 784   
+ 785  T.l(i,j,hbar)=0;
+ 786  *Parameters for Gantt Charting in Excel
+ 787  *END OF MODEL FILE
+ 788   
+ 789   
+ 790   
+ 791   
+ 792  PARAMETER runcost(run) cost of implemented closed loop
+ 793           runcost_Inv(run) Inventory cost,runcost_BO(run) Backlog cost, run
+      cost_W(run) start_cost_of_tasks
+ 794           runprofit(run) closed loop profit in MAX_profit
+ 795           sales_profit(run);
+ 796   
+ 797           runcost_Inv(run)=0;runcost_BO(run)=0; runcost_W(run)=0;runcost(ru
+      n)=0; runprofit(run)=0;sales_profit(run)=0;
+ 798   
+ 799  PARAMETER modelStat(calc,run)     Should be 1 for successful optimization
+ 800            BOStat_OL(calc,run)     If 1 means open loop had non zero back o
+      rder
+ 801            BOStat_CL(calc,run)     If 1 means closed loop had non zero back
+       order
+ 802            IntegralityGap(calc,run)
+ 803            Est_modelGap1(calc,run)  Estimated optimality gap by CPLEX (obj.
+      val in denominator)
+ 804            Est_modelGap2(calc,run)  Estimated optimality gap by CPLEX (obj.
+      Est in denominator)
+ 805            True_modelGap(calc,run) True optimality gap obtained by solving 
+      to optcr=0
+ 806            ETSolve(calc,run)
+ 807            ETSolver(calc,run)
+ 808            iterUsd(calc,run)
+ 809            nodUsd(calc,run)
+ 810            resUsd(calc,run)
+ 811            numDVar(calc,run)
+ 812            numEqu(calc,run)
+ 813            numInfes(calc,run)
+ 814            numNZ(calc,run)
+ 815            numVar(calc,run)
+ 816            solveStat(calc,run)
+ 817            Suboptimal_objective /0/
+ 818            Optimal_Objective /0/
+ 819            TimeToSolveOptimal(calc,run);
+ 820   
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+      ******DEMAND INFORMATION*****************************
+      *Each order for all products
+      SET         o orders /o1*o%H%/;
+      PARAMETER deliveries_time(o,run);
+      deliveries_time(o,run)=demand_cycletime*ord(o);
+      PARAMETER deliveries(o,s);
+      deliveries(o,s)$(product_states(s))=demand_magnitude;
+      ******DEMAND INFORMATION*****************************
+       
+      PARAMETER Dst_full(s,h);
+      Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o)/
+      %delta%)));
+       
+      PARAMETER Dst_full_realization(s,h,run);
+      Dst_full_realization(s,h,run)=Dst_full(s,h);
+       
+      *IF(%Demand_Disturbance_flag% eq 1,
+               LOOP(run,
+                  deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-dema
+      nd_variation,demand_variation);
+                  Dst_full_realization(s,h,run)=(Dst_full(s,h)+Dst_full(s,h)*uni
+      formInt(-lambda_Demand,lambda_Demand)  )$(Dst_full(s,h) gt 0);
+               );
+      *);
+      ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 846  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 847  ******DEMAND INFORMATION*****************************
+ 848  *Each order for all products
+ 849  SET         o orders /o1*o216/;
+ 850  PARAMETER deliveries_time(o,run);
+ 851  deliveries_time(o,run)=demand_cycletime*ord(o);
+ 852  PARAMETER deliveries(o,s);
+ 853  deliveries(o,s)$(product_states(s))=demand_magnitude;
+ 854  ******DEMAND INFORMATION*****************************
+ 855   
+ 856  PARAMETER Dst_full_realization(s,h,run),Dst_full(s,h);
+ 857   
+ 858  *IF(%Demand_Disturbance_flag% eq 1,
+ 859  LOOP(run,
+ 860    deliveries_time(o,run)=deliveries_time(o,run)+UniformInt(-demand_variati
+      on,demand_variation);
+ 861    Dst_full_realization(s,h,run)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(d
+      eliveries_time(o,run)/1)));
+ 862    Dst_full_realization(s,h,run)=(Dst_full_realization(s,h,run)+Dst_full_re
+      alization(s,h,run)/100*uniformInt(-lambda_Demand*100,lambda_Demand*100)  )
+      $(Dst_full_realization(s,h,run) gt 0);
+ 863  );
+ 864   
+ 865  *Good vs Bad decision case study
+ 866  Dst_full_realization(s,h,run)=0;
+ 867  Dst_full_realization('M3','h8',run)=5;
+ 868  Dst_full_realization('M4','h8',run)=5;
+ 869   
+ 870  Dst_full_realization('M3','h16',run)=2.5;
+ 871  Dst_full_realization('M4','h16',run)=2.5;
+ 872   
+ 873   
+ 874  Dst_full_realization('M3','h24',run)=2.5;
+ 875  Dst_full_realization('M4','h24',run)=2.5;
+ 876  *Good vs Bad decision case study
+ 877   
+ 878  *);
+ 879  ********************DEMAND SAMPLING TO KEEP IT STANDARDIZED FOR ALL APPROA
+      CHES(NOMINAL, ROBUST, STOCHASTIC)************************
+ 880   
+ 881   
+ 882  PARAMETER ClosedLoopINV(run,s,h),ClosedLoopBO(run,s,h),ClosedLoopShip(run,
+      s,h),ClosedLoopShip_sales(run,s,h),
+ 883            ClosedLoopStart(run,h),Cost_EndInventory(run),ClosedLoopExecutio
+      ns(run,i);
+ 884  ClosedLoopINV(run,s,h)=0;
+ 885  ClosedLoopBO(run,s,h)=0;
+ 886  ClosedLoopShip(run,s,h)=0;
+ 887  ClosedLoopShip_sales(run,s,h)=0;
+ 888  ClosedLoopStart(run,h)=0;
+ 889  Cost_EndInventory(run)=0;
+ 890  ClosedLoopExecutions(run,i)=0;
+ 891  *This parameter switches to 1 at end of this file
+ 892  *indicating a succesful run(sweep of code) throughout
+ 893  PARAMETER SUCCESS /0/;
+ 894   
+ 895   
+ 896  PARAMETER timeLeft /0/;
+ 897  PARAMETER endingSeed /0/;
+ 898  *PARAMETER sample /0/;
+ 899   
+ 900  ********************STOPPING CRITERION*************
+      PARAMETER mean_runcost(run), std_dev_runcost(run), delta_std_dev_runcost(r
+      un), max_delta_std_dev_runcost(run), N_run count of runs;
+      mean_runcost(run)=0;
+      std_dev_runcost(run)=0;
+      delta_std_dev_runcost(run)=0;
+      max_delta_std_dev_runcost(run)=0;
+      N_run=0;
+      ALIAS(run,run_p);
+      ********************STOPPING CRITERION*************
+ 911   
+ 912  ********************[Start] Evaluations Runs *****************************
+      **********
+ 913  loop(run,
+      put screen;
+      put 'I am on run ' run.tl;
+      putclose;
+      put log;
+      put 'I am on run ' run.tl;
+      putclose;
+ 922   
+ 923  *We need to reset Dst_full(s,h) with each run to nominal values
+ 924  *and then as MH goes forward, Dst_full slowly takes the value of Dst_full_
+      realization
+ 925  *for that particular run, after which here we need to refresh it to nomina
+      l values
+ 926  Dst_full(s,h)=sum(o,deliveries(o,s)$(ord(h)-1 eq floor(deliveries_time(o,r
+      un)/1)));
+ 927   
+ 928  if(0 eq 1,
+ 929  abort$1 "Look into robust case demand generation in MasterFile and make su
+      re its correct";
+ 930           Dst_full(s,h)=Dst_full(s,h)*(1+ lambda_Demand);
+ 931  );
+ 932  *this time sample is equal to 1, so we are in evaluation mode
+ 933   
+ 934  ********CLOSED-LOOP SOLUTION*********
+INCLUDE    C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+ 936  OPTIONS limrow = 0, limcol = 0, solprint = off;
+ 937  *OPTIONS limrow = 1000, limcol = 1000, solprint = on;
+ 938  *No upper limit on inventory (equation not enforced)
+ 939   
+ 940  loop(calc,
+ 941  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+ 942  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+ 943  *abort$1 "stopped for debugging";
+ 944  *abort$(ord(calc)-1 eq 1) "stopped for debugging";
+ 945   
+      IF(ord(calc)-1 eq 4,
+      rhobar('T2','M3')=0.79;
+      rhobar('T2','M2')=0.21;
+      *T2.(M3 0.8,M2 0.2)
+      );
+ 953   
+ 954  *********VARIABLE RESCHEDULING FREQUENCY********
+ 955  *resetting old parameter values
+ 956  WbarInfo(i,j,n,hbar)=0;
+ 957  BbarInfo(i,j,n,hbar)=0;
+ 958   
+ 959  *DEMAND SAMPLING
+ 960  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+ 961          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+      ))) ) = Dst_full_realization(s,h,run);
+ 962  *Now allocating demands to the rolling horizon calculation
+ 963          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+      ));
+      IF(ord(calc)-1 eq 5,
+      Dst(s,n)$(product_states(s) and ord(n)-1 eq 7 and sameas(s,'M3'))=15;
+      );
+      * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+      *are wrongly fixed)
+      if (re_freq=0,
+      *Reschedule flag is 1 for first optimization
+              reschedule_flag=0;
+      *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+              reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+      *Also do find schedule for the very first optimization
+              reschedule_flag$(ord(calc)-1 eq 0)=1;
+      *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+              if (reschedule_flag=1,
+      *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+                      fixed_decisions=0;
+              else
+      *Forced to follow previous fixed (planned) decisions
+                      fixed_decisions=card(n)-1;
+              );
+      else
+ 989          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+ 990          reschedule_flag=0;
+ 991          reschedule_flag$(fixed_decisions=0)=1;
+ 992  *);
+ 993  record_fixed_decision(calc)=fixed_decisions;
+ 994  record_reschedule_flag(calc,run)=reschedule_flag;
+ 995   
+ 996  *Unfix fixed variables
+ 997  Ship.lo(s,n)=0;Ship.up(s,n)=Inf;
+ 998  Rst.lo(s,n)=0;Rst.up(s,n)=Inf;
+ 999  Ship_sales.lo(s,n)=0;Ship_sales.up(s,n)=Inf;
+1000  *Uut.lo(u,n)=0; Uut.up(u,n)=Inf;
+1001  *Fix Input states
+1002  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+1003  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+1004  Ship.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment(run,calc-1,s,
+      n+1);
+1005  Rst.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_Rst(run,calc-1,s,n+1);
+1006  Ship_sales.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment_sales(r
+      un,calc-1,s,n+1);
+1007  T.fx(i,j,hbar)=0;
+1008  *********VARIABLE RESCHEDULING FREQUENCY********
+1009  *(Variable rescheduling frequency does not extend to disturbances other th
+      an demand)
+1010   
+1011  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+1012  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+      ntory(s)$(ord(calc)-1 eq 0);
+1013  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+      cklog(s)$(ord(calc)-1 eq 0);
+1014  *Uut.fx(u,n)$(ord(n)-1 le 0)=record_utility(run,calc-1,u,n+1);
+1015   
+1016   
+1017  *Fix backlogs to zero if corresponding flag is 0
+1018  if(0 eq 0,
+1019  Backlog.fx(s,n)=0;
+1020  BacklogTerminal.fx(s)=0;
+1021  );
+1022  *Dst(s,n)$(product_states(s) AND ord(n) eq 1) = 1;
+1023  *Ship_sales.fx(s,n)$(ord(n)-1 eq 0 AND sameas(s,'M4')) = 8.05;
+1024  *Ship_sales.fx(s,n)$(ord(n) lt card(n)) = 0;
+1025   
+1026  *cc=execseed;
+1027  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+1028  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+1029  *if(%Demand_Disturbance_Flag% eq 1,
+1030  *);
+1031   
+1032  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+1033  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+1034  *Now allocating demands to the rolling horizon calculation
+1035  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+1036  **UNCOMMENT HERE TO HERE
+1037  *Display Dst_full;
+1038   
+1039   
+1040  *UnitBreakdown disturbance
+1041  *First breakdown unit for whole horizon and then sample after 1 time step
+1042  *when it is coming back
+1043  UnitBroken(j,n)=0;
+1044  Zhat(i,j,n,hbar)=0;
+1045  if(0 eq 1 and ord(calc)-1 ge 2,
+1046           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) le lambda_UnitBreakdown and D
+      uration_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(
+      run,calc-1,'W',i,j,n,hbar-1)) gt 0));
+1047   
+1048  *If there is a delay ongoing then sample this breakdown
+1049           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) le lambda_UnitBreakdown and Dur
+      ation_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(ru
+      n,calc-1,'W',i,j,n,hbar)) gt 0));
+1050   
+1051  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+1052  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+1053   
+1054  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+1055  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+1056  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1057           Duration_breakdown(calc,j)=time_to_bring_unit_back_online$(sum((h
+      bar,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1
+       and Duration_breakdown(calc-1,j) eq (card(h)))
+1058                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+1059                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+1060  *display Breakdown,duration_breakdown;
+1061   
+1062           UnitBroken(j,n)=0;
+1063           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+1064   
+1065           Zhat(i,j,n,hbar)=0;
+1066           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+      )=1;
+1067   
+1068  );
+1069   
+1070   
+1071   
+1072  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+1073  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+1074  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+1075  *was already over in the last horizon
+1076  if(0 eq 1,
+1077  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+1078  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+1079            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+1080            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+      (calc-1,i,j,hbar) eq 0)=default_delay_length$(uniform(0,1) ge 0.6 and (sum
+      (n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and De
+      lay(calc-1,i,j,hbar-1) eq 0));
+1081  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+1082  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+1083   
+1084  *display Delay;
+1085  *Wipes out previous Yhats
+1086            Yhat(i,j,n,hbar)=0;
+1087  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+1088            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+1089  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+1090            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+      1$(Delay(calc,i,j,hbar) gt 0);
+1091   
+1092  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+1093  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+1094  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+1095  );
+1096   
+1097  *display Yhat;
+1098  *display WbarInfo;
+1099  *display BbarInfo;
+1100   
+1101   
+1102  *Introducing disturbance in material handling(loading/unloading)
+1103  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+1104  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+1105  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+1106  if(0 eq 1,
+1107  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+1108  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+1109  *wipes out previous parameter values
+1110  betaHatProd(i,j,s,n)=0;
+1111   
+1112  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yha
+      t(i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+1113   
+1114  betaHatProd(i,j,s,n)$(sameas(i,'T2') and Tbars(i,s) and Ij(i,j) and ord(n)
+      -1 eq 0)=-0.01*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar
+      )*(1-Yhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+1115  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+1116  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+1117  );
+1118  *Display betaHatProd;
+1119   
+1120   
+1121  *Correct allocation constraint
+1122  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+1123  KillOccupy(j,n)=0;
+1124  KillDuration(i,j)$Ij(i,j)=KillLength$(0);
+1125  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+1126  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+1127  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+1128  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+1129  if(0 eq 0,
+1130     T.fx(i,j,hbar)=0;
+1131  );
+1132  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+1133  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+1134   
+1135  ***************UTILITIES**************************************************
+      ******
+1136  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+      ;
+1137  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+      ailable_full(j,h));
+1138  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+1139  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+1140  *This correction is needed in model file
+1141  ***************UTILITIES**************************************************
+      ******
+1142  *Display Dst;
+1143   
+1144  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+1145  *Solve optimization horizon
+1146   
+1147  Option IntVarUp=0;
+1148  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+1149  MIN_COST.optcr = optcr_value$(reschedule_flag)+1$(NOT reschedule_flag);
+1150  MIN_COST.reslim = timelimit;
+1151  MIN_COST.holdFixed=1;
+1152  solve MIN_COST using MIP MINIMIZING obj_variable;
+1153   
+1154  modelStat(calc,run)=MIN_COST.ModelStat;
+1155  *Watch out what should be denominator, Relaxed or Best found solution
+1156  *Cplex uses division by best found integer solution
+1157  Est_modelGap1(calc,run)=abs((MIN_COST.objEst-MIN_COST.objVal)/(MIN_COST.ob
+      jVal+1E-10));
+1158  Est_modelGap2(calc,run)=abs((MIN_COST.objEst-MIN_COST.objVal)/(MIN_COST.ob
+      jEst+1E-10));
+1159  Suboptimal_objective=MIN_COST.objVal;
+1160   
+1161  ETSolve(calc,run)=MIN_COST.etSolve;
+1162  ETSolver(calc,run)=MIN_COST.etSolver;
+1163  iterUsd(calc,run)=MIN_COST.iterUsd;
+1164  nodUsd(calc,run)=MIN_COST.nodUsd;
+1165  resUsd(calc,run)=MIN_COST.resUsd;
+1166  numDVar(calc,run)=MIN_COST.numDVar;
+1167  numEqu(calc,run)=MIN_COST.numEqu;
+1168  numInfes(calc,run)=MIN_COST.numInfes;
+1169  numNZ(calc,run)=MIN_COST.numNZ;
+1170  numVar(calc,run)=MIN_COST.numVar;
+1171  solveStat(calc,run)=MIN_COST.solveStat;
+1172   
+1173  *Recording optimized variables for each optimization horizon
+1174  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Bbar.l(i,j,n,hbar);
+1175  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+      j))= Wbar.l(i,j,n,hbar);
+1176  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+1177  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+       round(Wbar.l(i,j,n,hbar));
+1178  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+      ar);
+1179  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+1180  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+1181  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+1182  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+1183  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+1184  record_objective(run,calc)=obj_variable.l;
+1185  record_utility(run,calc,u,n)=Uut.l(u,n);
+1186  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+1187  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+1188  record_shipment_raw(run,calc,s,n)=Ship.l(s,n);
+1189  record_shipment(run,calc,s,n)=round(Ship.l(s,n),2);
+1190  record_shipment_sales_raw(run,calc,s,n)=Ship_sales.l(s,n);
+1191  record_shipment_sales(run,calc,s,n)=round(Ship_sales.l(s,n),2);
+1192  record_Rst_raw(run,calc,s,n)=Rst.l(s,n);
+1193  record_Rst(run,calc,s,n)=round(Rst.l(s,n),2);
+1194  record_demands(run,calc,s,n)=Dst(s,n);
+1195  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+1196   
+1197  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+1198  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+1199   
+1200  BOStat_OL(calc,run) =  1$(sum((s,n),record_backlog(run,calc,s,n)+record_ba
+      cklogTerminal(run,calc,s)) > 0);
+1201  BOStat_CL(calc,run) =  1$(sum((s,n)$(ord(n)-1 eq 0),record_backlog(run,cal
+      c,s,n)) > 0);
+1202   
+1203  *display ship.l;
+1204  Optimal_Objective=Suboptimal_Objective;
+1205  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1206  IF(MIN_COST.optcr <> 0 AND reschedule_flag eq 1,
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+1212  MIN_COST.optcr=0;
+1213  solve MIN_COST using MIP MINIMIZING obj_variable;
+1214  Optimal_Objective=MIN_COST.objVal;
+1215  True_modelGap(calc,run)=(Suboptimal_objective-Optimal_Objective)/(Optimal_
+      objective+1E-10);
+1216  TimeToSolveOptimal(calc,run)=MIN_COST.resUsd;
+1217  );
+1218   
+1219  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+1220   
+1221  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+1222   
+1223  IF (reschedule_flag eq 1,
+1224  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1225  solve MIN_COST using RMIP MINIMIZING obj_variable;
+1226  record_relaxed_objective(run,calc)=obj_variable.l;
+1227  IntegralityGap(calc,run)=record_relaxed_objective(run,calc)/(Optimal_Objec
+      tive+1E-10);
+1228  record_relaxed_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Bbar.l(i,j,n,hbar);
+1229  record_relaxed_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+      j(i,j))= Wbar.l(i,j,n,hbar);
+1230  record_relaxed_shipment(run,calc,s,n)=Ship.l(s,n);
+1231  record_relaxed_shipment_sales(run,calc,s,n)=Ship_sales.l(s,n);
+1232  record_relaxed_backlog(run,calc,s,n)=Backlog.l(s,n);
+1233  );
+1234  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+1235   
+1236  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF RMIP NOW**********
+1237   
+1238  );
+1239  **END OF CALC LOOP HERE
+1240   
+1241  *END OF SOLUTION FILE
+1242   
+1243   
+1244   
+1245  ********STORING CL-SOLUTION IN RECOGNIZABLE PARAMETERS FOR EASY ACCESS AND
+       ANALAYSIS*******
+1246  loop((n,calc)$(ord(n)-1 eq 0),
+1247           ClosedLoopINV(run,s,h)$(ord(h) eq ord(calc))=record_inventory(run
+      ,calc,s,n);
+1248           ClosedLoopBO(run,s,h)$(ord(h) eq ord(calc))=record_backlog(run,ca
+      lc,s,n);
+1249           ClosedLoopShip(run,s,h)$(ord(h) eq ord(calc))=record_shipment(run
+      ,calc,s,n);
+1250           ClosedLoopShip_sales(run,s,h)$(ord(h) eq ord(calc))=record_shipme
+      nt_sales(run,calc,s,n);
+1251           ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=sum((i,j,hbar)$(Ij(i
+      ,j) AND ord(hbar)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1252  *         ClosedLoopStart(run,h)$(ord(calc) eq ord(h))=0;
+1253  );
+1254           ClosedLoopExecutions(run,i)=sum((calc,j,n,hbar)$(Ij(i,j) AND ord(
+      hbar)-1 eq 0
+1255                                           AND ord(n)-1 eq 0 AND ord(calc)-1
+       le 24-1),
+1256                                           record_states(run,calc,'W',i,j,n,
+      hbar));
+1257   
+1258  *         runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*Sinv(s,
+      h));
+1259  *         runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*BO(s,h))
+      ;
+1260           runcost_Inv(run)=1E1*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLo
+      opINV(run,s,h));
+1261           runcost_BO(run)=1E2*sum((s,h)$closed_loop(h),Cst_new(s)*ClosedLoo
+      pBO(run,s,h));
+1262           runcost_W(run)=sum((h)$closed_loop(h),ClosedLoopStart(run,h));
+1263  *total profit from all shipments (demand+sales)
+1264   
+1265           runcost(run)=runcost_Inv(run)+runcost_BO(run)+runcost_W(run);
+1266   
+1267  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),
+1268  *                                 Cst_new(s)*(ClosedLoopShip(run,s,h)+Clos
+      edLoopShip_sales(run,s,h) ));
+1269           sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(h
+      ) and (ord(h)-1 ne 24) ),
+1270                                   Cst_new(s)*(ClosedLoopShip_sales(run,s,h)
+       ));
+1271  *         sales_profit(run)=sum( (s,h)$(product_states(s) and closed_loop(
+      h) and (ord(h)-1 ne %Closed_Loop_Upper_delta%) ),Cst_new(s)*ClosedLoopShip
+      _sales(run,s,h));
+1272           Cost_EndInventory(run)=sum((s,h)$(product_states(s) and ord(h)-1 
+      eq 24),Cst_new(s)*ClosedLoopINV(run,s,h));
+1273  *         runcost_W(run)=0;
+1274  *         runprofit(run)=sum((s,h)$(product_states(s) and closed_loop(h)),
+      Cst_new(s)*ClosedLoopShip(run,s,h))+runcost_W(run);
+1275  *Runprofit includes subtraction of BO even at last point because BO are wr
+      itten like inventory
+1276  *BO at 168 means just before 168th point. Ship at 168 means at 168 not bef
+      ore or after.
+1277  *Our runprofit is only for 167 points of closed loop and 168th point as co
+      rrection. So we are essentially wasting the last decision
+1278  *that is the open loop that was computed at 168.
+1279           runprofit(run)=sales_profit(run)+Cost_EndInventory(run)
+1280                           -(runcost_W(run)-sum((h)$(ord(h)-1 eq 24),ClosedL
+      oopStart(run,h)))
+1281                           -runcost_BO(run);
+1282   
+1283  *         runprofit(run)=runcost_Inv(run)-runcost_BO(run)
+1284  *                        +1E1*sum((s,h)$(product_states(s) and closed_loop
+      (h)),Cst_new(s)*ClosedLoopShip(run,s,h));
+1285   
+1286  *Does not include cost of Terminal BO and inventory but thats okay because
+       they are irrelevant when some extra horizon is allowed for getting comple
+      te closed loop rolling horizon solution
+1287  ************[Start]Information to get very crude estimate for running time
+       left**************
+1288  timeLeft=MIN_COST.etSolve*(card(run)-ord(run))*card(calc);
+      put screen;
+      put 'Time for run ' P1.etSolve;
+      put ' Estimated Time Left ' timeLeft;
+      putclose;
+1295  *************[End]Information to get very crude estimate for running time 
+      left***************
+1296   
+      *************Stopping Criterion**************
+      N_run=ord(run);
+      mean_runcost(run)=sum(run_p$(ord(run_p) le N_run),runcost(run_p))/N_run;
+      std_dev_runcost(run)$(ord(run) gt 1)= sqrt(       sum(run_p$(ord(run_p) le
+       N_run),     ( abs(  runcost(run_p)-mean_runcost(run) )**2)) /(N_run-1)   
+       );
+      delta_std_dev_runcost(run)$(ord(run) gt 2)=std_dev_runcost(run)/std_dev_ru
+      ncost(run-1)  - 1;
+      max_delta_std_dev_runcost(run)= sqrt( 1 + (1.96**2-1)/N_run ) -1;
+      *icdfnorm(0.95,0,1);
+      *************Stopping Criterion**************
+1307  );
+1308  ********************[End] runs loop **************************************
+      *
+1309   
+1310  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1311  PARAMETERS BS(i,j,h),start(i,j,h),Sinv(s,h),end(i,j,h),BO(s,h);
+1312  IF (0 eq 0,
+1313           loop((run,calc)$(ord(run) eq 1),
+1314             BS(i,j,h)$(ord(h) eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 0 
+      and ord(n)-1 eq 0),record_states(run,calc,'B',i,j,n,hbar));
+1315  *start(i,j,h)$(ord(h)eq ord(calc))=round(sum((hbar,n)$(ord(hbar)-1 eq 0 an
+      d ord(n)-1 eq 0),record_states(calc,'W',i,j,n,hbar)));
+1316             start(i,j,h)$(ord(h)eq ord(calc))=sum((hbar,n)$(ord(hbar)-1 eq 
+      0 and ord(n)-1 eq 0),record_states(run,calc,'W',i,j,n,hbar));
+1317             Sinv(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_in
+      ventory(run,calc,s,n));
+1318             BO(s,h)$(ord(h) eq ord(calc))=sum(n$(ord(n)-1 eq 0),record_back
+      log(run,calc,s,n));
+1319           );
+1320  ELSE
+1321  *Write OPEN loop static gantt chart %GanttChart_OPENLOOP% eq 1
+1322           loop((run,calc)$(ord(run) eq 1 and ord(calc)-1 eq 1),
+1323             BS(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(n) 
+      eq ord(h))),record_states(run,calc,'B',i,j,n,hbar));
+1324             start(i,j,h)$(Ij(i,j))=sum((hbar,n)$(ord(hbar)-1 eq 0 and (ord(
+      n) eq ord(h))),record_states(run,calc,'W',i,j,n,hbar));
+1325             Sinv(s,h)=sum(n$(ord(n) eq ord(h)),record_inventory(run,calc,s,
+      n));
+1326             BO(s,h)=sum(n$(ord(n) eq ord(h)),record_backlog(run,calc,s,n));
+1327           );
+1328  );
+1329  *Have ending account for task delays
+1330  end(i,j,h) = start(i,j,h-pi_new(i))$(BS(i,j,h-pi_new(i))>0);
+1331  *******************GANTT CHART PARAMETERS*********************************
+      ****
+1332   
+1333  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1334  SUCCESS=1;
+1335  EXECUTE_UNLOAD 'Z_N2_MH18_RF1_OPT1_GoodDecisions.gdx';
+1336  *******************EXPORT ALL RESULTS IN GDX FILE*************************
+      ****
+1337   
+1338  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1339  IF(0 eq 1,
+1340  ************************************************
+1341  ********Closed-Loop GanttChartGeneration********
+1342  ************************************************
+1343  *Name of the excel file where the data will be exported
+1344  *$setglobal file %Results_FileName%_Gantt
+1345  *i = set of tasks
+1346  *j = set of units
+1347  *h = set of time points
+1348  *BS = batch size of task i starting in unit j at time t (must be indexed i
+      jt)
+1349  *start = binary variable that is 1 if task i starts in unit j at time t (m
+      ust be indexed ijt)
+1350  *Sinv = inventory level of material s at time t (must be indexed st)
+1351  *BO= backorder of state s at time t
+1352  *end =  binary variable that is 1 if task i ends in unit j at time t (must
+       be indexed ijt)
+1353   
+1354  *EXECUTE_UNLOAD '%Results_FileName%_Gantt.gdx' BS i j h  Sinv start end;
+1355   
+1356  *The first word of each line gives the type: set = set, var = variable, pa
+      r = parameter. This may need to be changed depending on your model
+1357  *The location of the output or the sheet names must not be changed
+1367   
+1368  *display BS,start,end,Sinv,BO;
+1369           IF (0 eq 0,
+1370                    EXECUTE 'gdxxrw Input=Z_N2_MH18_RF1_OPT1_GoodDecisions.g
+      dx Output=Z_N2_MH18_RF1_OPT1_GoodDecisions_Gantt_CL @GANTT_write.txt'
+1371           ELSE
+1372                    EXECUTE 'gdxxrw Input=Z_N2_MH18_RF1_OPT1_GoodDecisions.g
+      dx Output=Z_N2_MH18_RF1_OPT1_GoodDecisions_Gantt_OL_1 @GANTT_write.txt'
+1373           );
+1374  );
+1375  *********Generate EXCEL SHEEL FOR GANTT CHARTING (Requires windows)*******
+      ****
+1376   
+1377  *END OF MASTER FILE
+1378   
+1379   
+1380   
+1381   
+1382   
+1383   
+1384  *Watch out for overflow of solution for rolling horizon...ie the spilling 
+      over of
+1385  *rolling horizon beyond real horizon to get last implemented closed loop s
+      olution
+1386   
+1387   
+1388  *$set console
+1389  *$if %system.filesys% == UNIX  $set console /dev/tty
+1390  *$if %system.filesys% == DOS $set console con
+1391  *$if %system.filesys% == MS95  $set console con
+1392  *$if %system.filesys% == MSNT  $set console con
+1393  *$if "%console%." == "." abort "filesys not recognized";
+1394  *file screen / '%console%' /;
+1395  *file log /''/
+1396   
+1397   
+1398   
+1399   
+1400   
+1401   
+1402   
+1403   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 5
+State_Space_Model
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\dhruv\Box Sync\Work\Codes\GAM
+                                          S_Code\Z_N2_MH18_RF1_OPT1_GoodDecision
+                                          s.gms
+     2       21 INCLUDE        1      21  .C:\Users\dhruv\Box Sync\Work\Codes\GA
+                                           MS_Code\ConfigurationFile.gms
+     3       91 INCLUDE        2      70  ..C:\Users\dhruv\Box Sync\Work\Codes\G
+                                            AMS_Code\MasterFile.gms
+     4      108 INCLUDE        3      17  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\NetworkN2.gms
+     5      216 INCLUDE        3      18  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\Model9.gms
+     6      935 INCLUDE        3     165  ...C:\Users\dhruv\Box Sync\Work\Codes\
+                                             GAMS_Code\ModelSolution9.gms
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 6
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.062 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.094 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 7
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6628.0000
+
+ RESOURCE USAGE, LIMIT          0.093       600.000
+ ITERATION COUNT, LIMIT       134    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.08sec (det. 8.56 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.01sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         6628.000000    (130 iterations, 5 nodes)
+Final Solve:          6628.000000    (4 iterations)
+
+Best possible:        6628.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 8
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc0
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc0
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 9
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE                2.2500
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT        97    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.49 ticks)
+Optimal solution found.
+Objective :           2.250000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 10
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.110 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 11
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7506.0000
+
+ RESOURCE USAGE, LIMIT          0.156       600.000
+ ITERATION COUNT, LIMIT       505    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.16sec (det. 25.60 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7506.000000    (501 iterations, 60 nodes)
+Final Solve:          7506.000000    (4 iterations)
+
+Best possible:        7506.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 12
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc1
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc1
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 13
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE                3.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        82    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.36 ticks)
+Optimal solution found.
+Objective :           3.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 14
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 15
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7505.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT       180    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 12.82 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7505.000000    (176 iterations, 11 nodes)
+Final Solve:          7505.000000    (4 iterations)
+
+Best possible:        7505.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 16
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc2
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc2
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 17
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1252.5000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        83    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 1.35 ticks)
+Optimal solution found.
+Objective :        1252.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 18
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 19
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7505.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT       236    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 15.78 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7505.000000    (232 iterations, 27 nodes)
+Final Solve:          7505.000000    (4 iterations)
+
+Best possible:        7505.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 20
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc3
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc3
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 21
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1252.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        86    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 1.37 ticks)
+Optimal solution found.
+Objective :        1252.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 22
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 23
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7504.0000
+
+ RESOURCE USAGE, LIMIT          0.062       600.000
+ ITERATION COUNT, LIMIT       127    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 9.63 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.01sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7504.000000    (123 iterations, 1 nodes)
+Final Solve:          7504.000000    (4 iterations)
+
+Best possible:        7504.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 24
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc4
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc4
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 25
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1752.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT        72    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 1.34 ticks)
+Optimal solution found.
+Objective :        1752.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 26
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 27
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7254.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT        44    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 6.47 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7254.000000    (40 iterations, 0 nodes)
+Final Solve:          7254.000000    (4 iterations)
+
+Best possible:        7254.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 28
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc5
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc5
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 29
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1502.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        72    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.34 ticks)
+Optimal solution found.
+Objective :        1502.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 30
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.109 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 31
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             7004.0000
+
+ RESOURCE USAGE, LIMIT          0.172       600.000
+ ITERATION COUNT, LIMIT       130    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.17sec (det. 8.69 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         7004.000000    (126 iterations, 0 nodes)
+Final Solve:          7004.000000    (4 iterations)
+
+Best possible:        7004.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 32
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc6
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc6
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 33
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1252.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        72    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.35 ticks)
+Optimal solution found.
+Objective :        1252.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 34
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc7
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc7
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 35
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6753.0000
+
+ RESOURCE USAGE, LIMIT          0.063       600.000
+ ITERATION COUNT, LIMIT       120    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.06sec (det. 10.12 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         6753.000000    (116 iterations, 0 nodes)
+Final Solve:          6753.000000    (4 iterations)
+
+Best possible:        6753.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 36
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc7
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc7
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 37
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1001.5000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        73    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.34 ticks)
+Optimal solution found.
+Objective :        1001.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 38
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc8
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc8
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 39
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             6253.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        21    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 2.92 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         6253.000000    (17 iterations, 0 nodes)
+Final Solve:          6253.000000    (4 iterations)
+
+Best possible:        6253.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 40
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc8
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc8
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 41
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              501.5000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        72    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.34 ticks)
+Optimal solution found.
+Objective :         501.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 42
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc9
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc9
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 43
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5753.0000
+
+ RESOURCE USAGE, LIMIT          0.109       600.000
+ ITERATION COUNT, LIMIT         8    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.11sec (det. 3.37 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         5753.000000    (4 iterations, 0 nodes)
+Final Solve:          5753.000000    (4 iterations)
+
+Best possible:        5753.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 44
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc9
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc9
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 45
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE                1.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        73    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 1.34 ticks)
+Optimal solution found.
+Objective :           1.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 46
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc10
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc10
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 47
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5752.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         6    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.01sec (det. 3.36 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         5752.000000    (2 iterations, 0 nodes)
+Final Solve:          5752.000000    (4 iterations)
+
+Best possible:        5752.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 48
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc10
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc10
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 49
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3251.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        82    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 1.37 ticks)
+Optimal solution found.
+Objective :        3251.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 50
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc11
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc11
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 51
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5752.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         6    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.01sec (det. 3.49 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.51 ticks)
+Proven optimal solution.
+
+MIP Solution:         5752.000000    (2 iterations, 0 nodes)
+Final Solve:          5752.000000    (4 iterations)
+
+Best possible:        5752.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 52
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc11
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc11
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 53
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3251.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        93    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 1.46 ticks)
+Optimal solution found.
+Objective :        3251.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 54
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc12
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc12
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 55
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5751.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         5    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.01sec (det. 2.41 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.50 ticks)
+Proven optimal solution.
+
+MIP Solution:         5751.000000    (1 iterations, 0 nodes)
+Final Solve:          5751.000000    (4 iterations)
+
+Best possible:        5751.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 56
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc12
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc12
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 57
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4750.5000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        51    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.85 ticks)
+Optimal solution found.
+Objective :        4750.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 58
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc13
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc13
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 59
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5501.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         5    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 2.48 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.02sec (det. 0.50 ticks)
+Proven optimal solution.
+
+MIP Solution:         5501.000000    (1 iterations, 0 nodes)
+Final Solve:          5501.000000    (4 iterations)
+
+Best possible:        5501.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 60
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc13
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc13
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 61
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4500.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        53    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 0.86 ticks)
+Optimal solution found.
+Objective :        4500.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 62
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc14
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.141 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc14
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 63
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5251.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.35 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.50 ticks)
+Proven optimal solution.
+
+MIP Solution:         5251.000000    (0 iterations, 0 nodes)
+Final Solve:          5251.000000    (4 iterations)
+
+Best possible:        5251.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 64
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc14
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc14
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 65
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4250.5000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        54    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.87 ticks)
+Optimal solution found.
+Objective :        4250.500000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 66
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc15
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc15
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 67
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5000.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.33 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.50 ticks)
+Proven optimal solution.
+
+MIP Solution:         5000.000000    (0 iterations, 0 nodes)
+Final Solve:          5000.000000    (4 iterations)
+
+Best possible:        5000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 68
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc15
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc15
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 69
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             5000.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        5000.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 70
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc16
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc16
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 71
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4500.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         4500.000000    (0 iterations, 0 nodes)
+Final Solve:          4500.000000    (4 iterations)
+
+Best possible:        4500.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 72
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc16
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.063 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc16
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 73
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4500.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        4500.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 74
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc17
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.109 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc17
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 75
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4000.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.03sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         4000.000000    (0 iterations, 0 nodes)
+Final Solve:          4000.000000    (4 iterations)
+
+Best possible:        4000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 76
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc17
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc17
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 77
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             4000.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        4000.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 78
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc18
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.094 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc18
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 79
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3500.0000
+
+ RESOURCE USAGE, LIMIT          0.047       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.05sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         3500.000000    (0 iterations, 0 nodes)
+Final Solve:          3500.000000    (4 iterations)
+
+Best possible:        3500.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 80
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc18
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc18
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 81
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3500.0000
+
+ RESOURCE USAGE, LIMIT          0.000       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        3500.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 82
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc19
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc19
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 83
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3000.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         3000.000000    (0 iterations, 0 nodes)
+Final Solve:          3000.000000    (4 iterations)
+
+Best possible:        3000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 84
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc19
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc19
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 85
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             3000.0000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        3000.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 86
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc20
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.062 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc20
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 87
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             2500.0000
+
+ RESOURCE USAGE, LIMIT          0.110       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.00sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.09sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         2500.000000    (0 iterations, 0 nodes)
+Final Solve:          2500.000000    (4 iterations)
+
+Best possible:        2500.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 88
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc20
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc20
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 89
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             2500.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.02sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        2500.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 90
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc21
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc21
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 91
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             2000.0000
+
+ RESOURCE USAGE, LIMIT          0.032       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.02sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         2000.000000    (0 iterations, 0 nodes)
+Final Solve:          2000.000000    (4 iterations)
+
+Best possible:        2000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 92
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc21
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc21
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 93
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             2000.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        2000.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 94
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc22
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc22
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 95
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1500.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         1500.000000    (0 iterations, 0 nodes)
+Final Solve:          1500.000000    (4 iterations)
+
+Best possible:        1500.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 96
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc22
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.046 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc22
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 97
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1500.0000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.01sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        1500.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 98
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc23
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.032 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc23
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 99
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1000.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.02sec (det. 1.30 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:         1000.000000    (0 iterations, 0 nodes)
+Final Solve:          1000.000000    (4 iterations)
+
+Best possible:        1000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 100
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc23
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.031 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc23
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 101
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE             1000.0000
+
+ RESOURCE USAGE, LIMIT          0.031       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.03sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :        1000.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 102
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using MIP From line 1152
+
+
+LOOPS                                  run   run1
+                                      calc   calc24
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.047 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc24
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 103
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using MIP From line 1152
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1152
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              500.0000
+
+ RESOURCE USAGE, LIMIT          0.015       600.000
+ ITERATION COUNT, LIMIT         4    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+MIP status(101): integer optimal solution
+Cplex Time: 0.01sec (det. 1.75 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.49 ticks)
+Proven optimal solution.
+
+MIP Solution:          500.000000    (0 iterations, 0 nodes)
+Final Solve:           500.000000    (4 iterations)
+
+Best possible:         500.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 104
+State_Space_Model
+Model Statistics    SOLVE MIN_COST Using RMIP From line 1225
+
+
+LOOPS                                  run   run1
+                                      calc   calc24
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          676
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          652
+NON ZERO ELEMENTS         1,810     DISCRETE VARIABLES        243
+
+
+GENERATION TIME      =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+EXECUTION TIME       =        0.078 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+               L O O P S                run run1
+                                       calc calc24
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 105
+State_Space_Model
+Solution Report     SOLVE MIN_COST Using RMIP From line 1225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MIN_COST            OBJECTIVE  obj_variable
+     TYPE    RMIP                DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  1225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE              500.0000
+
+ RESOURCE USAGE, LIMIT          0.016       600.000
+ ITERATION COUNT, LIMIT        43    2000000000
+
+IBM ILOG CPLEX   24.5.6 r55090 Released Nov 27, 2015 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.6.2.0
+
+Space for names approximately 0.04 Mb
+Use option 'names no' to turn use of names off
+LP status(1): optimal
+Cplex Time: 0.00sec (det. 0.83 ticks)
+Optimal solution found.
+Objective :         500.000000
+
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 08/19/16 15:31:44 Page 106
+State_Space_Model
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.046 SECONDS      4 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH18_RF1_OPT1_GoodD
+           ecisions.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\Z_N2_MH18_RF1_OPT1_GoodD
+           ecisions.lst

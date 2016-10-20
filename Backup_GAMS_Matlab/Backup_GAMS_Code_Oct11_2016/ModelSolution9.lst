@@ -1,0 +1,564 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:06:42 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  OPTIONS limrow = 0, limcol = 0, solprint = off;
+   2  *OPTIONS limrow = 1000, limcol = 1000, solprint = on;
+   3  *No upper limit on inventory (equation not enforced)
+   4   
+   5  loop(calc,
+****          $120
+   6  *Caution: Watch out W equations in case changeovers are involved with rega
+      rds to lifting(pi(i)+tauC)
+   7  *fixed_decisions=re_freq-1-mod(ord(calc)-1+re_freq-1,re_freq);
+   8  *abort$1 "stopped for debugging";
+   9  *abort$(ord(calc)-1 eq 1) "stopped for debugging";
+  10   
+  11  *********VARIABLE RESCHEDULING FREQUENCY********
+  12  *resetting old parameter values
+  13  WbarInfo(i,j,n,hbar)=0;
+****         $140,120,120,120,120
+  14  BbarInfo(i,j,n,hbar)=0;
+****         $140
+  15   
+  16  *DEMAND SAMPLING
+  17  *Picking realized demand upto surprise factor within MH from demand_sample
+       generated for this run
+  18          Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surprise
+****                 $140,120,120                                              $
+      ))) ) = Dst_full_realization(s,h,run);
+      140                        $140    $120,149
+  19  *Now allocating demands to the rolling horizon calculation
+  20          Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,h
+****            $140
+      ));
+  21   
+  22   
+      * EVENT BASED RESCHEDULING (HAS BUG: when moving horizon is shorter than r
+      escheduling freq, more decisions
+      *are wrongly fixed)
+      if (re_freq=0,
+      *Reschedule flag is 1 for first optimization
+              reschedule_flag=0;
+      *Now see if we should reschedule or not depending on whether new demand ca
+      me or not
+              reschedule_flag=1$(sum((s,n)$(ord(n) eq card(n)),Dst(s,n)) > 0);
+      *Also do find schedule for the very first optimization
+              reschedule_flag$(ord(calc)-1 eq 0)=1;
+      *Now decide the fixed decisions (W,B) depending on rescheduling_flag
+              if (reschedule_flag=1,
+      *Complete freedom to start new tasks (subject to old tasks not already run
+      ning)
+                      fixed_decisions=0;
+              else
+      *Forced to follow previous fixed (planned) decisions
+                      fixed_decisions=card(n)-1;
+              );
+      else
+  43          fixed_decisions=re_freq-1 - mod(ord(calc)-1+(re_freq-1),re_freq);
+****                        $140    $140
+  44          reschedule_flag=0;
+****                        $140
+  45          reschedule_flag$(fixed_decisions=0)=1;
+  46  *);
+  47  record_fixed_decision(calc)=fixed_decisions;
+****                      $140
+  48  record_reschedule_flag(calc,run)=reschedule_flag;
+****                       $140
+  49   
+  50  *Unfix fixed variables
+  51  Ship.lo(s,n)=0;Ship.up(s,n)=Inf;
+****        $140
+  52  Rst.lo(s,n)=0;Rst.up(s,n)=Inf;
+****       $140
+  53  Ship_sales.lo(s,n)=0;Ship_sales.up(s,n)=Inf;
+****              $140
+  54  *Uut.lo(u,n)=0; Uut.up(u,n)=Inf;
+  55  *Fix Input states
+  56  WbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+****                                                                         $8,
+       and Ij(i,j))=record_states(run,calc-1,'W',i,j,n,hbar-1)+InitialWbar(i,j,n
+      36           $767         $409
+      ,hbar)$(ord(calc)-1 eq 0)+Yhat(i,j,n,hbar)-Yhat(i,j,n,hbar-1);
+  57  BbarInfo(i,j,n,hbar)$(ord(n)-1 le fixed_decisions and ord(hbar)-1 le pi(i)
+****                                                                         $8,
+       and Ij(i,j))=record_states(run,calc-1,'B',i,j,n,hbar-1)+InitialBbar(i,j,n
+      36           $409
+      ,hbar)$(ord(calc)-1 eq 0)+record_states(run,calc-1,'B',i,j,n,hbar)*Yhat(i,
+      j,n,hbar)-record_states(run,calc-1,'B',i,j,n,hbar-1)*Yhat(i,j,n,hbar-1);
+  58  Ship.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment(run,calc-1,s,
+****                                                             $140 $149 $149
+      n+1);
+  59  Rst.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_Rst(run,calc-1,s,n+1);
+****                                                       $140 $149 $149
+  60  Ship_sales.fx(s,n)$(ord(n)-1 le fixed_decisions-1)=record_shipment_sales(r
+****                                                                         $14
+      un,calc-1,s,n+1);
+      0 $149 $149
+  61  T.fx(i,j,hbar)=0;
+****     $140
+  62  *********VARIABLE RESCHEDULING FREQUENCY********
+  63  *(Variable rescheduling frequency does not extend to disturbances other th
+      an demand)
+  64   
+  65  *Since inventory and backlog depend on the inputs, as long as we have corr
+      ectly carried over the inventory we are good
+  66  Sst.fx(s,n)$(ord(n)-1 le 0)=record_inventory(run,calc-1,s,n+1)+InitialInve
+****       $140                                  $140 $149 $149                 
+      ntory(s)$(ord(calc)-1 eq 0);
+          $140         $154
+  67  Backlog.fx(s,n)$(ord(n)-1 le 0)=record_backlog(run,calc-1,s,n+1)+InitialBa
+****           $140                                $140 $149 $149               
+      cklog(s)$(ord(calc)-1 eq 0);
+          $140         $154
+  68  *Uut.fx(u,n)$(ord(n)-1 le 0)=record_utility(run,calc-1,u,n+1);
+  69   
+  70   
+  71  *Fix backlogs to zero if corresponding flag is 0
+  72  if(%Backlog_Flag% eq 0,
+****     $119        $140,10,8,409
+  73  Backlog.fx(s,n)=0;
+  74  BacklogTerminal.fx(s)=0;
+****                   $140
+  75  );
+****  $408
+  76  *Dst(s,n)$(product_states(s) AND ord(n) eq 1) = 1;
+  77  *Ship_sales.fx(s,n)$(ord(n)-1 eq 0 AND sameas(s,'M4')) = 8.05;
+  78  *Ship_sales.fx(s,n)$(ord(n) lt card(n)) = 0;
+  79   
+  80  *cc=execseed;
+  81  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+  82  *Introducing disturbance in demand by modifying Dst_full(s,h) only if Dist
+      urbance flag is 1(on)
+  83  *if(%Demand_Disturbance_Flag% eq 1,
+  84  *);
+  85   
+  86  **UNCOMMENT HERE TO HERE  (commented for event based rescheduling)
+  87  **        Dst_full(s,h)$(ord(h)-1 le (ord(calc)-1 + ceil(card(n)*(1-surpri
+      se))) )=Dst_full_realization(s,h,run);
+  88  *Now allocating demands to the rolling horizon calculation
+  89  *        Dst(s,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Dst_full(s,
+      h));
+  90  **UNCOMMENT HERE TO HERE
+  91  *Display Dst_full;
+  92   
+  93   
+  94  *UnitBreakdown disturbance
+  95  *First breakdown unit for whole horizon and then sample after 1 time step
+  96  *when it is coming back
+  97  UnitBroken(j,n)=0;
+****           $140
+  98  Zhat(i,j,n,hbar)=0;
+****     $140
+  99  if(%UnitBreakdown_Disturbance_flag% eq 1 and ord(calc)-1 ge 2,
+****     $119                          $140,10,8,409
+ 100           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+      lay(calc-1,i,j,hbar-1) eq 0)=1$(uniform(0,1) le lambda_UnitBreakdown and D
+      uration_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(
+      run,calc-1,'W',i,j,n,hbar-1)) gt 0));
+ 101   
+ 102  *If there is a delay ongoing then sample this breakdown
+ 103           Breakdown(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and De
+****                   $140               $140                        $8,36     
+      lay(calc-1,i,j,hbar) gt 0)=1$(uniform(0,1) le lambda_UnitBreakdown and Dur
+                                $409
+      ation_breakdown(calc-1,j) eq 0 and (sum(n$(ord(n)-1 eq 0),record_states(ru
+      n,calc-1,'W',i,j,n,hbar)) gt 0));
+ 104   
+ 105  *Assume on breakdown that the unit by default is not available the whole r
+      emaining horizon and then
+ 106  *resample after one time step when it is due to come back[here half of rol
+      ling horizon length]
+ 107   
+ 108  *         Duration_breakdown(calc,j)=floor(uniform(0,card(n)/2))$(sum((hba
+      r,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1 a
+      nd Duration_breakdown(calc-1,j) eq (card(h)))
+ 109  *                                         +(Duration_breakdown(calc-1,j)-1
+      )$(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt c
+      ard(h))
+ 110  *                                         +card(h)$(sum((hbar,i)$(Ij(i,j) 
+      and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+ 111           Duration_breakdown(calc,j)=time_to_bring_unit_back_online$(sum((h
+****                            $140                                   $140     
+      bar,i)$(Ij(i,j) and ord(hbar)-1 le pi(i)),Breakdown(calc-1,i,j,hbar)) eq 1
+                                           $8,10,148,8,409
+       and Duration_breakdown(calc-1,j) eq (card(h)))
+ 112                                           +(Duration_breakdown(calc-1,j)-1)
+      $(Duration_breakdown(calc-1,j) gt 0 and Duration_breakdown(calc-1,j) lt ca
+      rd(h))
+ 113                                           +(card(h))$(sum((hbar,i)$(Ij(i,j)
+       and ord(hbar)-1 le pi(i)),Breakdown(calc,i,j,hbar)) eq 1);
+ 114  *display Breakdown,duration_breakdown;
+ 115   
+ 116           UnitBroken(j,n)=0;
+ 117           UnitBroken(j,n)$(ord(n)-1 lt Duration_breakdown(calc,j))=1;
+****                                                               $149
+ 118   
+ 119           Zhat(i,j,n,hbar)=0;
+ 120           Zhat(i,j,n,hbar)$(ord(n)-1 eq 0 and Breakdown(calc,i,j,hbar) eq 1
+****                                                             $149
+      )=1;
+ 121   
+ 122  );
+****  $408
+ 123   
+ 124   
+ 125   
+ 126  *Disturbance associated with delay in tasks, hbar indicates the running st
+      atus of the task
+ 127  *Due to nature of lifting, there is already a 1 time unit lag, hence we li
+      mit hbar from 0 to pi(i)
+ 128  *so that recordstates is accessed only upto pi(i)-1. Record state being pi
+      (i) means that the task
+ 129  *was already over in the last horizon
+ 130  if(%TaskDelay_Disturbance_flag% eq 1,
+****     $119                      $140,10,8,409
+ 131  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(
+      calc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1)
+ 132  *                                                            +2$(uniform(0
+      ,1) ge 0 and (sum(n$(ord(n)-1 eq 0),record_states(calc-1,'W',i,j,n,hbar-1)
+      ) gt 0) and Delay(calc-1,i,j,hbar-1) eq 0);
+ 133            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i))=(Delay(c
+      alc-1,i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) ge 1);
+ 134            Delay(calc,i,j,hbar)$(Ij(i,j) and ord(hbar)-1 le pi(i) and Delay
+****                $140                                           $8,36        
+      (calc-1,i,j,hbar) eq 0)=default_delay_length$(uniform(0,1) ge 0.6 and (sum
+                             $409
+      (n$(ord(n)-1 eq 0),record_states(run,calc-1,'W',i,j,n,hbar-1)) gt 0 and De
+      lay(calc-1,i,j,hbar-1) eq 0));
+ 135  *          Delay(calc,i,j,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=(Delay(calc-1,
+      i,j,hbar)-1)$(Delay(calc-1,i,j,hbar) gt 0)
+ 136  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(uniform(0,1) gt
+       0 and record_states(calc-1,'W',i,j,n,hbar-1) gt 0);
+ 137   
+ 138  *display Delay;
+ 139  *Wipes out previous Yhats
+ 140            Yhat(i,j,n,hbar)=0;
+****               $140
+ 141  *Over-rides Delays with Unit breakdown. ie if unit breakdown occurs then t
+      here cannot be a delay
+ 142            Delay(calc,i,j,hbar)=Delay(calc,i,j,hbar)$(sum(n$(ord(n)-1 eq 0)
+      ,Zhat(i,j,n,hbar)+Zhat(i,j,n,hbar+1)) eq 0);
+ 143  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0)=1$(Delay(calc,i,j,
+      hbar) gt 0);
+ 144            Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 lt Delay(calc,i,j,hbar))=
+****                                                                $149        
+      1$(Delay(calc,i,j,hbar) gt 0);
+                   $149
+ 145   
+ 146  *          Yhat(i,j,n,hbar)$(Ij(i,j) and ord(n)-1 eq 0 and ord(hbar)-1 le 
+      pi(i))=1$(uniform(0,1) ge 0 and record_states(calc-1,'W',i,j,n,hbar) gt 0)
+      ;
+ 147  *          WbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=1;
+ 148  *          BbarInfo(i,j,n,hbar)$Yhat(i,j,n,hbar)=record_states(calc-1,'W',
+      i,j,n,hbar);
+ 149  );
+****  $408
+ 150   
+ 151  *display Yhat;
+ 152  *display WbarInfo;
+ 153  *display BbarInfo;
+ 154   
+ 155   
+ 156  *Introducing disturbance in material handling(loading/unloading)
+ 157  *Here we implement only production disturbance because its more likely tha
+      n consumption disturbance
+ 158  *Consumption disturbance has the tricky part that if loading was 5 units, 
+      and we had just 5 units, the task is already started and we cant
+ 159  *then add a disturbance on top of it saying 5.5 units was actually consume
+      d because the task has already started.
+ 160  if(%YieldLoss_Disturbance_flag% eq 1,
+****     $119                      $140,10,8,409
+ 161  *the last two multiplication of (1-z(h+1))(1-z(h)) are when there are only
+       unit breakdown, and when there is unit breakdown in middle of delay respe
+      ctively
+ 162  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0 and produc
+      t_states(s))=uniform(-0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),rec
+      ord_states(calc-1,'B',i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hba
+      r+1))*(1-Zhat(i,j,n,hbar)));
+ 163  *wipes out previous parameter values
+ 164  betaHatProd(i,j,s,n)=0;
+ 165  betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-0
+****            $140            $140                                            
+      .1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)),BbarInfo(i,j,n,hbar)*(1-Yhat
+                                            $140
+      (i,j,n,hbar))*(1-Zhat(i,j,n,hbar))*(1-Zhat(i,j,n,hbar-1)));
+ 166  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar)*(1-Yhat(i,j,n,hbar+1))*(1-Zhat(i,j,n,hbar)));
+ 167  *betaHatProd(i,j,s,n)$(Tbars(i,s) and Ij(i,j) and ord(n)-1 eq 0)=uniform(-
+      0.1,0)*sum(hbar$(ord(hbar) -1 eq pis_new(i,s)-1),record_states(calc-1,'B',
+      i,j,n,hbar));
+ 168  );
+****  $408
+ 169  *Display betaHatProd;
+ 170   
+ 171   
+ 172  *Correct allocation constraint
+ 173  *KillDurationCountdown(i,j)$Ij(i,j)=%KillSwitch%$(sum(hbar,T.l(i,j,hbar)) 
+      gt 0);
+ 174  KillOccupy(j,n)=0;
+****           $140
+ 175  KillDuration(i,j)$Ij(i,j)=KillLength$(%KillSwitch%);
+****             $140                    $140,119     $140,8,409
+ 176  *KillDuration(i,j)$Ij(i,j)=(%KillSwitch%+1)$(sum(hbar,T.l(i,j,hbar)) gt 0 
+      and KillDuration(i,j) eq 0);
+ 177  *KillDuration(i,j)$(Ij(i,j) and KillDuration(i,j) <> 0)=KillDuration(i,j)-
+      1;
+ 178  KillCountdown(j)=sum((i,hbar)$Ij(i,j),T.l(i,j,hbar)*KillDuration(i,j))  +(
+****              $140
+      KillCountdown(j)-1)$(KillCountdown(j) gt 0);
+ 179  KillOccupy(j,n)$(ord(n)-1 lt KillCountdown(j)-1)=1;
+ 180  if(%KillSwitch% eq 0,
+****     $119       $10,8,409
+ 181     T.fx(i,j,hbar)=0;
+ 182  );
+****  $408
+ 183  *Display Breakdown,Duration_breakdown,UnitBroken,Zhat,KillOccupy;
+ 184  ***************SAMPLING DISTURBANCES/UNCERTAINTIES************************
+      ******
+ 185   
+ 186  ***************UTILITIES**************************************************
+      ******
+ 187  Uutmax(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Uutmax_full(u,h))
+****       $140,120                                     $154             $140
+      ;
+ 188  Unitunavailable(j,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Unitunav
+****                $140                                         $154           
+      ailable_full(j,h));
+                 $140
+ 189  Cut(u,n)=sum(h$((ord(h)-1) eq (ord(n)-1+ord(calc)-1)),Cut_full(u,h));
+****    $140                                         $154          $140
+ 190  *Correct Cutfull calculation, all the relation of taking hours to time poi
+      nts
+ 191  *This correction is needed in model file
+ 192  ***************UTILITIES**************************************************
+      ******
+ 193  *Display Dst;
+ 194   
+ 195  *abort$(sameas(calc,"calc25")) "stopped for debugging";
+ 196  *Solve optimization horizon
+ 197   
+ 198  Option IntVarUp=0;
+ 199  *******************FIND OPEN LOOP SCHEDULE********************************
+      ******
+ 200  %MODEL_NAME%.optcr = optcr_value$(reschedule_flag)+1$(NOT reschedule_flag)
+****  $409
+      ;
+ 201  %MODEL_NAME%.reslim = timelimit;
+****  $409
+ 202  %MODEL_NAME%.holdFixed=1;
+****  $409
+ 203  solve %MODEL_NAME% using MIP %OPTIMIZATION_DIRECTION% obj_variable;
+****        $2        $140,241,812
+ 204   
+ 205  modelStat(calc,run)=%MODEL_NAME%.ModelStat;
+****          $140        $119      $143,409
+ 206  *Watch out what should be denominator, Relaxed or Best found solution
+ 207  *Cplex uses division by best found integer solution
+ 208  Est_modelGap1(calc,run)=abs((%MODEL_NAME%.objEst-%MODEL_NAME%.objVal)/(%MO
+****              $140             $119      $143,8,409
+      DEL_NAME%.objVal+1E-10));
+ 209  Est_modelGap2(calc,run)=abs((%MODEL_NAME%.objEst-%MODEL_NAME%.objVal)/(%MO
+****              $140             $119      $143,8,409
+      DEL_NAME%.objEst+1E-10));
+ 210  Suboptimal_objective=%MODEL_NAME%.objVal;
+****                     $140,119    $143,409
+ 211   
+ 212  ETSolve(calc,run)=%MODEL_NAME%.etSolve;
+****        $140        $119      $143,409
+ 213  ETSolver(calc,run)=%MODEL_NAME%.etSolver;
+****         $140        $119      $143,409
+ 214  iterUsd(calc,run)=%MODEL_NAME%.iterUsd;
+****        $140        $119      $143,409
+ 215  nodUsd(calc,run)=%MODEL_NAME%.nodUsd;
+****       $140        $119      $143,409
+ 216  resUsd(calc,run)=%MODEL_NAME%.resUsd;
+****       $140        $119      $143,409
+ 217  numDVar(calc,run)=%MODEL_NAME%.numDVar;
+****        $140        $119      $143,409
+ 218  numEqu(calc,run)=%MODEL_NAME%.numEqu;
+****       $140        $119      $143,409
+ 219  numInfes(calc,run)=%MODEL_NAME%.numInfes;
+****         $140        $119      $143,409
+ 220  numNZ(calc,run)=%MODEL_NAME%.numNZ;
+****      $140        $119      $143,409
+ 221  numVar(calc,run)=%MODEL_NAME%.numVar;
+****       $140        $119      $143,409
+ 222  solveStat(calc,run)=%MODEL_NAME%.solveStat;
+****          $140        $119      $143,409
+ 223   
+ 224  *Recording optimized variables for each optimization horizon
+ 225  record_states_raw(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+****                  $140                                         $8,36        
+      j))= Bbar.l(i,j,n,hbar);
+         $409
+ 226  record_states_raw(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,
+****                                                               $8,36        
+      j))= Wbar.l(i,j,n,hbar);
+         $409
+ 227  record_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+****              $140                                         $8,36           $
+       round(Bbar.l(i,j,n,hbar),2)$(Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_numb
+      409
+      er and Bbar.l(i,j,n,hbar) le vmaxij(i,j)-Small_number) + round(Bbar.l(i,j,
+      n,hbar))$(NOT (Bbar.l(i,j,n,hbar) ge vminij(i,j)+Small_number and Bbar.l(i
+      ,j,n,hbar) le vmaxij(i,j)-Small_number));
+ 228  record_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))=
+****                                                           $8,36           $
+       round(Wbar.l(i,j,n,hbar));
+      409
+ 229  record_T(run,calc,i,j,hbar)$(ord(hbar)-1 le pi(i) and Ij(i,j))= T.l(i,j,hb
+****         $140                                   $8,36           $409
+      ar);
+ 230  record_inventory(run,calc,s,n)=round(Sst.l(s,n),3);
+ 231  record_backlog(run,calc,s,n)=round(Backlog.l(s,n),3);
+ 232  record_inventory_raw(run,calc,s,n)=Sst.l(s,n);
+****                     $140
+ 233  record_backlog_raw(run,calc,s,n)=Backlog.l(s,n);
+****                   $140
+ 234  record_yieldloss(run,calc,i,j,s,n)=betaHatProd(i,j,s,n);
+****                 $140
+ 235  record_objective(run,calc)=obj_variable.l;
+****                 $140                     $140
+ 236  record_utility(run,calc,u,n)=Uut.l(u,n);
+****               $140                $140
+ 237  record_inventoryTerminal(run,calc,s)=SstTerminal.l(s);
+****                         $140                      $140
+ 238  record_backlogTerminal(run,calc,s)=BacklogTerminal.l(s);
+****                       $140
+ 239  record_shipment_raw(run,calc,s,n)=Ship.l(s,n);
+****                    $140
+ 240  record_shipment(run,calc,s,n)=round(Ship.l(s,n),2);
+ 241  record_shipment_sales_raw(run,calc,s,n)=Ship_sales.l(s,n);
+****                          $140
+ 242  record_shipment_sales(run,calc,s,n)=round(Ship_sales.l(s,n),2);
+ 243  record_Rst_raw(run,calc,s,n)=Rst.l(s,n);
+****               $140
+ 244  record_Rst(run,calc,s,n)=round(Rst.l(s,n),2);
+ 245  record_demands(run,calc,s,n)=Dst(s,n);
+****               $140
+ 246  record_Demands_realization(run,s,h)=Dst_Full_Realization(s,h,run);
+****                           $140
+ 247   
+ 248  record_WbarInfo(run,calc,i,j,n,hbar)=WbarInfo(i,j,n,hbar);
+****                $140
+ 249  record_BbarInfo(run,calc,i,j,n,hbar)=BbarInfo(i,j,n,hbar);
+****                $140
+ 250   
+ 251  BOStat_OL(calc,run) =  1$(sum((s,n),record_backlog(run,calc,s,n)+record_ba
+****          $140
+      cklogTerminal(run,calc,s)) > 0);
+ 252  BOStat_CL(calc,run) =  1$(sum((s,n)$(ord(n)-1 eq 0),record_backlog(run,cal
+****          $140
+      c,s,n)) > 0);
+ 253   
+ 254  *display ship.l;
+ 255  Optimal_Objective=Suboptimal_Objective;
+****                  $140
+ 256  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+ 257  IF(%MODEL_NAME%.optcr <> 0 AND reschedule_flag eq 1,
+****     $119      $143,10,8,409
+      put screen;
+      put 'Now solving optimal open loop';
+      putclose;
+ 263  %MODEL_NAME%.optcr=0;
+ 264  solve %MODEL_NAME% using MIP %OPTIMIZATION_DIRECTION% obj_variable;
+****        $2        $241,812
+ 265  Optimal_Objective=%MODEL_NAME%.objVal;
+****                    $119      $143,409
+ 266  True_modelGap(calc,run)=(Suboptimal_objective-Optimal_Objective)/(Optimal_
+****              $140
+      objective+1E-10);
+ 267  TimeToSolveOptimal(calc,run)=%MODEL_NAME%.resUsd;
+****                   $140        $119      $143,409
+ 268  );
+****  $408
+ 269   
+ 270  ***********************FIND OPTIMAL OBJECTIVE IF OPTCR <>0****************
+      *
+ 271   
+ 272  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF OPTCR=0 NOW*********
+      *
+ 273   
+ 274  IF (reschedule_flag eq 1,
+ 275  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+ 276  solve %MODEL_NAME% using RMIP %OPTIMIZATION_DIRECTION% obj_variable;
+****        $2        $241,812
+ 277  record_relaxed_objective(run,calc)=obj_variable.l;
+****                         $140
+ 278  IntegralityGap(calc,run)=record_relaxed_objective(run,calc)/(Optimal_Objec
+****               $140
+      tive+1E-10);
+ 279  record_relaxed_states(run,calc,'B',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+****                      $140                                         $8,36    
+      j(i,j))= Bbar.l(i,j,n,hbar);
+             $8,409
+ 280  record_relaxed_states(run,calc,'W',i,j,n,hbar)$(ord(hbar)-1 le pi(i) and I
+****                                                                   $8,36    
+      j(i,j))= Wbar.l(i,j,n,hbar);
+             $409
+ 281  record_relaxed_shipment(run,calc,s,n)=Ship.l(s,n);
+****                        $140
+ 282  record_relaxed_shipment_sales(run,calc,s,n)=Ship_sales.l(s,n);
+****                              $140
+ 283  record_relaxed_backlog(run,calc,s,n)=Backlog.l(s,n);
+****                       $140
+ 284  );
+****  $408
+ 285  ***********************SOLVE RMIP TO GET INTEGRALITY GAP*****************
+ 286   
+ 287  ******WARNING: ALL VARIABLE LEVEL VALUES ARE THOSE OF RMIP NOW**********
+ 288   
+ 289  );
+****  $408
+ 290  **END OF CALC LOOP HERE
+ 291   
+ 292  *END OF SOLUTION FILE
+ 293   
+ 294   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 WEX-WEI x86 64bit/MS Windows 07/11/16 12:06:42 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Error Messages
+
+
+  2  Identifier expected
+  8  ')' expected
+ 10  ',' expected
+ 36  '=' or '..' or ':=' or '$=' operator expected
+     rest of statement ignored
+119  Number (primary) expected
+120  Unknown identifier entered as set
+140  Unknown symbol
+143  A suffix is missing
+148  Dimension different - The symbol is referenced with more/less
+        indices as declared
+149  Uncontrolled set entered as constant
+154  Set for 'ord' is not controlled
+241  Model has not been defined
+408  Too many ),] or }
+409  Unrecognizable item - skip to find a new statement
+       looking for a ';' or a key word to get started again
+767  Unexpected symbol will terminate the loop - symbol replaced by )
+812  Solve keys expected - USING MAX/MIN SCENARIO
+
+**** 268 ERROR(S)   0 WARNING(S)
+
+
+COMPILATION TIME     =        0.343 SECONDS      3 MB  24.5.6 r55090 WEX-WEI
+
+
+USER: Department of Chemical & Biological EngineeringG151026:1254AO-GEN
+      University of Wisconsin - Madison                          DC4923
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.gms
+Output     C:\Users\dhruv\Box Sync\Work\Codes\GAMS_Code\ModelSolution9.lst
+
+**** USER ERROR(S) ENCOUNTERED
